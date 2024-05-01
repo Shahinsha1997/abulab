@@ -3,8 +3,11 @@ import LeftPanel from './Leftpanel';
 import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
+import { connect } from 'react-redux';
+import { logoutUser } from '../dispatcher/action';
 class DashboardLayout extends Component {
   render() {
+    const { logoutUser } = this.props
     return (
         <Box
         sx={{
@@ -13,7 +16,7 @@ class DashboardLayout extends Component {
           minHeight: '100vh'
         }}
       >
-        <LeftPanel />
+        <LeftPanel logoutUser={logoutUser}/>
         <RightPanel />
       </Box>
       
@@ -21,5 +24,14 @@ class DashboardLayout extends Component {
   }
 }
 
-export default DashboardLayout;
+
+const mapStateToProps = (state)=>{
+  return {
+    
+  }
+}
+
+export default connect(mapStateToProps,{
+  logoutUser
+})(DashboardLayout);
 

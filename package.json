@@ -1,6 +1,7 @@
 {
   "name": "abulabproject",
   "version": "0.1.0",
+  "proxy": "https://script.google.com",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -11,7 +12,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "react-redux": "^7.2.5",
+    "redux": "^4.1.1"
   },
   "scripts": {
     "start": "react-scripts start",

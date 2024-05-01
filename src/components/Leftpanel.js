@@ -6,8 +6,9 @@ import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PrintIcon from '@mui/icons-material/Print';
 import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
+import { logoutUser } from '../dispatcher/action';
 
-const LeftPanel = ({ isAdmin }) => {
+const LeftPanel = ({ isAdmin, logoutUser }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
   const [ adminSection, setAdminSection ] = useState('Hide')
   const [dateTime, setDateTime] = useState();
@@ -51,7 +52,7 @@ const LeftPanel = ({ isAdmin }) => {
 
   const handleLogoutClick = () => {
     // Implement logic for handling Logout click
-    console.log('Logout clicked!');
+    logoutUser()
   };
 
   return (
