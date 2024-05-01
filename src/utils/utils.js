@@ -8,3 +8,7 @@ export const getLocalStorageData = (key)=>{
 export const setLocalStorageData =(key,obj={})=>{
     localStorage[key] = JSON.stringify(obj)
 }
+
+export const getIdPrefix = (value)=>{
+    return value? `AL-${value}` : 'AL-'
+}

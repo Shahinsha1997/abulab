@@ -10,6 +10,8 @@ import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import { getIdPrefix } from '../utils/utils';
+import { addData } from '../actions/APIActions';
 const statuses = [
   { value: 'income', label: 'Income' },
   { value: 'expenses', label: 'Expenses' },
@@ -22,9 +24,9 @@ const Form = () => {
     name: '',
     mobileNumber: '',
     status: '',
-    totalAmount: '',
-    paidAmount: '',
-    dueAmount: '',
+    description:'',
+    totalAmount: '0',
+    paidAmount: '0'
   });
 
   const isMobile = useMediaQuery('(max-width: 600px)');
@@ -36,8 +38,18 @@ const Form = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Handle form submission logic here
-    console.log(state);
+    const { patientId, name, mobileNumber, status, totalAmount, paidAmount, description} = state;
+    addData({
+        time: Date.now(),
+        patientId, 
+        name, 
+        mobileNumber, 
+        status, 
+        description,
+        totalAmount, 
+        paidAmount, 
+        dueAmount: totalAmount - paidAmount
+    })
   };
 
   const toggleDrawer = (open) => (event) => {
@@ -53,7 +65,7 @@ const Form = () => {
         anchor="right"
         open={true}
       >
-        <Box sx={{width:"350px"}}>
+        <Box sx={{width: isMobile ? "500px" : "350px"}}>
         <List dense={true}>
                 <ListItem
                   secondaryAction={
@@ -63,17 +75,17 @@ const Form = () => {
                   }
                 >
                     <Typography gutterBottom variant="h5" component="div">
-                     Income Form
+                     Add Income Form
                     </Typography>
                 </ListItem>
             </List>
-        <Box component="form" onSubmit={handleSubmit} sx={{display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px'}}>
+        <Box component="form" sx={{display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px'}}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ paddingRight: 1, fontWeight: 'bold' }}>AT-</Box>
+                <Box sx={{ paddingRight: 1, fontWeight: 'bold' }}>{getIdPrefix()}</Box>
                 <TextField
                     label="Patient ID"
                     name="patientId"
-                    value={state.name}
+                    value={state.patientId}
                     onChange={handleInputChange}
                     required
                     fullWidth
@@ -86,12 +98,15 @@ const Form = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
             <TextField label="Mobile Number" name="mobileNumber" value={state.mobileNumber} onChange={handleInputChange} required fullWidth={isMobile} />
           </Box>
-          {/* Status dropdown with its own container */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
+            <TextField label="Description" name="description" value={state.description} onChange={handleInputChange} required fullWidth={isMobile} />
+          </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
             <TextField
               select
               labelId="status-label"
               id="status"
+              name="status"
               value={state.status}
               label="Status"
               onChange={handleInputChange}
@@ -111,10 +126,10 @@ const Form = () => {
             <TextField label="Paid Amount" name="paidAmount" value={state.paidAmount} onChange={handleInputChange} required fullWidth={isMobile} />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Due Amount" name="dueAmount" value={state.dueAmount} onChange={handleInputChange} disabled fullWidth={isMobile} />
+            <TextField label="Due Amount" name="dueAmount" value={state.totalAmount-state.paidAmount} onChange={handleInputChange} disabled fullWidth={isMobile} />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <Button type="submit" variant="contained" color="primary" sx={{ padding:'10px', width: '100%' }}>
+            <Button type="submit" variant="contained" color="primary" sx={{ padding:'10px', width: '100%' }} onClick={handleSubmit}>
                 Submit
             </Button>
           </Box>
