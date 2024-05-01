@@ -5,6 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser } from '../dispatcher/action';
+import Form from './Form';
 class DashboardLayout extends Component {
   render() {
     const { logoutUser } = this.props
@@ -16,6 +17,7 @@ class DashboardLayout extends Component {
           minHeight: '100vh'
         }}
       >
+       
         <LeftPanel logoutUser={logoutUser}/>
         <RightPanel />
       </Box>

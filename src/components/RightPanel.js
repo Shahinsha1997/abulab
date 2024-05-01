@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContainer, Table, Button, TableHead, TableBody, TableRow, Paper, TextField, IconButton, InputAdornment } from '@mui/material';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
+import Form from './Form';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -24,7 +25,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
   }));
 
-const RightPanel = () => {
+const RightPanel = ({ isFormVisible=true}) => {
     const tableData = [
         { id: 1, name: 'Item 1', value: 100 },
         { id: 2, name: 'Item 2', value: 200 },
@@ -74,9 +75,13 @@ const RightPanel = () => {
             backgroundColor: 'lightblue',
             display: 'flex',
             flexDirection: 'column',
-            border: '2px solid black'
+            border: '2px solid black',
+            position: 'relative'
           }}
         >
+          { isFormVisible ? (
+          <Form />
+        ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>
                 <FormControl sx={{ minWidth: 120 }}>
