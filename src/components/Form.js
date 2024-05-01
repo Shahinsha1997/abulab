@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { getIdPrefix } from '../utils/utils';
+import { getIdPrefix, getLocalStorageData, setLocalStorageData } from '../utils/utils';
 import { addData } from '../actions/APIActions';
 const statuses = [
   { value: 'income', label: 'Income' },
@@ -26,7 +26,8 @@ const Form = () => {
     status: '',
     description:'',
     totalAmount: '0',
-    paidAmount: '0'
+    paidAmount: '0',
+    isAddInProgress: false
   });
 
   const isMobile = useMediaQuery('(max-width: 600px)');
@@ -39,17 +40,26 @@ const Form = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const { patientId, name, mobileNumber, status, totalAmount, paidAmount, description} = state;
-    addData({
-        time: Date.now(),
-        patientId, 
-        name, 
-        mobileNumber, 
-        status, 
-        description,
-        totalAmount, 
-        paidAmount, 
-        dueAmount: totalAmount - paidAmount
+    const addPending = getLocalStorageData('addPendingDatas','[]');
+    addPending.splice(0,0,{
+      time: Date.now(),
+      patientId, 
+      name, 
+      mobileNumber, 
+      status, 
+      description,
+      totalAmount, 
+      paidAmount, 
+      dueAmount: totalAmount - paidAmount,
+      isScheduled: true
     })
+    setLocalStorageData('addPendingDatas', addPending)
+    if(addPending.length > 5){
+      setState({...state, isAddInProgress: true})
+      return addData().then(res=>{
+        setState({...state, isAddInProgress: false})
+      })
+    }
   };
 
   const toggleDrawer = (open) => (event) => {
