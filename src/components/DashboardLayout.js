@@ -4,11 +4,23 @@ import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
-import { logoutUser } from '../dispatcher/action';
-import Form from './Form';
+import { logoutUser, addData } from '../dispatcher/action';
 class DashboardLayout extends Component {
+  constructor(props){
+    super(props)
+    this.state={
+      formType: ''
+    }
+    this.toggleForm = this.toggleForm.bind(this)
+  }
+  toggleForm(formType=''){
+    this.setState({
+      formType
+    })
+  }
   render() {
     const { logoutUser } = this.props
+    const { formType } = this.state;
     return (
         <Box
         sx={{
@@ -18,8 +30,12 @@ class DashboardLayout extends Component {
         }}
       >
        
-        <LeftPanel logoutUser={logoutUser}/>
-        <RightPanel />
+        <LeftPanel toggleForm={this.toggleForm} logoutUser={logoutUser}/>
+        <RightPanel 
+          addData={addData} 
+          toggleForm={this.toggleForm} 
+          formType={formType}
+        />
       </Box>
       
     );
@@ -34,6 +50,7 @@ const mapStateToProps = (state)=>{
 }
 
 export default connect(mapStateToProps,{
-  logoutUser
+  logoutUser,
+  addData
 })(DashboardLayout);
 

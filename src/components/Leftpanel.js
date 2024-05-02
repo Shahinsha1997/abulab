@@ -5,14 +5,12 @@ import { Box, Typography, Tooltip, Button, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PrintIcon from '@mui/icons-material/Print';
-import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
-import { logoutUser } from '../dispatcher/action';
+import useMediaQuery from '@mui/material/useMediaQuery'; 
 
-const LeftPanel = ({ isAdmin, logoutUser }) => {
+const LeftPanel = ({ isAdmin, logoutUser, toggleForm }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
   const [ adminSection, setAdminSection ] = useState('Hide')
   const [dateTime, setDateTime] = useState();
-    
   setTimeout(()=>{
     let date = new Date();
     date  = date.toLocaleString("en-GB", {
@@ -31,27 +29,21 @@ const LeftPanel = ({ isAdmin, logoutUser }) => {
   }
 
   const handleAddIncomeClick = () => {
-    // Implement logic for handling Add Income click
-    console.log('Add Income clicked!');
+    toggleForm('addIncom')
   };
 
   const handleAddExpensesClick = () => {
-    // Implement logic for handling Add Expenses click
-    console.log('Add Expenses clicked!');
+    toggleForm('addExpenses')
   };
 
   const handleOutstandingClick = () => {
-    // Implement logic for handling Outstanding click
     console.log('Outstanding clicked!');
   };
 
   const handlePrintClick = () => {
-    // Implement logic for handling Print click
-    console.log('Print clicked!');
   };
 
   const handleLogoutClick = () => {
-    // Implement logic for handling Logout click
     logoutUser()
   };
 

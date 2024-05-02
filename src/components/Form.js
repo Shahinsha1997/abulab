@@ -17,7 +17,7 @@ const statuses = [
   { value: 'expenses', label: 'Expenses' },
 ];
 
-const Form = () => {
+const Form = ({addData, formType, toggleForm}) => {
   const [state, setState] = React.useState({
     open: false,
     patientId: '',
@@ -41,7 +41,7 @@ const Form = () => {
     event.preventDefault();
     const { patientId, name, mobileNumber, status, totalAmount, paidAmount, description} = state;
     const addPending = getLocalStorageData('addPendingDatas','[]');
-    addPending.splice(0,0,{
+    const data = {
       time: Date.now(),
       patientId, 
       name, 
@@ -52,8 +52,11 @@ const Form = () => {
       paidAmount, 
       dueAmount: totalAmount - paidAmount,
       isScheduled: true
-    })
+    }
+    addPending.splice(0,0,data)
     setLocalStorageData('addPendingDatas', addPending)
+    addData(data);
+    toggleForm();
     if(addPending.length > 5){
       setState({...state, isAddInProgress: true})
       return addData().then(res=>{
@@ -66,14 +69,14 @@ const Form = () => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
-    setState({ ...state, open });
+    toggleForm()
   };
 
   return (
     <>
       <Drawer
         anchor="right"
-        open={true}
+        open={formType}
       >
         <Box sx={{width: isMobile ? "500px" : "350px"}}>
         <List dense={true}>
@@ -144,7 +147,7 @@ const Form = () => {
             </Button>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <Button type="submit" variant="contained" color="error" sx={{ padding:'10px', width: '100%' }}>
+            <Button type="submit" variant="contained" color="error" sx={{ padding:'10px', width: '100%' }} onClick={toggleDrawer(false)}>
                 Cancel
             </Button>
           </Box>

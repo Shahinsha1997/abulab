@@ -4,6 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
+import { getFormFields } from '../utils/utils';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -25,18 +26,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
   }));
 
-const RightPanel = ({ isFormVisible=true}) => {
+const RightPanel = ({ isFormVisible=true, addData, formType, toggleForm}) => {
     const tableData = [
         { id: 1, name: 'Item 1', value: 100 },
         { id: 2, name: 'Item 2', value: 200 },
         // ... more data objects
       ];
       
-      const tableColumns = [
-        { id: 'id', label: 'ID' },
-        { id: 'name', label: 'Name' },
-        { id: 'value', label: 'Value' },
-      ];
+    const tableColumns = Object.values(getFormFields('allFields'));
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
@@ -80,7 +77,7 @@ const RightPanel = ({ isFormVisible=true}) => {
           }}
         >
           { isFormVisible ? (
-          <Form />
+          <Form addData={addData} toggleForm={toggleForm} formType={formType}/>
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>

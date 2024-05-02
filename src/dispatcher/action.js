@@ -1,4 +1,4 @@
-import { ADD_DATA, MODIFY_DATA } from "../utils/utils";
+import { ADD_DATA, MODIFY_DATA, MULTI_ADD } from "../utils/utils";
 
 export const setUser = (datas={}) => {
     return {
@@ -22,3 +22,8 @@ export const modifyData = (id, newData) => ({
     type: MODIFY_DATA,
     payload: { id, newData }, // id of the data to modify and the new data
 });
+
+export const multiAdd = (data) =>({
+    type: MULTI_ADD,
+    payload: data
+})

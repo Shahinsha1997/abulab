@@ -1,4 +1,4 @@
-import { ADD_DATA, MODIFY_DATA } from "../utils/utils";
+import { ADD_DATA, MODIFY_DATA, MULTI_ADD } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
@@ -24,6 +24,8 @@ const dataReducer = (state = {}, action) => {
               },
             }
           : state;
+      case MULTI_ADD:
+            const { data } = action.payload
       default:
         return state;
     }
