@@ -1,7 +1,7 @@
-import { getLocalStorageData, setLocalStorageData } from "../utils/utils"
+import { getAsObj, getLocalStorageData, setLocalStorageData } from "../utils/utils"
 
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbwJveukVFNrfLLZaJ4FlTEm7yIVIHMK_0Vw2hUirjoOWsUJs2tr6K0SCHki-ibZ-M7E/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzzOuSTFljkPFF57fcMHbOvg6lUOEmYtF2rl49ticU_4GatBqoRUEyAiVWy94z2lAWf8A/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbzS4V8nr4obaJftbHmGZ1pUNMSCaZRytXCBprri4IN3ExpsiYqZYK-cAf3lj-kAVqcpgw/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -18,7 +18,7 @@ export const authenticate = (userName, password) =>{
     })
 }
 
-export const addData = () =>{
+export const addDataAPI = () =>{
     const data = getLocalStorageData('addPendingDatas');
     setLocalStorageData('addInProgressDatas',data)
     setLocalStorageData('addPendingDatas',[]);
@@ -33,6 +33,24 @@ export const addData = () =>{
           })
         .then(res=>res.json())
         .then(response=>resolve(response))
+        .catch(err=>reject(err))
+    })
+}
+
+export const getDataAPI = (from=1, limit=50)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${DATA_URL}?from=${from}&limit=${limit}`, {
+            redirect: "follow",
+            method: 'GET',
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+            }
+          })
+        .then(res=>res.json())
+        .then(response=>{
+            const { data } = response;
+            resolve(getAsObj(data))
+        })
         .catch(err=>reject(err))
     })
 }

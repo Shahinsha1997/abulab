@@ -1,11 +1,33 @@
-import { ADD_DATA, MODIFY_DATA, MULTI_ADD } from "../utils/utils";
+import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
 };
 
-const dataReducer = (state = {}, action) => {
+const dataIdsReducers = (state=[], action={}) =>{
+  const { from, data={} } = action.payload || {};
+  const { ids } = data;
+  switch (action.type) {
+    case GET_DATA:
+      return [...state, ...ids.filter(id=>!state.includes(id))];
+    case ADD_DATA:
+      return [
+        ...state,
+        action.payload.id,
+      ];
+    case MULTI_ADD:
+    return [...state, ...ids.filter(id=>!state.includes(id))];
+    default:
+      return state;
+    }
+}
+
+const dataReducer = (state = {}, action={}) => {
+  const { data={} } = action.payload || {}
+  const { obj } = data;
     switch (action.type) {
+      case GET_DATA:
+        return {...state, ...obj}
       case ADD_DATA:
         return {
           ...state,
@@ -25,7 +47,7 @@ const dataReducer = (state = {}, action) => {
             }
           : state;
       case MULTI_ADD:
-            const { data } = action.payload
+        return {...state, ...obj}
       default:
         return state;
     }
@@ -45,12 +67,13 @@ switch (action.type) {
     };
     default:
     return state;
-}
+  }
 }
 
 export const getAllReducers = () =>{
     return {
             user: userReducer,
-            data: dataReducer
+            data: dataReducer,
+            dataIds: dataIdsReducers
     }
 }

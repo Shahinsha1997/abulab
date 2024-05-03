@@ -1,4 +1,4 @@
-import { ADD_DATA, MODIFY_DATA, MULTI_ADD } from "../utils/utils";
+import { ADD_DATA, MODIFY_DATA, MULTI_ADD, GET_DATA } from "../utils/utils";
 
 export const setUser = (datas={}) => {
     return {
@@ -13,6 +13,10 @@ export const logoutUser = ()=>{
         type: 'LOGOUT'
     }
 }
+export const getDatas = (data) => ({
+    type: GET_DATA,
+    payload: data, // data object to be added
+});
 export const addData = (data) => ({
     type: ADD_DATA,
     payload: data, // data object to be added

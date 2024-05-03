@@ -11,7 +11,7 @@ import MenuItem from '@mui/material/MenuItem';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { getIdPrefix, getLocalStorageData, setLocalStorageData } from '../utils/utils';
-import { addData } from '../actions/APIActions';
+import { addDataAPI } from '../actions/APIActions';
 const statuses = [
   { value: 'income', label: 'Income' },
   { value: 'expenses', label: 'Expenses' },
@@ -55,11 +55,11 @@ const Form = ({addData, formType, toggleForm}) => {
     }
     addPending.splice(0,0,data)
     setLocalStorageData('addPendingDatas', addPending)
-    addData(data);
+    addData({data});
     toggleForm();
     if(addPending.length > 5){
       setState({...state, isAddInProgress: true})
-      return addData().then(res=>{
+      return addDataAPI().then(res=>{
         setState({...state, isAddInProgress: false})
       })
     }

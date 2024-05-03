@@ -4,7 +4,8 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { getFormFields } from '../utils/utils';
+import { getFormFields, getIdPrefix, getTimeWithDate } from '../utils/utils';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -26,13 +27,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
   }));
 
-const RightPanel = ({ isFormVisible=true, addData, formType, toggleForm}) => {
-    const tableData = [
-        { id: 1, name: 'Item 1', value: 100 },
-        { id: 2, name: 'Item 2', value: 200 },
-        // ... more data objects
-      ];
-      
+const RightPanel = ({ isFormVisible=true, addData, formType, toggleForm, data, dataIds=[]}) => {
+    const tableData = dataIds.map(dataId=>{
+      return data[dataId]
+    })
     const tableColumns = Object.values(getFormFields('allFields'));
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
@@ -195,10 +193,21 @@ const RightPanel = ({ isFormVisible=true, addData, formType, toggleForm}) => {
                   </TableHead>
                   <TableBody>
                     {tableData.map((row) => (
-                      <StyledTableRow key={row.id}>
-                        <StyledTableCell>{row.id}</StyledTableCell>
+                      <StyledTableRow key={row.time}>
+                        <StyledTableCell>{getTimeWithDate(row.time)}</StyledTableCell>
+                        <StyledTableCell>{getIdPrefix(row.patientId)}</StyledTableCell>
                         <StyledTableCell>{row.name}</StyledTableCell>
-                        <StyledTableCell>{row.value}</StyledTableCell>
+                        <StyledTableCell>{row.mobileNumber}</StyledTableCell>
+                        <StyledTableCell>{row.status}</StyledTableCell>
+                        <StyledTableCell>{row.description}</StyledTableCell>
+                        <StyledTableCell>{row.totalAmount}</StyledTableCell>
+                        <StyledTableCell>{row.paidAmount}</StyledTableCell>
+                        <StyledTableCell>{row.dueAmount}</StyledTableCell>
+                        <StyledTableCell>
+                          {row.isScheduled ? (
+                            <ScheduleIcon style={{ color: '#ffa726' }}/>  
+                          ): null}
+                        </StyledTableCell>
                       </StyledTableRow>
                     ))}
                   </TableBody>

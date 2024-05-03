@@ -1,3 +1,5 @@
+
+import { i18NProviderUtils } from '@zohodesk/i18n';
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
@@ -8,8 +10,31 @@ export const getLocalStorageData = (key, defaultValue='{}')=>{
 export const setLocalStorageData =(key,obj={})=>{
     localStorage[key] = JSON.stringify(obj)
 }
+export const getTimeWithDate = (ms)=>{
+  const date = new Date(ms);
+  const now = new Date();
+ debugger;
+  if (date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()) {
+    const hours = date.getHours() % 12 || 12;
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const amPm = date.getHours() >= 12 ? 'PM' : 'AM';
+    return `${hours}:${minutes} ${amPm}`;
+  }
 
+  // Check if it's this year
+  if (date.getFullYear() === now.getFullYear()) {
+    const options = {hour: 'numeric', minute: 'numeric', hour12: true };
+    return `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'short' })}, ${date.toLocaleTimeString('en-US', options)}`;
+  }
+
+  // Otherwise, format for previous years
+  const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+  return `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getFullYear()}, ${date.toLocaleTimeString('en-US', options)}`
+}
 export const getIdPrefix = (value)=>{
+    value = value && (parseInt(value) > 9 ? value : `00${value}`) || ''
     return value? `AL-${value}` : 'AL-'
 }
 export const getFormFields = (fieldType)=>{
@@ -18,6 +43,10 @@ export const getFormFields = (fieldType)=>{
             'time' : {
                 id: 'time',
                 label: 'Date & Time'
+            },
+            'patientId' : {
+                id: 'patientId',
+                label: 'Patient ID'
             },
             'name' : {
                 id: 'name',
@@ -57,3 +86,22 @@ export const getFormFields = (fieldType)=>{
 export const ADD_DATA = 'ADD_DATA';
 export const MODIFY_DATA = 'MODIFY_DATA';
 export const MULTI_ADD = 'MULTI_ADD'
+export const GET_DATA = 'GET_DATA'
+
+
+export function bind(...handlers) {
+    handlers.forEach((handler) => {
+      this[handler] = this[handler].bind(this);
+    });
+}
+
+export const getAsObj = (arr, key='time')=>{
+    debugger;
+    const outputObj = {}
+    const ids = []
+    arr.map(obj=>{
+        outputObj[obj[key]] = obj;
+        ids.push(obj[key])
+    })
+    return {obj: outputObj, ids}
+}
