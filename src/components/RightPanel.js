@@ -13,20 +13,22 @@ const RightPanel = ({
   toggleForm, 
   data, 
   dataIds=[], 
-  multiAdd
+  multiAdd,
+  previousId:previousID,
+  setPreviousId,
+  filteredIds
 }) => {
-    let previousID;
-    const tableData = dataIds.map(dataId=>{
-      if(data[dataId].status != EXPENSE_LABEL && !previousID){
-        previousID = data[dataId].patientId
-      }
-      return data[dataId]
-    })
     const tableColumns = Object.values(getFormFields('allFields'));
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
 
+    const tableData = (typeFilter != 'All' ? filteredIds[typeFilter] : dataIds).map(dataId=>{
+      if(data[dataId].status != EXPENSE_LABEL && !previousID){
+        setPreviousId(data[dataId].patientId)
+      }
+      return data[dataId]
+    })
     const handleTimeFilter = (e)=>{
         setTimeFilter(e.target.value)
     }

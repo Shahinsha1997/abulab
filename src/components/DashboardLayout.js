@@ -13,13 +13,18 @@ class DashboardLayout extends Component {
     this.state={
       formType: '',
       from: 1,
-      limit: 50
+      limit: 50,
+      previousId: '',
     }
     const methods = [
       'toggleForm',
-      'getAllDatas'
+      'getAllDatas',
+      'setPreviousId'
     ]
     bind.apply(this, methods);
+  }
+  setPreviousId(id){
+    this.setState({previousId: id})
   }
   toggleForm(formType=''){
     this.setState({
@@ -40,8 +45,8 @@ class DashboardLayout extends Component {
     })
   }
   render() {
-    const { logoutUser, data, dataIds, addData, multiAdd } = this.props
-    const { formType } = this.state;
+    const { logoutUser, data, dataIds, addData, multiAdd, filteredIds } = this.props
+    const { formType, previousId } = this.state;
 
     return (
         <Box
@@ -59,7 +64,10 @@ class DashboardLayout extends Component {
           formType={formType}
           data={data}
           dataIds={dataIds}
+          filteredIds={filteredIds}
           multiAdd={multiAdd}
+          previousId={previousId}
+          setPreviousId={this.setPreviousId}
         />
       </Box>
       
@@ -69,10 +77,11 @@ class DashboardLayout extends Component {
 
 
 const mapStateToProps = (state)=>{
-  const { data, dataIds } = state;
+  const { data, dataIds,filteredIds } = state;
   return {
     data,
-    dataIds
+    dataIds,
+    filteredIds
   }
 }
 

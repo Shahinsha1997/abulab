@@ -126,3 +126,29 @@ export const getAsObj = (arr, key='time', removeKey)=>{
     })
     return {obj: outputObj, ids}
 }
+
+export const statusFilterArr = (ids, obj)=>{
+    const categorizedIds = {}
+    ids.forEach(id => {
+        const { status } = obj[id]; 
+      
+        if (!categorizedIds[status]) {
+          categorizedIds[status] = []; 
+        }
+        categorizedIds[status].push(id); 
+      });
+    return categorizedIds;
+}
+
+export const getUniQueIds = (ids) =>{
+    const uniqueIds = [];
+    const seen = new Set();
+
+    ids.forEach(item => {
+        if (!seen.has(item)) {
+            uniqueIds.push(item);
+            seen.add(item);
+        }
+    });
+    return uniqueIds
+}

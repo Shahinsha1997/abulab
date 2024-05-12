@@ -1,10 +1,27 @@
-import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD } from "../utils/utils";
+import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, statusFilterArr } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
 };
 
-
+const filteredDataIdReducers = (state=[],action={})=>{
+  const { from, data={} } = action.payload || {};
+  const { ids, obj } = data;
+  switch (action.type) {
+    case GET_DATA:
+      return statusFilterArr(ids,obj)
+    case ADD_DATA:
+    case MULTI_ADD:
+      const newValue = statusFilterArr(ids,obj);
+      const newState = {};
+      Object.keys(state).map(status=>{
+        newState[status] = getUniQueIds([...state[status],...newValue[status]]).sort(function(a, b){return b-a});
+      })
+      return newState;
+    default:
+      return state;
+    }
+}
 const dataIdsReducers = (state=[], action={}) =>{
   const { from, data={} } = action.payload || {};
   const { ids } = data;
@@ -12,12 +29,11 @@ const dataIdsReducers = (state=[], action={}) =>{
     case GET_DATA:
       return [...ids.filter(id=>!state.includes(id)), ...state ].sort(function(a, b){return b-a});
     case ADD_DATA:
-      return [
+    case MULTI_ADD:
+      return getUniQueIds([
         ...ids,
         ...state,
-      ]
-    case MULTI_ADD:
-    return [...ids.filter(id=>!state.includes(id)), ...state ].sort(function(a, b){return b-a});
+      ]).sort(function(a, b){return b-a});
     default:
       return state;
     }
@@ -75,6 +91,7 @@ export const getAllReducers = () =>{
     return {
             user: userReducer,
             data: dataReducer,
-            dataIds: dataIdsReducers
+            dataIds: dataIdsReducers,
+            filteredIds: filteredDataIdReducers
     }
 }
