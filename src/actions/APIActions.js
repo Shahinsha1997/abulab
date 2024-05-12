@@ -1,7 +1,7 @@
 import { getAsObj, getLocalStorageData, setLocalStorageData } from "../utils/utils"
 
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbwJveukVFNrfLLZaJ4FlTEm7yIVIHMK_0Vw2hUirjoOWsUJs2tr6K0SCHki-ibZ-M7E/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzS4V8nr4obaJftbHmGZ1pUNMSCaZRytXCBprri4IN3ExpsiYqZYK-cAf3lj-kAVqcpgw/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbwFJBP3_OPuk_m7DvP2iZ_UyIwZqptd8KY6YzCSYo333JtY3n8dLO6VcN9hOOn9I1onPg/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -32,7 +32,9 @@ export const addDataAPI = () =>{
             }
           })
         .then(res=>res.json())
-        .then(response=>resolve(response))
+        .then(response=>{
+            resolve(getAsObj(data,'time','isScheduled'))
+        })
         .catch(err=>reject(err))
     })
 }

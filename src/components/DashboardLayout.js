@@ -40,8 +40,9 @@ class DashboardLayout extends Component {
     })
   }
   render() {
-    const { logoutUser, data, dataIds, addData } = this.props
+    const { logoutUser, data, dataIds, addData, multiAdd } = this.props
     const { formType } = this.state;
+
     return (
         <Box
         sx={{
@@ -58,6 +59,7 @@ class DashboardLayout extends Component {
           formType={formType}
           data={data}
           dataIds={dataIds}
+          multiAdd={multiAdd}
         />
       </Box>
       

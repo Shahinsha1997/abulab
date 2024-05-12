@@ -1,40 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContainer, Table, Button, TableHead, TableBody, TableRow, Paper, TextField, IconButton, InputAdornment } from '@mui/material';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { getFormFields, getIdPrefix, getTimeWithDate } from '../utils/utils';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
-    },
-  }));
-  
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.action.hover,
-    },
-    // hide last border
-    '&:last-child td, &:last-child th': {
-      border: 0,
-    },
-  }));
-
-const RightPanel = ({ isFormVisible=true, addData, formType, toggleForm, data, dataIds=[]}) => {
+import { EXPENSE_LABEL, getFormFields } from '../utils/utils';
+import PrintableList from './PrintableList';
+const RightPanel = ({ 
+  isFormVisible=true, 
+  addData, 
+  formType, 
+  toggleForm, 
+  data, 
+  dataIds=[], 
+  multiAdd
+}) => {
+    let previousID;
     const tableData = dataIds.map(dataId=>{
+      if(data[dataId].status != EXPENSE_LABEL && !previousID){
+        previousID = data[dataId].patientId
+      }
       return data[dataId]
     })
     const tableColumns = Object.values(getFormFields('allFields'));
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
+
     const handleTimeFilter = (e)=>{
         setTimeFilter(e.target.value)
     }
@@ -75,7 +67,7 @@ const RightPanel = ({ isFormVisible=true, addData, formType, toggleForm, data, d
           }}
         >
           { isFormVisible ? (
-          <Form addData={addData} toggleForm={toggleForm} formType={formType}/>
+          <Form addData={addData} toggleForm={toggleForm} formType={formType} multiAdd={multiAdd} previousID={parseInt(previousID || '0')}/>
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>
@@ -180,39 +172,8 @@ const RightPanel = ({ isFormVisible=true, addData, formType, toggleForm, data, d
                 Filter Results
             </Button>
             </Box>
-            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
-              {/* Bottom Band content */}
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <StyledTableRow>
-                      {tableColumns.map((column) => (
-                        <StyledTableCell key={column.id}>{column.label}</StyledTableCell>
-                      ))}
-                    </StyledTableRow>
-                  </TableHead>
-                  <TableBody>
-                    {tableData.map((row) => (
-                      <StyledTableRow key={row.time}>
-                        <StyledTableCell>{getTimeWithDate(row.time)}</StyledTableCell>
-                        <StyledTableCell>{getIdPrefix(row.patientId)}</StyledTableCell>
-                        <StyledTableCell>{row.name}</StyledTableCell>
-                        <StyledTableCell>{row.mobileNumber}</StyledTableCell>
-                        <StyledTableCell>{row.status}</StyledTableCell>
-                        <StyledTableCell>{row.description}</StyledTableCell>
-                        <StyledTableCell>{row.totalAmount}</StyledTableCell>
-                        <StyledTableCell>{row.paidAmount}</StyledTableCell>
-                        <StyledTableCell>{row.dueAmount}</StyledTableCell>
-                        <StyledTableCell>
-                          {row.isScheduled ? (
-                            <ScheduleIcon style={{ color: '#ffa726' }}/>  
-                          ): null}
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
+              <PrintableList tableColumns={tableColumns} tableData={tableData}/>
             </Box>
           </Box>
         </Box>

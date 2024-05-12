@@ -7,6 +7,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PrintIcon from '@mui/icons-material/Print';
 import useMediaQuery from '@mui/material/useMediaQuery'; 
 
+import ReactToPrint from 'react-to-print';
 const LeftPanel = ({ isAdmin, logoutUser, toggleForm }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
   const [ adminSection, setAdminSection ] = useState('Hide')
@@ -29,7 +30,7 @@ const LeftPanel = ({ isAdmin, logoutUser, toggleForm }) => {
   }
 
   const handleAddIncomeClick = () => {
-    toggleForm('addIncom')
+    toggleForm('addIncome')
   };
 
   const handleAddExpensesClick = () => {
@@ -78,10 +79,6 @@ const LeftPanel = ({ isAdmin, logoutUser, toggleForm }) => {
               <AddIcon color="primary" />
               <Typography variant="body2">Add Expenses</Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="outstanding-btn">
-              <AddIcon color="primary" />
-              <Typography variant="body2">Outstanding</Typography>
-            </Box>
           </>
         ) : (
           <>
@@ -90,9 +87,6 @@ const LeftPanel = ({ isAdmin, logoutUser, toggleForm }) => {
             </Button>
             <Button variant="contained" startIcon={<AddIcon />} id="add-expenses-btn" onClick={handleAddExpensesClick} sx={{ padding: '8px 16px' }}>
                 Add Expenses
-            </Button>
-            <Button variant="contained" startIcon={<AddIcon />} id="outstanding-btn" onClick={handleOutstandingClick} sx={{ padding: '8px 16px' }}>
-                Outstanding
             </Button>
         </>
       )}
@@ -122,17 +116,17 @@ const LeftPanel = ({ isAdmin, logoutUser, toggleForm }) => {
     )}
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height:"20%" }}>
         <Box sx={{padding:"20px"}}>
-            {isMobile ? (
-                <Tooltip title="Print">
-                <IconButton color="primary" id="print-btn" onClick={handlePrintClick}>
-                    <PrintIcon />
-                </IconButton>
-                </Tooltip>
-            ) : (
-                <Button variant="contained" color="primary" startIcon={<PrintIcon />} id="print-btn" onClick={handlePrintClick} sx={{ padding: '8px 16px' }}>
-                Print
-                </Button>
-            )}
+          {isMobile ? (
+              <Tooltip title="Print">
+              <IconButton color="primary" id="print-btn" onClick={handlePrintClick}>
+                  <PrintIcon />
+              </IconButton>
+              </Tooltip>
+          ) : (
+              <Button variant="contained" color="primary" startIcon={<PrintIcon />} id="print-btn" onClick={handlePrintClick} sx={{ padding: '8px 16px' }}>
+              Print
+              </Button>
+          )}
         </Box>
         <Box sx={{padding:"20px"}}>
             {isMobile ? (

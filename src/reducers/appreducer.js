@@ -4,19 +4,20 @@ const initialState = {
     isLoggedIn: false
 };
 
+
 const dataIdsReducers = (state=[], action={}) =>{
   const { from, data={} } = action.payload || {};
   const { ids } = data;
   switch (action.type) {
     case GET_DATA:
-      return [...state, ...ids.filter(id=>!state.includes(id))];
+      return [...ids.filter(id=>!state.includes(id)), ...state ].sort(function(a, b){return b-a});
     case ADD_DATA:
       return [
+        ...ids,
         ...state,
-        action.payload.id,
-      ];
+      ]
     case MULTI_ADD:
-    return [...state, ...ids.filter(id=>!state.includes(id))];
+    return [...ids.filter(id=>!state.includes(id)), ...state ].sort(function(a, b){return b-a});
     default:
       return state;
     }
@@ -32,7 +33,7 @@ const dataReducer = (state = {}, action={}) => {
         return {
           ...state,
           // Use the ID of the data object as the key
-          [action.payload.id]: action.payload,
+         ...obj
         };
       case MODIFY_DATA:
         const { id, newData } = action.payload;

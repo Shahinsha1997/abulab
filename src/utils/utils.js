@@ -1,5 +1,8 @@
 
 import { i18NProviderUtils } from '@zohodesk/i18n';
+export const EXPENSE_LABEL = 'Expense'
+export const INCOME_LABEL = 'Income'
+export const OUTSTANDING_LABEL = 'Outstanding'
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
@@ -10,10 +13,17 @@ export const getLocalStorageData = (key, defaultValue='{}')=>{
 export const setLocalStorageData =(key,obj={})=>{
     localStorage[key] = JSON.stringify(obj)
 }
+export const getProperId = (id) =>{
+    id = parseInt(id);
+    return id < 10 ? `00${id}` : id < 99 ? `0${id}` : id;
+}
+export const getStatus = (formType, dueAmount)=>{
+    const isIncomeForm = formType.indexOf('Income')!=-1;
+    return isIncomeForm ? (dueAmount > 0 ? OUTSTANDING_LABEL : INCOME_LABEL) : EXPENSE_LABEL;
+}
 export const getTimeWithDate = (ms)=>{
   const date = new Date(ms);
   const now = new Date();
- debugger;
   if (date.getDate() === now.getDate() &&
       date.getMonth() === now.getMonth() &&
       date.getFullYear() === now.getFullYear()) {
@@ -34,7 +44,7 @@ export const getTimeWithDate = (ms)=>{
   return `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getFullYear()}, ${date.toLocaleTimeString('en-US', options)}`
 }
 export const getIdPrefix = (value)=>{
-    value = value && (parseInt(value) > 9 ? value : `00${value}`) || ''
+    value = value && (getProperId(value)) || ''
     return value? `AL-${value}` : 'AL-'
 }
 export const getFormFields = (fieldType)=>{
@@ -55,6 +65,10 @@ export const getFormFields = (fieldType)=>{
             'mobileNumber' : {
                 id: 'mobileNumber',
                 label: 'Mobile Number'
+            },
+            'drName' : {
+                id: 'drName',
+                label: 'Doctor Name'
             },
             'status' : {
                 id: 'status',
@@ -83,11 +97,18 @@ export const getFormFields = (fieldType)=>{
         }
     }[fieldType]
 }
+export const getCellFormattedVal = (cellName, value, statusType)=>{
+    if(cellName == 'time'){
+        return getTimeWithDate(value)
+    }else if(cellName == 'patientId' && statusType != EXPENSE_LABEL){
+        return getIdPrefix(value)
+    }
+    return value == '' ? '-' : value;
+}
 export const ADD_DATA = 'ADD_DATA';
 export const MODIFY_DATA = 'MODIFY_DATA';
 export const MULTI_ADD = 'MULTI_ADD'
 export const GET_DATA = 'GET_DATA'
-
 
 export function bind(...handlers) {
     handlers.forEach((handler) => {
@@ -95,11 +116,11 @@ export function bind(...handlers) {
     });
 }
 
-export const getAsObj = (arr, key='time')=>{
-    debugger;
+export const getAsObj = (arr, key='time', removeKey)=>{
     const outputObj = {}
     const ids = []
     arr.map(obj=>{
+        removeKey && delete obj[removeKey]
         outputObj[obj[key]] = obj;
         ids.push(obj[key])
     })
