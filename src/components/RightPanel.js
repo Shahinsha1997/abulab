@@ -4,7 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { EXPENSE_LABEL, getFormFields } from '../utils/utils';
+import { EXPENSE_LABEL, getFormFields, getTimeFilter } from '../utils/utils';
 import PrintableList from './PrintableList';
 const RightPanel = ({ 
   isFormVisible=true, 
@@ -16,14 +16,16 @@ const RightPanel = ({
   multiAdd,
   previousId:previousID,
   setPreviousId,
-  filteredIds
+  applyFilters
 }) => {
     const tableColumns = Object.values(getFormFields('allFields'));
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
+    const [timeInput, setTimeInput] = useState('')
+    const [docInput, setDocInput] = useState('')
 
-    const tableData = (typeFilter != 'All' ? filteredIds[typeFilter] : dataIds).map(dataId=>{
+    const tableData = dataIds.map(dataId=>{
       if(data[dataId].status != EXPENSE_LABEL && !previousID){
         setPreviousId(data[dataId].patientId)
       }
@@ -31,15 +33,29 @@ const RightPanel = ({
     })
     const handleTimeFilter = (e)=>{
         setTimeFilter(e.target.value)
+        setTimeInput('')
     }
     const handleTypeFilter = (e)=>{
         const type = e.target.value;
         setTypeFilter(type)
         setShowDoctorInput(type === 'Doctor');
+        setDocInput('')
+    }
+    const handleInput = (e) =>{
+      if(e.target.id == 'timeFilterInput'){
+        setTimeInput(e.target.value)
+      }else{
+        setDocInput(e.target.value)
+      }
     }
 
     const handleFilterSubmit = ()=>{
-
+      applyFilters({
+        timeFilter, 
+        typeFilter, 
+        timeInput, 
+        docInput
+      })
     }
     const getPlaceholder = () => {
         switch (timeFilter) {
@@ -106,11 +122,14 @@ const RightPanel = ({
                 </FormControl>
                 <Box sx={{padding:"0 20px"}}>
                 <TextField
+                id="timeFilterInput"
                 label="Date/Period"
                 variant="outlined"
                 placeholder={getPlaceholder()}
                 disabled={timeFilter === 'All'} 
                 sx={{ display: timeFilter != 'All' ? 'block' : 'none' }}
+                onChange={handleInput}
+                value={timeInput}
                 InputProps={{
                     endAdornment: (
                     <InputAdornment position="end">
@@ -165,8 +184,11 @@ const RightPanel = ({
                     label="Doctor Name (if applicable)"
                     variant="outlined"
                     placeholder="Search Doctor"
-                    disabled={!showDoctorInput} // Disable doctor input if not Doctor or timeframe is All
-                    sx={{ display: showDoctorInput ? 'block' : 'none' }} // Hide doctor input conditionally using display
+                    id="docFilterInput"
+                    onChange={handleInput}
+                    value={docInput}
+                    disabled={!showDoctorInput}
+                    sx={{ display: showDoctorInput ? 'block' : 'none' }}
                 />
             </Box>
 

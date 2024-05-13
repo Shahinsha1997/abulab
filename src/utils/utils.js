@@ -152,3 +152,40 @@ export const getUniQueIds = (ids) =>{
     });
     return uniqueIds
 }
+
+export const getTimeFilter = (idsWithTime, timeFilter, givenDate)=>{
+    if(timeFilter == 'All'){
+        return idsWithTime;
+    }
+    function parseDate(dateString) {
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+        // dd/mm/yyyy format
+        const startDate = new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+        const endDate = new Date(startDate).setHours(23, 59, 59, 999);
+        return {startDate, endDate}
+        } else if (parts.length === 2) {
+            const year = parseInt(parts[1], 10);
+            const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
+            const startDate = new Date(year, month, 1).getTime();
+            const endDate = new Date(year, month + 1, 0).setHours(23, 59, 59, 999); // Get last day of next month (0-indexed)
+            return { startDate, endDate };
+        } else if (parts.length === 1) {
+            const year = parseInt(parts[0], 10);
+            const startDate = new Date(year, 0, 1).getTime();  // Start of the year
+            const endDate = new Date(year + 1, 0, 1).getTime()-1; // Start of next year (0-indexed)
+            return { startDate, endDate };
+        } else {
+            throw new Error(`Invalid date format: ${dateString}`);
+        }
+    }
+    
+    const filteredIds = [];
+    const { startDate, endDate } = parseDate(givenDate)
+    for (const id of idsWithTime) {
+        if (id >= startDate && id <= endDate) {
+            filteredIds.push(id);
+        }
+    }
+    return filteredIds;
+}

@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd, getDatas } from '../dispatcher/action';
-import { bind, getAsObj, getLocalStorageData } from '../utils/utils';
+import { bind, getAsObj, getLocalStorageData, getTimeFilter } from '../utils/utils';
 import { getDataAPI } from '../actions/APIActions';
 class DashboardLayout extends Component {
   constructor(props){
@@ -15,11 +15,15 @@ class DashboardLayout extends Component {
       from: 1,
       limit: 50,
       previousId: '',
+      filteredDataIds:props.dataIds,
+      filterObj:{}
     }
     const methods = [
       'toggleForm',
       'getAllDatas',
-      'setPreviousId'
+      'setPreviousId',
+      'applyFilters',
+      'getFilteredDataIds'
     ]
     bind.apply(this, methods);
   }
@@ -37,6 +41,25 @@ class DashboardLayout extends Component {
     this.getAllDatas();
     multiAdd({data:getAsObj(pendingDatas)})
   }
+  componentDidUpdate(prevProps){
+    const { dataIds } = this.props;
+    if(prevProps.dataIds.length != dataIds.length ){
+      this.getFilteredDataIds();
+    }
+  }
+  getFilteredDataIds(){
+    const {
+      timeFilter='All', 
+      typeFilter, 
+      timeInput, 
+      docInput
+    } = this.state.filterObj
+    let { dataIds, filteredIds } = this.props;
+    dataIds = filteredIds[typeFilter] || dataIds;
+    this.setState({
+      filteredDataIds: getTimeFilter(dataIds, timeFilter, timeInput)
+    })
+  }
   getAllDatas(){
     const { from , limit } = this.state;
     const { getDatas } = this.props;
@@ -44,9 +67,14 @@ class DashboardLayout extends Component {
       getDatas({data: res, from})
     })
   }
+  applyFilters(filters){
+    this.setState({
+      filterObj : filters
+    }, this.getFilteredDataIds)
+  }
   render() {
     const { logoutUser, data, dataIds, addData, multiAdd, filteredIds } = this.props
-    const { formType, previousId } = this.state;
+    const { formType, previousId, filteredDataIds } = this.state;
 
     return (
         <Box
@@ -63,11 +91,11 @@ class DashboardLayout extends Component {
           toggleForm={this.toggleForm} 
           formType={formType}
           data={data}
-          dataIds={dataIds}
-          filteredIds={filteredIds}
+          dataIds={filteredDataIds}
           multiAdd={multiAdd}
           previousId={previousId}
           setPreviousId={this.setPreviousId}
+          applyFilters={this.applyFilters}
         />
       </Box>
       
