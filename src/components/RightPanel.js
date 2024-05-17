@@ -24,10 +24,12 @@ const RightPanel = ({
     const [showDoctorInput, setShowDoctorInput] = useState(false);
     const [timeInput, setTimeInput] = useState('')
     const [docInput, setDocInput] = useState('')
-
+    let previousId;
     const tableData = dataIds.map(dataId=>{
-      if(data[dataId].status != EXPENSE_LABEL && !previousID){
-        setPreviousId(data[dataId].patientId)
+      if(data[dataId].status != EXPENSE_LABEL && !previousID && !previousId){
+        console.log(data[dataId])
+        previousId = data[dataId].patientId
+        setPreviousId(previousId)
       }
       return data[dataId]
     })
@@ -125,6 +127,7 @@ const RightPanel = ({
                 id="timeFilterInput"
                 label="Date/Period"
                 variant="outlined"
+                autoComplete="off"
                 placeholder={getPlaceholder()}
                 disabled={timeFilter === 'All'} 
                 sx={{ display: timeFilter != 'All' ? 'block' : 'none' }}
@@ -188,6 +191,7 @@ const RightPanel = ({
                     onChange={handleInput}
                     value={docInput}
                     disabled={!showDoctorInput}
+                    autoComplete="off"
                     sx={{ display: showDoctorInput ? 'block' : 'none' }}
                 />
             </Box>
