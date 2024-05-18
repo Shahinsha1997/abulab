@@ -19,7 +19,7 @@ export const authenticate = (userName, password) =>{
 }
 
 export const addDataAPI = () =>{
-    const data = getLocalStorageData('addPendingDatas');
+    const data = getLocalStorageData('addPendingDatas', '[]');
     setLocalStorageData('addInProgressDatas',data)
     setLocalStorageData('addPendingDatas',[]);
     return new Promise((resolve, reject)=>{

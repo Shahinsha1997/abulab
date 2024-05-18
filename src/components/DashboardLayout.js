@@ -37,7 +37,7 @@ class DashboardLayout extends Component {
   }
   componentDidMount(){
     const { multiAdd } = this.props;
-    const pendingDatas = getLocalStorageData('addPendingDatas');
+    const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
     this.getAllDatas();
     multiAdd({data:getAsObj(pendingDatas)})
   }
