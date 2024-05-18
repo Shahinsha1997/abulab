@@ -125,15 +125,15 @@ export const getAsObj = (arr, key='time', removeKey)=>{
     return {obj: outputObj, ids}
 }
 
-export const statusFilterArr = (ids, obj)=>{
+export const fieldFilterArr = (ids, obj, field)=>{
     const categorizedIds = {}
     ids.forEach(id => {
-        const { status } = obj[id]; 
+        const { [field]:fieldName } = obj[id]; 
       
-        if (!categorizedIds[status]) {
-          categorizedIds[status] = []; 
+        if (!categorizedIds[fieldName.toLowerCase()]) {
+          categorizedIds[fieldName.toLowerCase()] = []; 
         }
-        categorizedIds[status].push(id); 
+        categorizedIds[fieldName.toLowerCase()].push(id); 
       });
     return categorizedIds;
 }

@@ -50,12 +50,12 @@ class DashboardLayout extends Component {
   getFilteredDataIds(){
     const {
       timeFilter='All', 
-      typeFilter, 
+      typeFilter='', 
       timeInput, 
-      docInput
+      docInput=''
     } = this.state.filterObj
-    let { dataIds, filteredIds } = this.props;
-    dataIds = filteredIds[typeFilter] || dataIds;
+    let { dataIds, filteredIds, filteredByDrName } = this.props;
+    dataIds = docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds;
     this.setState({
       filteredDataIds: getTimeFilter(dataIds, timeFilter, timeInput)
     })
@@ -105,11 +105,12 @@ class DashboardLayout extends Component {
 
 
 const mapStateToProps = (state)=>{
-  const { data, dataIds,filteredIds } = state;
+  const { data, dataIds,filteredIds, filteredByDrName } = state;
   return {
     data,
     dataIds,
-    filteredIds
+    filteredIds,
+    filteredByDrName
   }
 }
 
