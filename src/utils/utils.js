@@ -1,5 +1,3 @@
-
-import { i18NProviderUtils } from '@zohodesk/i18n';
 export const EXPENSE_LABEL = 'Expense'
 export const INCOME_LABEL = 'Income'
 export const OUTSTANDING_LABEL = 'Outstanding'

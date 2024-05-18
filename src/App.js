@@ -6,7 +6,6 @@ import PrivateRoute from './components/PrivateRoute';
 import { changePathName } from './utils/utils';
 import { Provider } from 'react-redux';
 import { store } from './store';
-import { Navigate } from 'react-router-dom';
 class App extends Component {
   constructor(props){
     super(props);
