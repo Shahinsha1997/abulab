@@ -4,7 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { EXPENSE_LABEL, getFormFields, getTimeFilter } from '../utils/utils';
+import { EXPENSE_LABEL, getDatasByProfit, getFormFields, getTimeFilter } from '../utils/utils';
 import PrintableList from './PrintableList';
 const RightPanel = ({ 
   isFormVisible=true, 
@@ -15,24 +15,18 @@ const RightPanel = ({
   dataIds=[], 
   multiAdd,
   previousId:previousID,
-  setPreviousId,
-  applyFilters
+  applyFilters,
+  isAdmin,
+  tableColumns,
+  filterObj
 }) => {
-    const tableColumns = Object.values(getFormFields('allFields'));
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
     const [timeInput, setTimeInput] = useState('')
     const [docInput, setDocInput] = useState('')
-    let previousId;
-    const tableData = dataIds.map(dataId=>{
-      if(data[dataId].status != EXPENSE_LABEL && !previousID && !previousId){
-        console.log(data[dataId])
-        previousId = data[dataId].patientId
-        setPreviousId(previousId)
-      }
-      return data[dataId]
-    })
+    
+    
     const handleTimeFilter = (e)=>{
         setTimeFilter(e.target.value)
         setTimeInput('')
@@ -179,6 +173,18 @@ const RightPanel = ({
                     <Typography variant="body2">Doctor</Typography>
                     </Box>
                 </MenuItem>
+                <MenuItem value="profit">
+                  <Box sx={{ display: isAdmin ? 'flex': 'none', alignItems: 'center' }}>
+                  <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
+                  <Typography variant="body2">Profit</Typography>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="profitByDoc">
+                    <Box sx={{ display: isAdmin ? 'flex': 'none', alignItems: 'center' }}>
+                    <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="primary.main" /> {/* Set doctor icon color */}
+                    <Typography variant="body2">Profit by Doctor</Typography>
+                    </Box>
+                </MenuItem>
                 </Select>
             </FormControl>
 
@@ -201,7 +207,7 @@ const RightPanel = ({
             </Button>
             </Box>
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
-              <PrintableList tableColumns={tableColumns} tableData={tableData}/>
+              <PrintableList tableColumns={tableColumns} tableData={dataIds} filterType={filterObj.typeFilter}/>
             </Box>
           </Box>
         </Box>

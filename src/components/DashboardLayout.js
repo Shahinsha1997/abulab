@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd, getDatas } from '../dispatcher/action';
-import { bind, getAsObj, getLocalStorageData, getTimeFilter } from '../utils/utils';
+import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getFormFields, getLocalStorageData, getTimeFilter } from '../utils/utils';
 import { getDataAPI } from '../actions/APIActions';
 class DashboardLayout extends Component {
   constructor(props){
@@ -16,8 +16,10 @@ class DashboardLayout extends Component {
       limit: 50,
       previousId: '',
       filteredDataIds:props.dataIds,
-      filterObj:{}
+      filterObj:{},
+      tableColumns: Object.values(getFormFields('allFields'))
     }
+    this.previousID = ''
     const methods = [
       'toggleForm',
       'getAllDatas',
@@ -48,16 +50,32 @@ class DashboardLayout extends Component {
     }
   }
   getFilteredDataIds(){
+    let { previousId, filterObj, tableColumns } = this.state;
     const {
       timeFilter='All', 
       typeFilter='', 
       timeInput, 
       docInput=''
-    } = this.state.filterObj
-    let { dataIds, filteredIds, filteredByDrName } = this.props;
+    } = filterObj
+    let { dataIds, filteredIds, filteredByDrName, data } = this.props;
     dataIds = docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds;
+    dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
+    if(['profit','profitByDoc'].includes(typeFilter) && timeFilter != 'All'){
+      dataIds = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
+      tableColumns = Object.values(getFormFields(typeFilter))
+   }else{
+    dataIds = dataIds.map(dataId=>{
+       if(data[dataId].status != EXPENSE_LABEL && !previousId && !this.previousID){
+        this.previousID = data[dataId].patientId
+         this.setPreviousId(this.previousID)
+       }
+       return data[dataId]
+     })
+    tableColumns = Object.values(getFormFields('allFields'))
+   }
     this.setState({
-      filteredDataIds: getTimeFilter(dataIds, timeFilter, timeInput)
+      filteredDataIds: dataIds,
+      tableColumns
     })
   }
   getAllDatas(){
@@ -73,8 +91,8 @@ class DashboardLayout extends Component {
     }, this.getFilteredDataIds)
   }
   render() {
-    const { logoutUser, data, dataIds, addData, multiAdd, filteredIds } = this.props
-    const { formType, previousId, filteredDataIds } = this.state;
+    const { logoutUser, data, dataIds, addData, multiAdd, isAdmin } = this.props
+    const { formType, previousId, filteredDataIds, tableColumns, filterObj } = this.state;
 
     return (
         <Box
@@ -96,6 +114,9 @@ class DashboardLayout extends Component {
           previousId={previousId}
           setPreviousId={this.setPreviousId}
           applyFilters={this.applyFilters}
+          isAdmin={isAdmin}
+          tableColumns={tableColumns}
+          filterObj={filterObj}
         />
       </Box>
       
@@ -105,12 +126,14 @@ class DashboardLayout extends Component {
 
 
 const mapStateToProps = (state)=>{
-  const { data, dataIds,filteredIds, filteredByDrName } = state;
+  const { data, dataIds,filteredIds, filteredByDrName, user } = state;
+  const { isAdmin } = user;
   return {
     data,
     dataIds,
     filteredIds,
-    filteredByDrName
+    filteredByDrName, 
+    isAdmin
   }
 }
 

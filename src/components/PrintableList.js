@@ -30,7 +30,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-  const PrintableList = ({tableData, tableColumns}) =>{
+  const PrintableList = ({tableData, tableColumns, filterType}) =>{
     return(
         <TableContainer component={Paper}>
         <Table stickyHeader>
@@ -56,9 +56,9 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
                         );
                       } else {
                         return (
-                          <Tooltip title={getCellFormattedVal(column.id,row[column.id], row['status'])} key={column.id}>
+                          <Tooltip title={getCellFormattedVal(column.id,row[column.id], row['status'], filterType)} key={column.id}>
                             <StyledTableCell>
-                              {getCellFormattedVal(column.id,row[column.id],row['status'])}
+                              {getCellFormattedVal(column.id,row[column.id],row['status'], filterType)}
                             </StyledTableCell>
                           </Tooltip>
                         );
