@@ -14,7 +14,16 @@ import { EXPENSE_LABEL, getAsObj, getIdPrefix, getLocalStorageData, getProperId,
 import { addDataAPI } from '../actions/APIActions';
 import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
-const Form = ({addData, formType, toggleForm, multiAdd, previousID}) => {
+const Form = ({
+  addData, 
+  formType, 
+  toggleForm, 
+  multiAdd, 
+  previousID, 
+  showAlert,
+  setPreviousId,
+  setSyncStatus
+}) => {
   const isIncomeForm = formType.indexOf('Income')!=-1;
   const initialState = {
     open: false,
@@ -114,12 +123,24 @@ const Form = ({addData, formType, toggleForm, multiAdd, previousID}) => {
     setLocalStorageData('addPendingDatas', addPending)
     addData({data: getAsObj([data])});
     toggleDrawer()();
-    if(addPending.length > 5){
+    if(status != EXPENSE_LABEL){
+      setPreviousId(patientId)
+    }
+    if(addPending.length > 1){
       setState({...initialState, isAddInProgress: true})
-      return addDataAPI().then(res=>{
+      setSyncStatus(false)
+      return addDataAPI().then((res)=>{
         multiAdd({data:res})
         setState({...initialState, isAddInProgress: false})
+        showAlert({type: 'success', message:"Datas Sync done successfully..."})
+        setSyncStatus(true)
+      }).catch(err=>{
+        setSyncStatus(true)
+        console.log('Err',err)
+        showAlert({type: 'error', message:"Datas doesn't sync properly..."})
       })
+    }else{
+      showAlert({type: 'success', message:"Datas Queued Successfully..."})
     }
   };
 

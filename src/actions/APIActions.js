@@ -1,7 +1,7 @@
 import { getAsObj, getLocalStorageData, setLocalStorageData } from "../utils/utils"
 
-const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbwyekUCG9UBEecDk5LdkOFrBeII5_VI6XNT9kRfIh1-YaPwBIrp3_0HkexsMtOKRmyt/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzrdE_uRU6I6ah30swOM8Z4VhMg0gYtSP_KOAEx3kC4QhzrVaEyWwOsroVdkEfjHqLH8w/exec'
+const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbw03nX0b0UFWWJDBbet84sLrnzrLSuebp4kVvUX9Yv8bATWGMY8JINFFm3hJBIUz9hf/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbwKZfx-T01WIxWx10NWZT9Hh27N8ppcJqDVjhd80RjfeVjiKYvA8Joxc4TMkvsdnU-Vaw/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -20,20 +20,23 @@ export const authenticate = (userName, password) =>{
 
 export const addDataAPI = () =>{
     const data = getLocalStorageData('addPendingDatas', '[]');
-    setLocalStorageData('addInProgressDatas',data)
+    const inProgressData = getLocalStorageData('addInProgressDatas', '[]');
+    setLocalStorageData('addInProgressDatas',[...inProgressData, ...data])
     setLocalStorageData('addPendingDatas',[]);
+    console.log(inProgressData, data)
     return new Promise((resolve, reject)=>{
         return fetch(DATA_URL, {
             redirect: "follow",
             method: 'POST',
-            body: JSON.stringify(data), 
+            body: JSON.stringify([...inProgressData, ...data]), 
             headers: {
                 "Content-Type": "text/plain;charset=utf-8",
             }
           })
         .then(res=>res.json())
         .then(response=>{
-            resolve(getAsObj(data,'time','isScheduled'))
+            setLocalStorageData('addInProgressDatas',[]);
+            resolve(getAsObj(data,'time',false))
         })
         .catch(err=>reject(err))
     })

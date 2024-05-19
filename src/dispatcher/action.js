@@ -31,3 +31,11 @@ export const multiAdd = (data) =>({
     type: MULTI_ADD,
     payload: data
 })
+
+export const showAlert = (datas) =>({
+    type: 'SHOW_ALERT',
+    datas
+})
+export const closeAlert = () =>({
+    type: 'CLOSE_ALERT'
+})

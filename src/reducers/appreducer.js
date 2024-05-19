@@ -6,7 +6,7 @@ const initialState = {
 
 const filteredByDrName = (state=[],action={})=>{
   const { from, data={} } = action.payload || {};
-  const { ids, obj } = data;
+  const { ids=[], obj } = data;
   switch (action.type) {
     case GET_DATA:
       return fieldFilterArr(ids,obj,'drName')
@@ -15,7 +15,7 @@ const filteredByDrName = (state=[],action={})=>{
       const newValue = fieldFilterArr(ids,obj,'drName');
       const newState = {};
       Object.keys(state).map(status=>{
-        newState[status] = getUniQueIds([...state[status],...newValue[status]]).sort(function(a, b){return b-a});
+        newState[status] = getUniQueIds([...state[status],...(newValue[status] || [])]).sort(function(a, b){return b-a});
       })
       return newState;
     default:
@@ -26,7 +26,7 @@ const filteredByDrName = (state=[],action={})=>{
 
 const filteredDataIdReducers = (state=[],action={})=>{
   const { from, data={} } = action.payload || {};
-  const { ids, obj } = data;
+  const { ids=[], obj } = data;
   switch (action.type) {
     case GET_DATA:
       return fieldFilterArr(ids,obj,'status')
@@ -35,7 +35,7 @@ const filteredDataIdReducers = (state=[],action={})=>{
       const newValue = fieldFilterArr(ids,obj,'status');
       const newState = {};
       Object.keys(state).map(status=>{
-        newState[status] = getUniQueIds([...state[status],...newValue[status]]).sort(function(a, b){return b-a});
+        newState[status] = getUniQueIds([...state[status],...(newValue[status] || [])]).sort(function(a, b){return b-a});
       })
       return newState;
     default:
@@ -44,7 +44,7 @@ const filteredDataIdReducers = (state=[],action={})=>{
 }
 const dataIdsReducers = (state=[], action={}) =>{
   const { from, data={} } = action.payload || {};
-  const { ids } = data;
+  const { ids=[] } = data;
   switch (action.type) {
     case GET_DATA:
       return [...ids.filter(id=>!state.includes(id)), ...state ].sort(function(a, b){return b-a});
@@ -106,6 +106,23 @@ switch (action.type) {
     return state;
   }
 }
+const appReducerInitialState = {
+  'alertOptions' : {}
+}
+function appReducer(state=appReducerInitialState,action){
+  const { datas={}} = action;
+  const newState = {...state};
+  switch (action.type){
+    case 'SHOW_ALERT':
+      newState['alertOptions'] = datas;
+      return newState
+    case 'CLOSE_ALERT':
+      newState['alertOptions'] = {};
+      return newState
+    default:
+      return state;
+  }
+}
 
 export const getAllReducers = () =>{
     return {
@@ -113,6 +130,7 @@ export const getAllReducers = () =>{
             data: dataReducer,
             dataIds: dataIdsReducers,
             filteredIds: filteredDataIdReducers,
-            filteredByDrName: filteredByDrName
+            filteredByDrName: filteredByDrName,
+            appConfig: appReducer 
     }
 }

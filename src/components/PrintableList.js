@@ -30,7 +30,9 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-  const PrintableList = ({tableData, tableColumns, filterType}) =>{
+  const PrintableList = ({tableData, tableColumns, filterObj}) =>{
+    const { typeFilter, timeFilter } = filterObj;
+    const filterType = timeFilter != 'All' ? typeFilter : ''
     return(
         <TableContainer component={Paper}>
         <Table stickyHeader>

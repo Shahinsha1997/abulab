@@ -18,7 +18,10 @@ const RightPanel = ({
   applyFilters,
   isAdmin,
   tableColumns,
-  filterObj
+  filterObj,
+  showAlert,
+  setPreviousId,
+  setSyncStatus
 }) => {
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
@@ -81,7 +84,16 @@ const RightPanel = ({
           }}
         >
           { isFormVisible ? (
-          <Form addData={addData} toggleForm={toggleForm} formType={formType} multiAdd={multiAdd} previousID={parseInt(previousID || '0')}/>
+          <Form 
+            addData={addData} 
+            showAlert={showAlert} 
+            toggleForm={toggleForm} 
+            formType={formType} 
+            multiAdd={multiAdd} 
+            previousID={parseInt(previousID || '0')}
+            setPreviousId={setPreviousId}
+            setSyncStatus={setSyncStatus}
+          />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>
@@ -118,24 +130,24 @@ const RightPanel = ({
                 </FormControl>
                 <Box sx={{padding:"0 20px"}}>
                 <TextField
-                id="timeFilterInput"
-                label="Date/Period"
-                variant="outlined"
-                autoComplete="off"
-                placeholder={getPlaceholder()}
-                disabled={timeFilter === 'All'} 
-                sx={{ display: timeFilter != 'All' ? 'block' : 'none' }}
-                onChange={handleInput}
-                value={timeInput}
-                InputProps={{
-                    endAdornment: (
-                    <InputAdornment position="end">
-                        <IconButton>
-                        {/* Add calendar icon or other visual cue based on your needs */}
-                        </IconButton>
-                    </InputAdornment>
-                    ),
-                }}
+                  id="timeFilterInput"
+                  label="Date/Period"
+                  variant="outlined"
+                  autoComplete="off"
+                  placeholder={getPlaceholder()}
+                  disabled={timeFilter === 'All'} 
+                  sx={{ display: timeFilter != 'All' ? 'block' : 'none' }}
+                  onChange={handleInput}
+                  value={timeInput}
+                  InputProps={{
+                      endAdornment: (
+                      <InputAdornment position="end">
+                          <IconButton>
+                          {/* Add calendar icon or other visual cue based on your needs */}
+                          </IconButton>
+                      </InputAdornment>
+                      ),
+                  }}
                 />
                 </Box>
             <FormControl sx={{ minWidth: 120 }}>
@@ -173,14 +185,14 @@ const RightPanel = ({
                     <Typography variant="body2">Doctor</Typography>
                     </Box>
                 </MenuItem>
-                <MenuItem value="profit">
-                  <Box sx={{ display: isAdmin ? 'flex': 'none', alignItems: 'center' }}>
+                <MenuItem value="profit" sx={{ display: isAdmin ? 'flex': 'none'}}>
+                  <Box sx={{ display : 'flex', alignItems: 'center' }}>
                   <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
                   <Typography variant="body2">Profit</Typography>
                   </Box>
                 </MenuItem>
-                <MenuItem value="profitByDoc">
-                    <Box sx={{ display: isAdmin ? 'flex': 'none', alignItems: 'center' }}>
+                <MenuItem value="profitByDoc" sx={{ display: isAdmin ? 'flex': 'none'}}>
+                    <Box sx={{ display : 'flex', alignItems: 'center' }}>
                     <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="primary.main" /> {/* Set doctor icon color */}
                     <Typography variant="body2">Profit by Doctor</Typography>
                     </Box>
@@ -207,7 +219,7 @@ const RightPanel = ({
             </Button>
             </Box>
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
-              <PrintableList tableColumns={tableColumns} tableData={dataIds} filterType={filterObj.typeFilter}/>
+              <PrintableList tableColumns={tableColumns} tableData={dataIds} filterObj={filterObj}/>
             </Box>
           </Box>
         </Box>

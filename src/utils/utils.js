@@ -161,11 +161,14 @@ export function bind(...handlers) {
     });
 }
 
-export const getAsObj = (arr, key='time', removeKey)=>{
+export const getAsObj = (arr, key='time', isScheduled)=>{
+    debugger;
     const outputObj = {}
     const ids = []
     arr.map(obj=>{
-        removeKey && delete obj[removeKey]
+        if(typeof isScheduled != 'undefined'){
+            obj['isScheduled'] = isScheduled
+        }
         outputObj[obj[key]] = obj;
         ids.push(obj[key])
     })

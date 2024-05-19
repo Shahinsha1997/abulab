@@ -4,9 +4,11 @@ import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
-import { logoutUser, addData,multiAdd, getDatas } from '../dispatcher/action';
+import { logoutUser, addData,multiAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
 import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getFormFields, getLocalStorageData, getTimeFilter } from '../utils/utils';
 import { getDataAPI } from '../actions/APIActions';
+import { Alert, Snackbar } from '@mui/material';
+
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -17,7 +19,8 @@ class DashboardLayout extends Component {
       previousId: '',
       filteredDataIds:props.dataIds,
       filterObj:{},
-      tableColumns: Object.values(getFormFields('allFields'))
+      tableColumns: Object.values(getFormFields('allFields')),
+      syncStatus: true
     }
     this.previousID = ''
     const methods = [
@@ -25,13 +28,36 @@ class DashboardLayout extends Component {
       'getAllDatas',
       'setPreviousId',
       'applyFilters',
-      'getFilteredDataIds'
+      'getFilteredDataIds',
+      'getAlertContent',
+      'setSyncStatus'
     ]
     bind.apply(this, methods);
   }
   setPreviousId(id){
     this.setState({previousId: id})
   }
+  setSyncStatus(status){
+    this.setState({
+      syncStatus: status
+    })
+  }
+  getAlertContent(){
+    const { appConfig, closeAlert } = this.props;
+    const { alertOptions } = appConfig
+    const { type, message } = alertOptions;
+    return (
+      <Snackbar
+      open={true}
+      autoHideDuration={type == 'success' ? 5000 : undefined} // Duration in milliseconds (here, 6 seconds)
+      onClose={() => type == 'success' && closeAlert()} // Function to handle closing
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position
+    >
+     <Alert severity={type} onClose={closeAlert}>{message}</Alert>
+    </Snackbar>
+    )
+  }
+
   toggleForm(formType=''){
     this.setState({
       formType
@@ -43,9 +69,9 @@ class DashboardLayout extends Component {
     this.getAllDatas();
     multiAdd({data:getAsObj(pendingDatas)})
   }
-  componentDidUpdate(prevProps){
+  componentDidUpdate(prevProps, prevState){
     const { dataIds } = this.props;
-    if(prevProps.dataIds.length != dataIds.length ){
+    if(prevProps.dataIds.length != dataIds.length || prevState.syncStatus != this.state.syncStatus ){
       this.getFilteredDataIds();
     }
   }
@@ -57,12 +83,16 @@ class DashboardLayout extends Component {
       timeInput, 
       docInput=''
     } = filterObj
-    let { dataIds, filteredIds, filteredByDrName, data } = this.props;
+    const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
+    let { dataIds, filteredIds, filteredByDrName, data, showAlert } = this.props;
     dataIds = docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds;
     dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
-    if(['profit','profitByDoc'].includes(typeFilter) && timeFilter != 'All'){
+    if(isProfitFilter){
+      showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Filter'})
+    }
+    if(isProfitFilter && timeFilter != 'All'){
       dataIds = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
-      tableColumns = Object.values(getFormFields(typeFilter))
+      tableColumns = Object.values(getFormFields(typeFilter))``
    }else{
     dataIds = dataIds.map(dataId=>{
        if(data[dataId].status != EXPENSE_LABEL && !previousId && !this.previousID){
@@ -91,9 +121,9 @@ class DashboardLayout extends Component {
     }, this.getFilteredDataIds)
   }
   render() {
-    const { logoutUser, data, dataIds, addData, multiAdd, isAdmin } = this.props
+    const { logoutUser, data, dataIds, addData, multiAdd, isAdmin, appConfig, closeAlert, showAlert } = this.props
     const { formType, previousId, filteredDataIds, tableColumns, filterObj } = this.state;
-
+    const { alertOptions={} } = appConfig
     return (
         <Box
         sx={{
@@ -102,6 +132,9 @@ class DashboardLayout extends Component {
           minHeight: '100vh'
         }}
       >
+        { alertOptions.type ? (
+          this.getAlertContent()
+        ) : null}
        
         <LeftPanel toggleForm={this.toggleForm} logoutUser={logoutUser}/>
         <RightPanel 
@@ -117,6 +150,8 @@ class DashboardLayout extends Component {
           isAdmin={isAdmin}
           tableColumns={tableColumns}
           filterObj={filterObj}
+          showAlert={showAlert}
+          setSyncStatus={this.setSyncStatus}
         />
       </Box>
       
@@ -126,14 +161,16 @@ class DashboardLayout extends Component {
 
 
 const mapStateToProps = (state)=>{
-  const { data, dataIds,filteredIds, filteredByDrName, user } = state;
+  const { data, dataIds,filteredIds, filteredByDrName, user, appConfig } = state;
   const { isAdmin } = user;
+  console.log(data)
   return {
     data,
     dataIds,
     filteredIds,
     filteredByDrName, 
-    isAdmin
+    isAdmin,
+    appConfig
   }
 }
 
@@ -141,6 +178,8 @@ export default connect(mapStateToProps,{
   logoutUser,
   addData,
   multiAdd,
-  getDatas
+  getDatas,
+  closeAlert,
+  showAlert
 })(DashboardLayout);
 
