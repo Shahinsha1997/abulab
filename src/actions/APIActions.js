@@ -1,7 +1,7 @@
 import { getAsObj, getLocalStorageData, setLocalStorageData } from "../utils/utils"
 
-const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbwc0L43FbVRdYih46WxJclRA7altG-pfujaJBq2bcvF45Pg9VlLF5cSu6zkmw5Q9zjD/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbzGMod9YcqCpFHvok6YojQFaUfRk5mLDZokwSJTZaEqF-sA0U3a_-sX1JUpA36JoGEtAg/exec'
+const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbybeN2OKALOFlppTJTLy5OzRiX_Hu7c_wI4QOSoP-IRsylyjPPKHy1ZN2E32i9JMeVC/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbwrBsz_PEqsr2ops0oKGjkNSrITiqAhCsie0swakUDlR3wGV8C8wakRBQBiPpoDCSqq9Q/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -35,8 +35,13 @@ export const addDataAPI = () =>{
           })
         .then(res=>res.json())
         .then(response=>{
-            setLocalStorageData('addInProgressDatas',[]);
-            resolve(getAsObj(data,'time',false))
+            console.log(response)
+            if(response.status == 200){
+                setLocalStorageData('addInProgressDatas',[]);
+                return resolve(getAsObj(data,'time',false))
+            }
+            throw response.status
+            
         })
         .catch(err=>reject(err))
     })
@@ -53,8 +58,12 @@ export const getDataAPI = (from=1, limit=50)=>{
           })
         .then(res=>res.json())
         .then(response=>{
-            const { data } = response;
-            resolve(getAsObj(data))
+            if(response.data || response.status == 200){
+                const { data } = response;
+                resolve(getAsObj(data))
+            }
+            throw response.status
+            
         })
         .catch(err=>reject(err))
     })

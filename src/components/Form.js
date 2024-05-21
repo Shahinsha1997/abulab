@@ -126,7 +126,7 @@ const Form = ({
     if(status != EXPENSE_LABEL){
       setPreviousId(patientId)
     }
-    if(addPending.length > 1){
+    if(addPending.length > 10){
       setState({...initialState, isAddInProgress: true})
       setSyncStatus(false)
       return addDataAPI().then((res)=>{

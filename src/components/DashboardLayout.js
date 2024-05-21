@@ -110,9 +110,16 @@ class DashboardLayout extends Component {
   }
   getAllDatas(){
     const { from , limit } = this.state;
-    const { getDatas } = this.props;
+    const { getDatas, showAlert, logoutUser } = this.props;
     getDataAPI(from, limit).then(res=>{
       getDatas({data: res, from})
+    }).catch(err=>{
+      console.log(err)
+      if(err == 404){
+        return logoutUser();
+      }
+      
+      showAlert({type: 'error', 'message': "Internal Server Error"})
     })
   }
   applyFilters(filters){
