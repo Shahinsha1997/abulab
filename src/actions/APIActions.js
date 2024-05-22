@@ -1,7 +1,7 @@
 import { getAsObj, getLocalStorageData, setLocalStorageData } from "../utils/utils"
 
-const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbwg5EOmVNFN8LpK-yiMFJyCWbD8ThjSLVizgadqywRVxKTlJWUuuV9Hk2mWjRX_yGSI/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbz1xux_aNUjbWuNfaXpDnAuvEnzT_m7Thco9yxecFZLZsSR1jBvwlQ1z67Nbk6-kHkiiA/exec'
+const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbxXapidw6G0vqmZi-e1QYrGH2vumQKDzKiWxrG7HkaCuSWXuI8XI1ZLtXVSQ_29V0wh/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbwhOJBvlWnM24vlUXCtzH336FnArC-8t2EgDefvAErnhtSGV4mpXDyNGycuXIV7dvoOFw/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
