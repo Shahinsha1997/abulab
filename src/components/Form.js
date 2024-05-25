@@ -157,7 +157,7 @@ const Form = ({
                   }
                 >
                     <Typography gutterBottom variant="h5" component="div">
-                     {isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `Add Expenses`}
+                     {isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} Expenses`}
                     </Typography>
                 </ListItem>
             </List>
