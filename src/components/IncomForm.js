@@ -12,10 +12,13 @@ const IncomeForm = ({
     isMobile,
     toggleDrawer,
     handleSubmit,
-    errState={}
+    errState={},
+    isAdmin,
+    isAddForm
 }) => {
 const { patientId, name, mobileNumber, description, drName, totalAmount, paidAmount } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
+const isFieldDisabled = !(isAddForm || isAdmin)
 return(
     <>
         <Box component="form" sx={{display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px'}}>
@@ -32,23 +35,23 @@ return(
             </Box>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Name" name="name" value={name} onChange={handleInputChange} required fullWidth={isMobile} />
+            <TextField label="Name" name="name" value={name} onChange={handleInputChange} disabled={isFieldDisabled} required fullWidth={isMobile} />
             {nameError && <Alert severity="error">{nameError}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Mobile Number" name="mobileNumber" value={mobileNumber} onChange={handleInputChange} required fullWidth={isMobile} />
+            <TextField label="Mobile Number" name="mobileNumber" value={mobileNumber} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
             {mobileNumberErr && <Alert severity="error">{mobileNumberErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Doctor Name" name="drName" value={drName} onChange={handleInputChange} required fullWidth={isMobile} />
+            <TextField label="Doctor Name" name="drName" value={drName} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
             {drNameErr && <Alert severity="error">{drNameErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Description" name="description" value={description} onChange={handleInputChange} required fullWidth={isMobile} />
+            <TextField label="Description" name="description" value={description} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
             {descriptionErr && <Alert severity="error">{descriptionErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Total Amount" name="totalAmount" value={totalAmount} onChange={handleInputChange} required fullWidth={isMobile} />
+            <TextField label="Total Amount" name="totalAmount" value={totalAmount} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
             {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>

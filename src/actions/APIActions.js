@@ -1,7 +1,7 @@
 import { getAsObj, getLocalStorageData, setLocalStorageData } from "../utils/utils"
 
-const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbxXapidw6G0vqmZi-e1QYrGH2vumQKDzKiWxrG7HkaCuSWXuI8XI1ZLtXVSQ_29V0wh/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbwhOJBvlWnM24vlUXCtzH336FnArC-8t2EgDefvAErnhtSGV4mpXDyNGycuXIV7dvoOFw/exec'
+const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbzQwiDTC1cUes9q6MrOHEqu7W0OIxQlaeDB4CxUUcaCQ5dwjzTdMLu6ZzuGKjpJvYMu/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbwz1Tz8geFwNq_IWl6eo8edpnn0HvRHjrdZ8wl40G4Ppxn-NcCT3CgtsbPd4PGc6jwGhg/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -18,17 +18,19 @@ export const authenticate = (userName, password) =>{
     })
 }
 
-export const addDataAPI = () =>{
-    const data = getLocalStorageData('addPendingDatas', '[]');
-    const inProgressData = getLocalStorageData('addInProgressDatas', '[]');
-    setLocalStorageData('addInProgressDatas',[...inProgressData, ...data])
-    setLocalStorageData('addPendingDatas',[]);
+export const addDataAPI = (type) =>{
+    const pendingKey = type == 'add' ? 'addPendingDatas' : 'updatePendingDatas'
+    const inProgressKey = type == 'add' ? 'addInProgressDatas' : 'updateInProgressDatas'
+    const data = getLocalStorageData(pendingKey, '[]');
+    const inProgressData = getLocalStorageData(inProgressKey, '[]');
+    setLocalStorageData(inProgressKey,[...inProgressData, ...data])
+    setLocalStorageData(pendingKey,[]);
     console.log(inProgressData, data)
     return new Promise((resolve, reject)=>{
         return fetch(DATA_URL, {
             redirect: "follow",
             method: 'POST',
-            body: JSON.stringify([...inProgressData, ...data]), 
+            body: JSON.stringify({"payload": [...inProgressData, ...data], "type": type}), 
             headers: {
                 "Content-Type": "text/plain;charset=utf-8",
             }
@@ -37,7 +39,7 @@ export const addDataAPI = () =>{
         .then(response=>{
             console.log(response)
             if(response.status == 200){
-                setLocalStorageData('addInProgressDatas',[]);
+                setLocalStorageData(inProgressKey,[]);
                 return resolve(getAsObj(data,'time',false))
             }
             throw response.status

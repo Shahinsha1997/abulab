@@ -89,10 +89,11 @@ const RightPanel = ({
             showAlert={showAlert} 
             toggleForm={toggleForm} 
             formType={formType} 
-            multiAdd={multiAdd} 
             previousID={parseInt(previousID || '0')}
             setPreviousId={setPreviousId}
             setSyncStatus={setSyncStatus}
+            data={data}
+            isAdmin={isAdmin}
           />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -219,7 +220,7 @@ const RightPanel = ({
             </Button>
             </Box>
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
-              <PrintableList tableColumns={tableColumns} tableData={dataIds} filterObj={filterObj}/>
+              <PrintableList tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
             </Box>
           </Box>
         </Box>

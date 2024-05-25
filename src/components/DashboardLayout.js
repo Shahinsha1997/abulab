@@ -6,7 +6,7 @@ import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
 import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getFormFields, getLocalStorageData, getTimeFilter } from '../utils/utils';
-import { getDataAPI } from '../actions/APIActions';
+import { addDataAPI, getDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
 class DashboardLayout extends Component {
@@ -17,10 +17,12 @@ class DashboardLayout extends Component {
       from: 1,
       limit: 50,
       previousId: '',
-      filteredDataIds:props.dataIds,
+      filteredDataIds:[],
       filterObj:{},
       tableColumns: Object.values(getFormFields('allFields')),
-      syncStatus: true
+      syncStatus: true,
+      addTry: 0,
+      updateTry: 0
     }
     this.previousID = ''
     const methods = [
@@ -30,7 +32,8 @@ class DashboardLayout extends Component {
       'applyFilters',
       'getFilteredDataIds',
       'getAlertContent',
-      'setSyncStatus'
+      'setSyncStatus',
+      'syncNowDatas'
     ]
     bind.apply(this, methods);
   }
@@ -57,6 +60,36 @@ class DashboardLayout extends Component {
     </Snackbar>
     )
   }
+  syncNowDatas(){
+    const { multiAdd, showAlert } = this.props;
+    const { addTry, updateTry } = this.state;
+    const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
+    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
+    const type = addPendingDatas.length > 0 ? 'add' : 'update'
+    if(addPendingDatas.length > 0 || updatePendingDatas.length > 0 ){
+      this.setSyncStatus(false)
+      return addDataAPI(type).then((res)=>{
+        multiAdd({data:res})
+        showAlert({type: 'success', message: type == 'add' ? "Datas Sync done successfully..." : "Datas Updated Successfully"})
+        this.setSyncStatus(true)
+        this.setState({
+          addTry: type == 'add' ? 0 : addTry,
+          updateTry : type != 'add' ? 0 : updateTry
+        }, ()=>type == 'add' && updatePendingDatas.length ? this.syncNowDatas() : '')
+      }).catch(err=>{
+        this.setSyncStatus(true)
+        if(addTry > 5 || updateTry > 5){
+          return showAlert({type: 'error', message:'Please Contact Shahinsha...'})
+        }
+        this.setState({
+          addTry: type == 'add' ? addTry + 1 : addTry,
+          updateTry : type != 'add' ? updateTry + 1 : updateTry
+        },()=>this.syncNowDatas(type))
+        console.log('Err',err)
+        showAlert({type: 'error', message:type == 'add'  ?  "Datas doesn't sync properly..." : "Datas doesn't updated successfully"})
+      })
+    }
+  }
 
   toggleForm(formType=''){
     this.setState({
@@ -66,12 +99,14 @@ class DashboardLayout extends Component {
   componentDidMount(){
     const { multiAdd } = this.props;
     const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
-    this.getAllDatas();
-    multiAdd({data:getAsObj(pendingDatas)})
+    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
+    this.getAllDatas(()=>multiAdd({data:getAsObj([...pendingDatas, ...updatePendingDatas])}));
+    
   }
   componentDidUpdate(prevProps, prevState){
     const { dataIds } = this.props;
-    if(prevProps.dataIds.length != dataIds.length || prevState.syncStatus != this.state.syncStatus ){
+    const { filteredDataIds } = this.state;
+    if(prevProps.dataIds.length != dataIds.length || dataIds.length != filteredDataIds.length || prevState.syncStatus != this.state.syncStatus ){
       this.getFilteredDataIds();
     }
   }
@@ -108,11 +143,12 @@ class DashboardLayout extends Component {
       tableColumns
     })
   }
-  getAllDatas(){
+  getAllDatas(callbk){
     const { from , limit } = this.state;
     const { getDatas, showAlert, logoutUser } = this.props;
     getDataAPI(from, limit).then(res=>{
       getDatas({data: res, from})
+      callbk && callbk();
     }).catch(err=>{
       console.log(err)
       if(err == 404){
@@ -128,14 +164,16 @@ class DashboardLayout extends Component {
     }, this.getFilteredDataIds)
   }
   render() {
-    const { logoutUser, data, dataIds, addData, multiAdd, isAdmin, appConfig, closeAlert, showAlert } = this.props
+    const { logoutUser, data, dataIds, addData, multiAdd, isAdmin, appConfig, closeAlert, showAlert, isLogoutDisabled } = this.props
     const { formType, previousId, filteredDataIds, tableColumns, filterObj } = this.state;
     const { alertOptions={} } = appConfig
+    const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
+    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
     return (
         <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr 3fr', // Left: 1 fraction, Right: 3 fractions
+          gridTemplateColumns: 'max-content 1fr', 
           minHeight: '100vh'
         }}
       >
@@ -143,7 +181,7 @@ class DashboardLayout extends Component {
           this.getAlertContent()
         ) : null}
        
-        <LeftPanel toggleForm={this.toggleForm} logoutUser={logoutUser}/>
+        <LeftPanel isLogoutDisabled={isLogoutDisabled} toggleForm={this.toggleForm} logoutUser={logoutUser} syncNow={(addPendingDatas.length > 0 || updatePendingDatas.length > 0) && this.syncNowDatas}/>
         <RightPanel 
           addData={addData} 
           toggleForm={this.toggleForm} 
@@ -169,15 +207,15 @@ class DashboardLayout extends Component {
 
 const mapStateToProps = (state)=>{
   const { data, dataIds,filteredIds, filteredByDrName, user, appConfig } = state;
-  const { isAdmin } = user;
-  console.log(data)
+  const { isAdmin, id } = user;
   return {
     data,
     dataIds,
     filteredIds,
     filteredByDrName, 
     isAdmin,
-    appConfig
+    appConfig,
+    isLogoutDisabled: id  == '1714472861155'
   }
 }
 

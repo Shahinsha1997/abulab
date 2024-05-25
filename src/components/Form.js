@@ -7,25 +7,25 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
-import MenuItem from '@mui/material/MenuItem';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { EXPENSE_LABEL, getAsObj, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
-import { addDataAPI } from '../actions/APIActions';
 import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
 const Form = ({
-  addData, 
+  addData,
+  data,
   formType, 
   toggleForm, 
-  multiAdd, 
   previousID, 
   showAlert,
   setPreviousId,
-  setSyncStatus
+  setSyncStatus,
+  isAdmin
 }) => {
-  const isIncomeForm = formType.indexOf('Income')!=-1;
-  const initialState = {
+  const isAddForm = formType.indexOf('add') != -1
+  const isIncomeForm = formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
+  const initialState = ({...{
     open: false,
     patientId: getProperId(previousID+1),
     name: '',
@@ -33,9 +33,8 @@ const Form = ({
     description:'',
     drName:'',
     totalAmount: '0',
-    paidAmount: '0',
-    isAddInProgress: false
-  }
+    paidAmount: '0'
+  }, ...(data[formType] || {})})
   const labelObj = {
     patientId: "Patiend ID",
     name: 'Name',
@@ -53,7 +52,9 @@ const Form = ({
   React.useEffect(()=>{
     setState({...state, patientId: getProperId(previousID+1)})
   },[previousID])
-  
+  React.useEffect(()=>{
+    setState({...state, ...initialState})
+  },[formType])
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setState((prevState) => ({ ...prevState, [name]: value }));
@@ -98,16 +99,19 @@ const Form = ({
     return isError;
   }
 
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName} = state;
-    const status = getStatus(formType, totalAmount-paidAmount)
+    const status = getStatus(isIncomeForm, totalAmount-paidAmount)
     if(isErrorFound('',status)){
       return;
     }
-    const addPending = getLocalStorageData('addPendingDatas','[]');
+
+    const localStorageKey = isAddForm ? 'addPendingDatas' : 'updatePendingDatas'
+    const addPending = getLocalStorageData(localStorageKey,'[]');
     const data = Object.assign({
-      time: Date.now(),
+      time: isAddForm ? Date.now() : parseInt(formType),
       patientId: status == EXPENSE_LABEL ? '' : patientId, 
       name, 
       mobileNumber, 
@@ -120,28 +124,17 @@ const Form = ({
       isScheduled: true
     })
     addPending.splice(0,0,data)
-    setLocalStorageData('addPendingDatas', addPending)
+    setLocalStorageData(localStorageKey, addPending)
     addData({data: getAsObj([data])});
     toggleDrawer()();
     if(status != EXPENSE_LABEL){
       setPreviousId(patientId)
     }
-    if(addPending.length > 10){
-      setState({...initialState, isAddInProgress: true})
-      setSyncStatus(false)
-      return addDataAPI().then((res)=>{
-        multiAdd({data:res})
-        setState({...initialState, isAddInProgress: false})
-        showAlert({type: 'success', message:"Datas Sync done successfully..."})
-        setSyncStatus(true)
-      }).catch(err=>{
-        setSyncStatus(true)
-        console.log('Err',err)
-        showAlert({type: 'error', message:"Datas doesn't sync properly..."})
-      })
-    }else{
-      showAlert({type: 'success', message:"Datas Queued Successfully..."})
+    if(!isAddForm){
+      setSyncStatus(true);
+      setTimeout(()=>setSyncStatus(false),1)
     }
+    showAlert({type: 'success', message:isAddForm ? "Datas Queued for Add Successfully..." : "Datas Queued for Update successfully"})
   };
 
   return (
@@ -160,19 +153,21 @@ const Form = ({
                   }
                 >
                     <Typography gutterBottom variant="h5" component="div">
-                     {isIncomeForm ? 'Add Income Form' : 'Add Expenses'}
+                     {isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `Add Expenses`}
                     </Typography>
                 </ListItem>
             </List>
             {isIncomeForm ? (
               <IncomeForm
-              handleInputChange={handleInputChange}
-              getIdPrefix={getIdPrefix}
-              state={state}
-              isMobile={isMobile}
-              handleSubmit={handleSubmit}
-              toggleDrawer={toggleDrawer}
-              errState={errState}
+                handleInputChange={handleInputChange}
+                getIdPrefix={getIdPrefix}
+                state={state}
+                isMobile={isMobile}
+                handleSubmit={handleSubmit}
+                toggleDrawer={toggleDrawer}
+                errState={errState}
+                isAdmin={isAdmin}
+                isAddForm={isAddForm}
             />
             ) : (
               <ExpenseForm

@@ -15,8 +15,7 @@ export const getProperId = (id) =>{
     id = parseInt(id);
     return id < 10 ? `00${id}` : id < 99 ? `0${id}` : id;
 }
-export const getStatus = (formType, dueAmount)=>{
-    const isIncomeForm = formType.indexOf('Income')!=-1;
+export const getStatus = (isIncomeForm, dueAmount)=>{
     return isIncomeForm ? (dueAmount > 0 ? OUTSTANDING_LABEL : INCOME_LABEL) : EXPENSE_LABEL;
 }
 export const getTimeWithDate = (ms)=>{
@@ -162,7 +161,6 @@ export function bind(...handlers) {
 }
 
 export const getAsObj = (arr, key='time', isScheduled)=>{
-    debugger;
     const outputObj = {}
     const ids = []
     arr.map(obj=>{
