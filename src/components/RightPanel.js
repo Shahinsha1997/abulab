@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContainer, Table, Button, TableHead, TableBody, TableRow, Paper, TextField, IconButton, InputAdornment } from '@mui/material';
+import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContainer, Table, Button, TableHead, TableBody, TableRow, Paper, TextField, IconButton, InputAdornment, Autocomplete } from '@mui/material';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
@@ -21,7 +21,8 @@ const RightPanel = ({
   filterObj,
   showAlert,
   setPreviousId,
-  setSyncStatus
+  setSyncStatus,
+  drNamesList
 }) => {
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
@@ -40,11 +41,11 @@ const RightPanel = ({
         setShowDoctorInput(type === 'Doctor');
         setDocInput('')
     }
-    const handleInput = (e) =>{
+    const handleInput = (e, value) =>{
       if(e.target.id == 'timeFilterInput'){
         setTimeInput(e.target.value)
       }else{
-        setDocInput(e.target.value)
+        setDocInput(value || e.target.value)
       }
     }
 
@@ -94,6 +95,7 @@ const RightPanel = ({
             setSyncStatus={setSyncStatus}
             data={data}
             isAdmin={isAdmin}
+            drNamesList={drNamesList}
           />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -202,17 +204,26 @@ const RightPanel = ({
             </FormControl>
 
             <Box sx={{padding:"0 20px"}}>
-                <TextField
-                    label="Doctor Name (if applicable)"
+            <Autocomplete
+                value={docInput}
+                id={'docFilterInput'}
+                options={drNamesList || []}
+                onChange={handleInput}
+                renderInput={(params) => 
+                  <TextField
+                    {...params}
+                    label="Doctor Name"
                     variant="outlined"
                     placeholder="Search Doctor"
                     id="docFilterInput"
                     onChange={handleInput}
-                    value={docInput}
                     disabled={!showDoctorInput}
                     autoComplete="off"
-                    sx={{ display: showDoctorInput ? 'block' : 'none' }}
+                    sx={{ display: showDoctorInput ? 'block' : 'none', 'width': '200px' }}
                 />
+            }
+                />
+                
             </Box>
 
             <Button variant="contained" onClick={handleFilterSubmit}>

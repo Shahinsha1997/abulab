@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
+import { Autocomplete } from '@mui/material';
 
 const IncomeForm = ({
     handleInputChange, 
@@ -14,7 +15,8 @@ const IncomeForm = ({
     handleSubmit,
     errState={},
     isAdmin,
-    isAddForm
+    isAddForm,
+    drNamesList
 }) => {
 const { patientId, name, mobileNumber, description, drName, totalAmount, paidAmount, comments } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
@@ -43,7 +45,16 @@ return(
             {mobileNumberErr && <Alert severity="error">{mobileNumberErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Doctor Name" name="drName" value={drName} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
+            <Autocomplete
+                value={drName}
+                id={'drName'}
+                name="drName"
+                options={drNamesList || []}
+                fullWidth={isMobile}
+                onChange={handleInputChange}
+                renderInput={(params) => <TextField {...params} name="drName" sx={{width:'100%'}} onChange={handleInputChange} label="Doctor Name" fullWidth={isMobile} />}
+                />
+            {/* <TextField label="Doctor Name" name="drName" value={drName} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} /> */}
             {drNameErr && <Alert severity="error">{drNameErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>

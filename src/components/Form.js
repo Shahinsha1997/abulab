@@ -21,7 +21,8 @@ const Form = ({
   showAlert,
   setPreviousId,
   setSyncStatus,
-  isAdmin
+  isAdmin,
+  drNamesList
 }) => {
   const isAddForm = formType.indexOf('add') != -1
   const isIncomeForm = formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
@@ -57,9 +58,9 @@ const Form = ({
   React.useEffect(()=>{
     setState({...state, ...initialState})
   },[formType])
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setState((prevState) => ({ ...prevState, [name]: value }));
+  const handleInputChange = (event, val) => {
+    const { name='drName', value } = event.target;
+    setState((prevState) => ({ ...prevState, [name]: val || value }));
     setErrorState({})
   };
 
@@ -171,6 +172,7 @@ const Form = ({
                 errState={errState}
                 isAdmin={isAdmin}
                 isAddForm={isAddForm}
+                drNamesList={drNamesList}
             />
             ) : (
               <ExpenseForm

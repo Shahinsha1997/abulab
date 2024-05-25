@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getFormFields, getLocalStorageData, getTimeFilter } from '../utils/utils';
+import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter } from '../utils/utils';
 import { addDataAPI, getDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
@@ -129,7 +129,7 @@ class DashboardLayout extends Component {
     } = filterObj
     const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
     let { dataIds, filteredIds, filteredByDrName, data, showAlert } = this.props;
-    dataIds = docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds;
+    dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
     dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
     if(isProfitFilter){
       showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Filter'})
@@ -173,7 +173,7 @@ class DashboardLayout extends Component {
     }, this.getFilteredDataIds)
   }
   render() {
-    const { logoutUser, data, dataIds, addData, multiAdd, isAdmin, appConfig, closeAlert, showAlert, isLogoutDisabled } = this.props
+    const { logoutUser, data, addData, multiAdd, isAdmin, appConfig, closeAlert, showAlert, isLogoutDisabled, drNamesList } = this.props
     const { formType, previousId, filteredDataIds, tableColumns, filterObj } = this.state;
     const { alertOptions={} } = appConfig
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
@@ -206,6 +206,7 @@ class DashboardLayout extends Component {
           filterObj={filterObj}
           showAlert={showAlert}
           setSyncStatus={this.setSyncStatus}
+          drNamesList={drNamesList}
         />
       </Box>
       
@@ -224,7 +225,8 @@ const mapStateToProps = (state)=>{
     filteredByDrName, 
     isAdmin,
     appConfig,
-    isLogoutDisabled: id  == '1714472861155'
+    isLogoutDisabled: id  == '1714472861155',
+    drNamesList: getDrNameList(data,dataIds)
   }
 }
 

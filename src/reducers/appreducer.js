@@ -13,9 +13,9 @@ const filteredByDrName = (state=[],action={})=>{
     case ADD_DATA:
     case MULTI_ADD:
       const newValue = fieldFilterArr(ids,obj,'drName');
-      const newState = {};
-      Object.keys(state).map(status=>{
-        newState[status] = getUniQueIds([...state[status],...(newValue[status] || [])]).sort(function(a, b){return b-a});
+      const newState = {...state};
+      Object.keys(newValue).map(status=>{
+        newState[status] = getUniQueIds([...(state[status] || []),...(newValue[status] || [])]).sort(function(a, b){return b-a});
       })
       return newState;
     default:
@@ -33,9 +33,9 @@ const filteredDataIdReducers = (state=[],action={})=>{
     case ADD_DATA:
     case MULTI_ADD:
       const newValue = fieldFilterArr(ids,obj,'status');
-      const newState = {};
-      Object.keys(state).map(status=>{
-        newState[status] = getUniQueIds([...state[status],...(newValue[status] || [])]).sort(function(a, b){return b-a});
+      const newState = {...state};
+      Object.keys(newValue).map(status=>{
+        newState[status] = getUniQueIds([...(state[status] || []),...(newValue[status] || [])]).sort(function(a, b){return b-a});
       })
       return newState;
     default:

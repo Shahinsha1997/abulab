@@ -265,7 +265,9 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     ids.map((id)=>{
         const date = new Date(id);
         if(typeFilter == 'profitByDoc'){
-            getByTime(id, object[id].drName)
+            if(object[id].drName){
+                getByTime(id, object[id].drName)
+            }
         }
         else if(timeFilter == 'DayWise'){ 
             const hour = date.getHours()+1; // 0-based (0-23)
@@ -281,7 +283,8 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     const response = []
     let time;
     let keyName = 'time'
-    const monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    const monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    debugger;
     Object.keys(resultObj).map(key=>{
         if(typeFilter == 'profitByDoc'){
             keyName = 'drName';
@@ -301,4 +304,14 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         response.push({...resultObj[key], profit:income-expense,[keyName] : time})
     })
     return response;
+}
+
+export const getDrNameList = (data,ids=[])=>{
+    const drNameList = [];
+    ids.map(id=>{
+        if(!drNameList.includes(data[id].drName)){
+            drNameList.push(data[id].drName)
+        }
+    })
+    return drNameList
 }
