@@ -130,7 +130,7 @@ const Form = ({
     setLocalStorageData(localStorageKey, addPending)
     addData({data: getAsObj([data])});
     toggleDrawer()();
-    if(status != EXPENSE_LABEL){
+    if(status != EXPENSE_LABEL && isAddForm){
       setPreviousId(patientId)
     }
     if(!isAddForm){

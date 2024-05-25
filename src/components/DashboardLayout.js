@@ -24,7 +24,8 @@ class DashboardLayout extends Component {
       addTry: 0,
       updateTry: 0
     }
-    this.previousID = ''
+    this.previousID = '';
+    this.isSyncInProgress = false;
     const methods = [
       'toggleForm',
       'getAllDatas',
@@ -66,12 +67,15 @@ class DashboardLayout extends Component {
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
     const type = addPendingDatas.length > 0 ? 'add' : 'update'
-    if(addPendingDatas.length > 0 || updatePendingDatas.length > 0 ){
+
+    if((addPendingDatas.length > 0 || updatePendingDatas.length > 0 ) && !this.isSyncInProgress){
+      this.isSyncInProgress = true;
       this.setSyncStatus(false)
       return addDataAPI(type).then((res)=>{
         multiAdd({data:res})
         showAlert({type: 'success', message: type == 'add' ? "Datas Sync done successfully..." : "Datas Updated Successfully"})
         this.setSyncStatus(true)
+        this.isSyncInProgress = false;
         this.setState({
           addTry: type == 'add' ? 0 : addTry,
           updateTry : type != 'add' ? 0 : updateTry
