@@ -33,7 +33,8 @@ const Form = ({
     description:'',
     drName:'',
     totalAmount: '0',
-    paidAmount: '0'
+    paidAmount: '0',
+    comments: ''
   }, ...(data[formType] || {})})
   const labelObj = {
     patientId: "Patiend ID",
@@ -43,6 +44,7 @@ const Form = ({
     drName:'Dr Name',
     totalAmount: 'Total Amount',
     paidAmount: 'Paid Amount',
+    comments: 'Comments / Remarks'
   }
   const [state, setState] = React.useState(initialState);
   const [errState, setErrorState] = React.useState({});
@@ -102,7 +104,7 @@ const Form = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName} = state;
+    const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName, comments} = state;
     const status = getStatus(isIncomeForm, totalAmount-paidAmount)
     if(isErrorFound('',status)){
       return;
@@ -121,7 +123,8 @@ const Form = ({
       totalAmount, 
       paidAmount:  status == EXPENSE_LABEL ? totalAmount : paidAmount, 
       dueAmount: status == EXPENSE_LABEL ? 0 : totalAmount - paidAmount,
-      isScheduled: true
+      isScheduled: true,
+      comments
     })
     addPending.splice(0,0,data)
     setLocalStorageData(localStorageKey, addPending)

@@ -87,6 +87,10 @@ export const getFormFields = (fieldType)=>{
                 id: 'dueAmount',
                 label: 'Due Amount'
             },
+            'comments' : {
+                id: 'comments',
+                label: 'Comments / Remarks'
+            },
             'isScheduled' : {
                 id: 'isScheduled',
                 label: ''

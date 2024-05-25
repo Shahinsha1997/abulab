@@ -105,8 +105,13 @@ class DashboardLayout extends Component {
   }
   componentDidUpdate(prevProps, prevState){
     const { dataIds } = this.props;
-    const { filteredDataIds } = this.state;
-    if(prevProps.dataIds.length != dataIds.length || dataIds.length != filteredDataIds.length || prevState.syncStatus != this.state.syncStatus ){
+    const { filteredDataIds, filterObj } = this.state;
+    const {
+      timeFilter='All', 
+      typeFilter='All'
+    } = filterObj
+    const isIntialLoad =  dataIds.length != filteredDataIds.length && timeFilter == 'All' && typeFilter == 'All'
+    if(prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != this.state.syncStatus ){
       this.getFilteredDataIds();
     }
   }
@@ -127,7 +132,7 @@ class DashboardLayout extends Component {
     }
     if(isProfitFilter && timeFilter != 'All'){
       dataIds = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
-      tableColumns = Object.values(getFormFields(typeFilter))``
+      tableColumns = Object.values(getFormFields(typeFilter));
    }else{
     dataIds = dataIds.map(dataId=>{
        if(data[dataId].status != EXPENSE_LABEL && !previousId && !this.previousID){

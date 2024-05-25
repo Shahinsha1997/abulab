@@ -16,7 +16,7 @@ const IncomeForm = ({
     isAdmin,
     isAddForm
 }) => {
-const { patientId, name, mobileNumber, description, drName, totalAmount, paidAmount } = state;
+const { patientId, name, mobileNumber, description, drName, totalAmount, paidAmount, comments } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
 const isFieldDisabled = !(isAddForm || isAdmin)
 return(
@@ -61,6 +61,9 @@ return(
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
             <TextField label="Due Amount" name="dueAmount" value={totalAmount-paidAmount} onChange={handleInputChange} disabled fullWidth={isMobile} />
             {totalAmount-paidAmount < 0 && <Alert severity="error">Due amount is less than 0</Alert>}
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
+            <TextField label="Comments / Remarks" name="comments" value={comments} onChange={handleInputChange} fullWidth={isMobile} />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
             <Button type="submit" variant="contained" color="primary" sx={{ padding:'10px', width: '100%' }} onClick={handleSubmit}>
