@@ -238,6 +238,7 @@ class DashboardLayout extends Component {
           isLogoutDisabled={isLogoutDisabled} 
           toggleForm={this.toggleForm} 
           logoutUser={logoutUser} 
+          patientCount={filteredDataIds.length}
           syncNow={(addPendingDatas.length > 0 || updatePendingDatas.length > 0) && this.syncNowDatas}
         />
         <RightPanel 

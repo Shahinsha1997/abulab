@@ -17,7 +17,8 @@ const LeftPanel = ({
   isLogoutDisabled,
   totalIncome,
   totalExpense,
-  totalOutstanding
+  totalOutstanding,
+  patientCount
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
   const [ adminSection, setAdminSection ] = useState('Hide')
@@ -132,6 +133,9 @@ const LeftPanel = ({
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Outstanding: ₹ {totalOutstanding}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Patient Count: {patientCount}</Typography>
           </Box>
         </Box>
         )}
