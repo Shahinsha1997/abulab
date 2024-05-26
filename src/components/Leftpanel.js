@@ -69,11 +69,11 @@ const LeftPanel = ({
         minHeight: '100vh'
       }}
     >
-      <Box sx={{ padding: '1rem', textAlign: 'center', height:"20%" }}>
+      <Box sx={{ padding: '1rem', textAlign: 'center', height:"30%" }}>
+        <img width="100px" height="100px" src='./AbuLabLogo.png' alt="Abulab" />
         <Typography variant="h6">Abu Laboratory</Typography>
         <Typography variant="body2">[ECG | X-Ray]</Typography>
         <Typography variant="body2">{dateTime}</Typography>
-        
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: isAdmin ? "30%" : "40%"  }}>
