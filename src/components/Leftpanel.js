@@ -14,7 +14,10 @@ const LeftPanel = ({
   logoutUser, 
   toggleForm, 
   syncNow, 
-  isLogoutDisabled
+  isLogoutDisabled,
+  totalIncome,
+  totalExpense,
+  totalOutstanding
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
   const [ adminSection, setAdminSection ] = useState('Hide')
@@ -73,7 +76,7 @@ const LeftPanel = ({
         
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: isAdmin ? "40%" : "60%"  }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: isAdmin ? "30%" : "40%"  }}>
         {isMobile ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
@@ -109,29 +112,32 @@ const LeftPanel = ({
         </>
       )}
     </Box>
+    <Box sx={{ height: '40%', width:'100%'}}>
     {isAdmin && (
-    <Box sx={{height: '20%'}}>
-      
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }} onClick={toggleAdminSection}>
+      <>
+        <Box sx={{ display: 'flex', cursor:'pointer', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:4 }} onClick={toggleAdminSection}>
           <Typography variant="h6">{adminSection} Admin Panel</Typography>
         </Box>
       {adminSection == 'Hide' && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body2">Income: Total Income</Typography>
-            <Typography variant="body2">{/* Dynamic value */}</Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:4 }}>
+
+         <Box sx={{ display: 'flex',  justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>Profit: ₹ {totalIncome - totalExpense}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body2">Expenses: Total Expenses</Typography>
-            <Typography variant="body2">{/* Dynamic value */}</Typography>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Income: ₹ {totalIncome}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body2">Outstanding: Total Outstanding</Typography>
+            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold', color: 'red' }}>Expenses: ₹ {totalExpense}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Outstanding: ₹ {totalOutstanding}</Typography>
           </Box>
         </Box>
         )}
-      </Box>
+      </>
     )}
+    </Box>
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height:"20%" }}>
         <Box sx={{padding:"20px"}}>
               <Tooltip title="Not Implemented Yet Sorry...">

@@ -22,7 +22,10 @@ class DashboardLayout extends Component {
       tableColumns: Object.values(getFormFields('allFields')),
       syncStatus: true,
       addTry: 0,
-      updateTry: 0
+      updateTry: 0,
+      totalExpense: 0,
+      totalIncome: 0,
+      totalOutstanding: 0
     }
     this.previousID = '';
     this.isSyncInProgress = false;
@@ -127,6 +130,9 @@ class DashboardLayout extends Component {
       timeInput, 
       docInput=''
     } = filterObj
+    let totalIncome =0;
+    let totalExpense = 0;
+    let totalOutstanding = 0;
     const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
     let { dataIds, filteredIds, filteredByDrName, data, showAlert } = this.props;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
@@ -135,13 +141,24 @@ class DashboardLayout extends Component {
       showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Filter'})
     }
     if(isProfitFilter && timeFilter != 'All'){
-      dataIds = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
+      let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
+      totalIncome = profitObj['totalIncome']
+      totalExpense = profitObj['totalExpense']
+      totalOutstanding = profitObj['totalOutstanding']
+      dataIds = profitObj['dataIds']
       tableColumns = Object.values(getFormFields(typeFilter));
    }else{
     dataIds = dataIds.map(dataId=>{
-       if(data[dataId].status != EXPENSE_LABEL && !previousId && !this.previousID){
+      const { totalAmount=0, dueAmount=0, paidAmount=0, status } = data[dataId];
+       if(status != EXPENSE_LABEL && !previousId && !this.previousID){
         this.previousID = data[dataId].patientId
          this.setPreviousId(this.previousID)
+       }
+       if(status == EXPENSE_LABEL){
+        totalExpense += parseInt(totalAmount) 
+       }else{
+        totalIncome += parseInt(paidAmount)
+        totalOutstanding += parseInt(dueAmount || 0)
        }
        return data[dataId]
      })
@@ -149,7 +166,10 @@ class DashboardLayout extends Component {
    }
     this.setState({
       filteredDataIds: dataIds,
-      tableColumns
+      tableColumns,
+      totalIncome,
+      totalExpense,
+      totalOutstanding
     })
   }
   getAllDatas(callbk){
@@ -173,8 +193,28 @@ class DashboardLayout extends Component {
     }, this.getFilteredDataIds)
   }
   render() {
-    const { logoutUser, data, addData, multiAdd, isAdmin, appConfig, closeAlert, showAlert, isLogoutDisabled, drNamesList } = this.props
-    const { formType, previousId, filteredDataIds, tableColumns, filterObj } = this.state;
+    const { 
+      logoutUser, 
+      data, 
+      addData, 
+      multiAdd, 
+      isAdmin, 
+      appConfig, 
+      closeAlert, 
+      showAlert, 
+      isLogoutDisabled, 
+      drNamesList 
+    } = this.props
+    const { 
+      formType,
+      previousId, 
+      filteredDataIds, 
+      tableColumns, 
+      filterObj ,
+      totalIncome,
+      totalExpense,
+      totalOutstanding
+    } = this.state;
     const { alertOptions={} } = appConfig
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
@@ -190,7 +230,16 @@ class DashboardLayout extends Component {
           this.getAlertContent()
         ) : null}
        
-        <LeftPanel isLogoutDisabled={isLogoutDisabled} toggleForm={this.toggleForm} logoutUser={logoutUser} syncNow={(addPendingDatas.length > 0 || updatePendingDatas.length > 0) && this.syncNowDatas}/>
+        <LeftPanel 
+          totalIncome={totalIncome} 
+          totalExpense={totalExpense} 
+          totalOutstanding={totalOutstanding} 
+          isAdmin={isAdmin} 
+          isLogoutDisabled={isLogoutDisabled} 
+          toggleForm={this.toggleForm} 
+          logoutUser={logoutUser} 
+          syncNow={(addPendingDatas.length > 0 || updatePendingDatas.length > 0) && this.syncNowDatas}
+        />
         <RightPanel 
           addData={addData} 
           toggleForm={this.toggleForm} 

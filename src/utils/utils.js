@@ -241,6 +241,9 @@ export const getTimeFilter = (idsWithTime, timeFilter, givenDate)=>{
 
 export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{ 
     const resultObj = {}
+    const totalIncome = 0;
+    const totalExpense = 0;
+    const totalOutstanding = 0;
     const getByTime = (id, type) =>{
             if(typeof resultObj[type] == 'undefined'){
                 resultObj[type] = {
@@ -252,9 +255,12 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
             const { totalAmount=0, dueAmount=0, paidAmount=0, status } = object[id];
            
             if(status == EXPENSE_LABEL){
+                totalExpense += parseInt(totalAmount) 
                 resultObj[type].expense = resultObj[type].expense + parseInt(totalAmount)
             }else{
                 const {income, expense, outstanding } = resultObj[type];
+                totalIncome += parseInt(paidAmount)
+                totalOutstanding += parseInt(dueAmount || 0)
                 resultObj[type] = {
                     income: income+parseInt(paidAmount),
                     expense,
@@ -284,7 +290,6 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     let time;
     let keyName = 'time'
     const monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    debugger;
     Object.keys(resultObj).map(key=>{
         if(typeFilter == 'profitByDoc'){
             keyName = 'drName';
@@ -303,7 +308,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         const { income, expense } = resultObj[key]
         response.push({...resultObj[key], profit:income-expense,[keyName] : time})
     })
-    return response;
+    return { dataIds: response, totalExpense, totalIncome, totalOutstanding};
 }
 
 export const getDrNameList = (data,ids=[])=>{
