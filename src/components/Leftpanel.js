@@ -22,19 +22,21 @@ const LeftPanel = ({
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
   const [ adminSection, setAdminSection ] = useState('Hide')
-  const [dateTime, setDateTime] = useState();
+  const [dateTime, setDateTime] = useState(new Date().toLocaleString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    }));
+  const [time, setTime] = useState()
   setTimeout(()=>{
     let date = new Date();
     date  = date.toLocaleString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
         second: '2-digit',
         hour12: true
       });
-      setDateTime(date)
+      setTime(date)
   },1000)
   const toggleAdminSection = ()=>{
     setAdminSection(adminSection == 'Show' ? 'Hide' : 'Show')
@@ -75,6 +77,7 @@ const LeftPanel = ({
         <Typography variant="h6">Abu Laboratory</Typography>
         <Typography variant="body2">[ECG | X-Ray]</Typography>
         <Typography variant="body2">{dateTime}</Typography>
+        <Typography variant="body2">{time}</Typography>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: isAdmin ? "30%" : "40%"  }}>
