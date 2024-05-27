@@ -30,7 +30,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
-    maxWidth: 100,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
@@ -77,7 +76,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
                       } else {
                         return (
                           <Tooltip title={getCellFormattedVal(column.id,row[column.id], row['status'], filterType)} key={column.id}>
-                            <StyledTableCell>
+                            <StyledTableCell sx={{'maxWidth': column.maxWidth || 100}}>
                               {getCellFormattedVal(column.id,row[column.id],row['status'], filterType)}
                             </StyledTableCell>
                           </Tooltip>

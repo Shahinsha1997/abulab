@@ -60,7 +60,7 @@ const LeftPanel = ({
     <Box
       sx={{
         width: { xs: '100%' },
-        maxWidth: '400px',
+        maxWidth: '200px',
         height: '100vh',
         backgroundColor: 'lightblue',
         display: 'flex',
@@ -116,11 +116,11 @@ const LeftPanel = ({
     <Box sx={{ height: '40%', width:'100%'}}>
     {isAdmin && (
       <>
-        <Box sx={{ display: 'flex', cursor:'pointer', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:4 }} onClick={toggleAdminSection}>
+        <Box sx={{ display: 'flex', cursor:'pointer', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:2 }} onClick={toggleAdminSection}>
           <Typography variant="h6">{adminSection} Admin Panel</Typography>
         </Box>
       {adminSection == 'Hide' && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:2 }}>
 
          <Box sx={{ display: 'flex',  justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>Profit: ₹ {totalIncome - totalExpense}</Typography>
@@ -143,7 +143,7 @@ const LeftPanel = ({
     )}
     </Box>
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height:"20%" }}>
-        <Box sx={{padding:"20px"}}>
+        {/* <Box sx={{padding:"20px"}}>
               <Tooltip title="Not Implemented Yet Sorry...">
               {isMobile ? (
                   <IconButton color="primary" id="print-btn" onClick={handlePrintClick}>
@@ -155,7 +155,7 @@ const LeftPanel = ({
                   </Button>
               )}
           </Tooltip>
-        </Box>
+        </Box> */}
         <Box sx={{padding:"20px"}} >
             {isMobile ? (
             <Tooltip title={isLogoutDisabled ? "Sorry! You are not allowed to logout" : "Logout"}>

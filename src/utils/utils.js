@@ -49,47 +49,58 @@ export const getFormFields = (fieldType)=>{
         'allFields' : {
             'time' : {
                 id: 'time',
-                label: 'Date & Time'
+                label: 'Date & Time',
+                'maxWidth': '150px'
             },
             'patientId' : {
                 id: 'patientId',
-                label: 'Patient ID'
+                label: 'Patient ID',
+                'maxWidth': '100px'
             },
             'name' : {
                 id: 'name',
-                label: 'Name'
+                label: 'Name',
+                'maxWidth': '100px'
             },
             'mobileNumber' : {
                 id: 'mobileNumber',
-                label: 'Mobile Number'
+                label: 'Mobile Number',
+                'maxWidth': '100px'
             },
             'drName' : {
                 id: 'drName',
-                label: 'Doctor Name'
+                label: 'Doctor Name',
+                'maxWidth': '100px'
             },
             'status' : {
                 id: 'status',
-                label: 'Status'
+                label: 'Status',
+                'maxWidth': '100px'
             },
             'description' : {
                 id: 'description',
-                label: 'Description'
+                label: 'Description',
+                'maxWidth': '100px'
             },
             'totalAmount' : {
                 id: 'totalAmount',
-                label: 'Total Amount'
+                label: 'Total Amount',
+                'maxWidth': '100px'
             },
             'paidAmount' : {
                 id: 'paidAmount',
-                label: 'Paid Amount'
+                label: 'Paid Amount',
+                'maxWidth': '100px'
             },
             'dueAmount' : {
                 id: 'dueAmount',
-                label: 'Due Amount'
+                label: 'Due Amount',
+                'maxWidth': '100px'
             },
             'comments' : {
                 id: 'comments',
-                label: 'Comments / Remarks'
+                label: 'Comments / Remarks',
+                'maxWidth': '100px'
             },
             'isScheduled' : {
                 id: 'isScheduled',
@@ -99,45 +110,55 @@ export const getFormFields = (fieldType)=>{
         'profit' : {
             'time' : {
                 id: 'time',
-                label: 'Date & Time'
+                label: 'Date & Time',
+                'maxWidth': '150px'
             },
             'profit' : {
                 id: 'profit',
-                label: 'Profit'
+                label: 'Profit',
+                'maxWidth': '150px'
             },
             'income' : {
                 id: 'income',
-                label: 'Income'
+                label: 'Income',
+                'maxWidth': '150px'
             },
             'outstanding' : {
                 id: 'outstanding',
-                label: 'Outstanding'
+                label: 'Outstanding',
+                'maxWidth': '150px'
             },
             'expense' : {
                 id: 'expense',
-                label: 'Expense'
+                label: 'Expense',
+                'maxWidth': '150px'
             }
         },
         'profitByDoc' : {
             'drName' : {
                 id: 'drName',
-                label: 'Doctor Name'
+                label: 'Doctor Name',
+                'maxWidth': '150px'
             },
             'profit' : {
                 id: 'profit',
-                label: 'Profit'
+                label: 'Profit',
+                'maxWidth': '150px'
             },
             'income' : {
                 id: 'income',
-                label: 'Income'
+                label: 'Income',
+                'maxWidth': '150px'
             },
             'outstanding' : {
                 id: 'outstanding',
-                label: 'Outstanding'
+                label: 'Outstanding',
+                'maxWidth': '150px'
             },
             'expense' : {
                 id: 'expense',
-                label: 'Expense'
+                label: 'Expense',
+                'maxWidth': '150px'
             }
         }
     }[fieldType]
@@ -241,9 +262,9 @@ export const getTimeFilter = (idsWithTime, timeFilter, givenDate)=>{
 
 export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{ 
     const resultObj = {}
-    const totalIncome = 0;
-    const totalExpense = 0;
-    const totalOutstanding = 0;
+    let totalIncome = 0;
+    let totalExpense = 0;
+    let totalOutstanding = 0;
     const getByTime = (id, type) =>{
             if(typeof resultObj[type] == 'undefined'){
                 resultObj[type] = {

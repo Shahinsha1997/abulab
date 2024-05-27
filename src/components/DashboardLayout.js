@@ -137,8 +137,8 @@ class DashboardLayout extends Component {
     let { dataIds, filteredIds, filteredByDrName, data, showAlert } = this.props;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
     dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
-    if(isProfitFilter){
-      showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Filter'})
+    if(isProfitFilter && timeFilter == 'All'){
+      showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Frame'})
     }
     if(isProfitFilter && timeFilter != 'All'){
       let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
