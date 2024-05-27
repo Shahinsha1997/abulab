@@ -55,56 +55,57 @@ export const getFormFields = (fieldType)=>{
             'patientId' : {
                 id: 'patientId',
                 label: 'Patient ID',
-                'maxWidth': '100px'
+                'maxWidth': '75px'
             },
             'name' : {
                 id: 'name',
                 label: 'Name',
-                'maxWidth': '100px'
+                'maxWidth': '150px'
             },
             'mobileNumber' : {
                 id: 'mobileNumber',
                 label: 'Mobile Number',
-                'maxWidth': '100px'
+                'maxWidth': '50px'
             },
             'drName' : {
                 id: 'drName',
                 label: 'Doctor Name',
-                'maxWidth': '100px'
+                'maxWidth': '150px'
             },
             'status' : {
                 id: 'status',
                 label: 'Status',
-                'maxWidth': '100px'
+                'maxWidth': '75px'
             },
             'description' : {
                 id: 'description',
                 label: 'Description',
-                'maxWidth': '100px'
+                'maxWidth': '150px'
             },
             'totalAmount' : {
                 id: 'totalAmount',
                 label: 'Total Amount',
-                'maxWidth': '100px'
+                'maxWidth': '75px'
             },
             'paidAmount' : {
                 id: 'paidAmount',
                 label: 'Paid Amount',
-                'maxWidth': '100px'
+                'maxWidth': '75px'
             },
             'dueAmount' : {
                 id: 'dueAmount',
                 label: 'Due Amount',
-                'maxWidth': '100px'
+                'maxWidth': '75px'
             },
             'comments' : {
                 id: 'comments',
                 label: 'Comments / Remarks',
-                'maxWidth': '100px'
+                'maxWidth': '150px'
             },
             'isScheduled' : {
                 id: 'isScheduled',
-                label: ''
+                label: '',
+                'maxWidth': '75px'
             }
         },
         'profit' : {
