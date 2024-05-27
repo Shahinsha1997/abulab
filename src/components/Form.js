@@ -88,7 +88,7 @@ const Form = ({
         errObj[key] = `${labelObj[key]} can't be Empty`;
         isError = true;
       }
-      if(amountFields.includes(key) && state[key]<=0){
+      if(amountFields.includes(key) && state[key]<0){
         errObj[key] = `${labelObj[key]} can't be less then 0`;
         isError = true;
       }
