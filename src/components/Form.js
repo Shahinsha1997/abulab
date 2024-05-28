@@ -115,7 +115,7 @@ const Form = ({
     const data = Object.assign({
       time: isAddForm ? Date.now() : parseInt(formType),
       patientId: status == EXPENSE_LABEL ? '' : patientId, 
-      name: namePrefix+name,
+      name: status == EXPENSE_LABEL ? name: namePrefix+name,
       mobileNumber, 
       status,
       drName,
