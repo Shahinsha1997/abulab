@@ -1,12 +1,17 @@
 export const EXPENSE_LABEL = 'Expense'
 export const INCOME_LABEL = 'Income'
-export const OUTSTANDING_LABEL = 'Outstanding'
+export const OUTSTANDING_LABEL = 'Outstanding';
+export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss'];
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
 
-export const getLocalStorageData = (key, defaultValue='{}')=>{
-    return JSON.parse(localStorage[key] || defaultValue)
+export const getLocalStorageData = (key, defaultValue='{}',isParseNeeded=true)=>{
+    if(isParseNeeded){
+        return JSON.parse(localStorage[key] || defaultValue)
+    }
+    return localStorage[key] || defaultValue
+    
 }
 export const setLocalStorageData =(key,obj={})=>{
     localStorage[key] = JSON.stringify(obj)
@@ -341,4 +346,35 @@ export const getDrNameList = (data,ids=[])=>{
         }
     })
     return drNameList
+}
+
+export const setCacheDatas = ({ids=[], obj={}}) =>{
+    let datas = getLocalStorageData('datas','{}');
+    let dataIds = getLocalStorageData('dataIds','[]');
+    datas = {...datas, ...obj}
+    dataIds = [...dataIds,...(ids.filter(id=>!dataIds.includes(id)))].sort(function(a, b){return b-a});
+    setLocalStorageData('datas',datas);
+    setLocalStorageData('dataIds',dataIds);
+    return { ids: dataIds, obj: datas}
+}
+
+export const clearCache = ()=>{
+    delete localStorage['datas']
+    delete localStorage['dataIds']
+    delete localStorage['lastCallTime']
+    window.location.reload();
+}
+
+export const getEditedFormProperties = (properties={})=>{
+    const { name } = properties;
+    if(name){
+        for(let i=0;i<PREFIX_NAMES_LIST.length;i++){
+            if(name.includes(PREFIX_NAMES_LIST[i])){
+                properties['name'] = name.replace(PREFIX_NAMES_LIST[i],'');
+                properties['namePrefix'] = PREFIX_NAMES_LIST[i];
+                break;
+            }
+        }
+    }
+    return properties
 }

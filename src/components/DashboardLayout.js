@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter } from '../utils/utils';
+import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, getDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
@@ -70,7 +70,6 @@ class DashboardLayout extends Component {
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
     const type = addPendingDatas.length > 0 ? 'add' : 'update'
-
     if((addPendingDatas.length > 0 || updatePendingDatas.length > 0 ) && !this.isSyncInProgress){
       this.isSyncInProgress = true;
       this.setSyncStatus(false)
@@ -175,7 +174,7 @@ class DashboardLayout extends Component {
   getAllDatas(callbk){
     const { from , limit } = this.state;
     const { getDatas, showAlert, logoutUser } = this.props;
-    getDataAPI(from, limit).then(res=>{
+    getDataAPI().then(res=>{
       getDatas({data: res, from})
       callbk && callbk();
     }).catch(err=>{

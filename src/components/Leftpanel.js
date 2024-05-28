@@ -8,7 +8,8 @@ import PrintIcon from '@mui/icons-material/Print';
 import useMediaQuery from '@mui/material/useMediaQuery'; 
 import SyncIcon from '@mui/icons-material/Sync';
 import ReactToPrint from 'react-to-print';
-import { getLocalStorageData } from '../utils/utils';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import { clearCache, getLocalStorageData } from '../utils/utils';
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -49,7 +50,9 @@ const LeftPanel = ({
   const handleAddExpensesClick = () => {
     toggleForm('addExpenses')
   };
-
+  const handleClearCache = ()=>{
+    clearCache();
+  }
 
   const handlePrintClick = () => {
   };
@@ -91,6 +94,9 @@ const LeftPanel = ({
               <AddIcon color="primary" />
               <Typography variant="body2">Add Expenses</Typography>
             </Box>
+            <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
+                Clear Cache
+            </Button>
             {syncNow ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-expenses-btn" onClick={syncNow}>
                 <SyncIcon color="primary" />
@@ -106,6 +112,9 @@ const LeftPanel = ({
             </Button>
             <Button variant="contained" startIcon={<AddIcon />} id="add-expenses-btn" onClick={handleAddExpensesClick} sx={{ padding: '8px 16px' }}>
                 Add Expenses
+            </Button>
+            <Button variant="contained" startIcon={<NotInterestedIcon />} id="add-expenses-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
+                Clear Cache
             </Button>
           {syncNow ? (
             <Button variant="contained" startIcon={<SyncIcon />} id="add-expenses-btn" onClick={syncNow} sx={{ padding: '8px 16px' }}>

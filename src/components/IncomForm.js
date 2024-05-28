@@ -1,11 +1,12 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
 import { Autocomplete } from '@mui/material';
-
+import Select from '@mui/material/Select';
+import { PREFIX_NAMES_LIST } from '../utils/utils';
 const IncomeForm = ({
     handleInputChange, 
     getIdPrefix, 
@@ -18,7 +19,7 @@ const IncomeForm = ({
     isAddForm,
     drNamesList
 }) => {
-const { patientId, name, mobileNumber, description, drName, totalAmount, paidAmount, comments } = state;
+const { patientId, name, mobileNumber, description, drName, totalAmount, paidAmount, comments, namePrefix } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
 const isFieldDisabled = !(isAddForm || isAdmin)
 return(
@@ -37,7 +38,22 @@ return(
             </Box>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Name" name="name" value={name} onChange={handleInputChange} disabled={isFieldDisabled} required fullWidth={isMobile} />
+            <Box sx={{display:'flex'}}>
+            <Select value={namePrefix} name="namePrefix" onChange={(e)=>handleInputChange(e)}>
+                {PREFIX_NAMES_LIST.map(prefix=>
+                    <MenuItem value={prefix}>{prefix}</MenuItem>
+                )}
+            </Select>
+            <TextField 
+                label="Name" 
+                name="name" 
+                value={name} 
+                onChange={handleInputChange} 
+                disabled={isFieldDisabled} 
+                required 
+                fullWidth
+            />
+            </Box>
             {nameError && <Alert severity="error">{nameError}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
@@ -50,7 +66,7 @@ return(
                 id={'drName'}
                 name="drName"
                 options={drNamesList || []}
-                fullWidth={isMobile}
+                fullWidth
                 onChange={handleInputChange}
                 renderInput={(params) => <TextField {...params} name="drName" sx={{width:'100%'}} onChange={handleInputChange} label="Doctor Name" fullWidth={isMobile} />}
                 />

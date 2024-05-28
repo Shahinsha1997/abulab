@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { EXPENSE_LABEL, getAsObj, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
+import { EXPENSE_LABEL, getAsObj, getEditedFormProperties, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
 import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
 const Form = ({
@@ -35,8 +35,9 @@ const Form = ({
     drName:'',
     totalAmount: '0',
     paidAmount: '0',
-    comments: ''
-  }, ...(data[formType] || {})})
+    comments: '',
+    namePrefix: 'Mrs.'
+  }, ...(getEditedFormProperties(data[formType]))})
   const labelObj = {
     patientId: "Patiend ID",
     name: 'Name',
@@ -49,9 +50,7 @@ const Form = ({
   }
   const [state, setState] = React.useState(initialState);
   const [errState, setErrorState] = React.useState({});
-
   const isMobile = useMediaQuery('(max-width: 600px)');
-
   React.useEffect(()=>{
     setState({...state, patientId: getProperId(previousID+1)})
   },[previousID])
@@ -105,7 +104,7 @@ const Form = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName, comments} = state;
+    const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName, comments, namePrefix} = state;
     const status = getStatus(isIncomeForm, totalAmount-paidAmount)
     if(isErrorFound('',status)){
       return;
@@ -116,7 +115,7 @@ const Form = ({
     const data = Object.assign({
       time: isAddForm ? Date.now() : parseInt(formType),
       patientId: status == EXPENSE_LABEL ? '' : patientId, 
-      name, 
+      name: namePrefix+name,
       mobileNumber, 
       status,
       drName,

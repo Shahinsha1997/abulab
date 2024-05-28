@@ -1,7 +1,7 @@
-import { getAsObj, getLocalStorageData, setLocalStorageData } from "../utils/utils"
+import { getAsObj, getLocalStorageData, setCacheDatas, setLocalStorageData } from "../utils/utils"
 
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbzQwiDTC1cUes9q6MrOHEqu7W0OIxQlaeDB4CxUUcaCQ5dwjzTdMLu6ZzuGKjpJvYMu/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbwZy-RLu4iD0Xx6tPLSqGqLu0IIdTNdwS_VAeBOSm655v0Nc4AYEdQWl7Q1hp86dBBB2A/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycby9t7MEp3l356CFg97BDMX5hMKKHJuk-wQbVy5tq_gocvslwTN45dYtAyVlbkZ8ByNG3A/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -25,7 +25,6 @@ export const addDataAPI = (type) =>{
     const inProgressData = getLocalStorageData(inProgressKey, '[]');
     setLocalStorageData(inProgressKey,[...inProgressData, ...data])
     setLocalStorageData(pendingKey,[]);
-    console.log(inProgressData, data)
     return new Promise((resolve, reject)=>{
         return fetch(DATA_URL, {
             redirect: "follow",
@@ -40,7 +39,7 @@ export const addDataAPI = (type) =>{
             console.log(response)
             if(response.status == 200){
                 setLocalStorageData(inProgressKey,[]);
-                return resolve(getAsObj(data,'time',false))
+                return resolve(setCacheDatas(getAsObj(data,'time',false)))
             }
             throw response.status
             
@@ -49,9 +48,11 @@ export const addDataAPI = (type) =>{
     })
 }
 
-export const getDataAPI = (from=1, limit=50)=>{
+export const getDataAPI = ()=>{
+    const lastRowId = getLocalStorageData('lastCallTime','', false);
+    setLocalStorageData('lastCallTime',Date.now())
     return new Promise((resolve, reject)=>{
-        return fetch(`${DATA_URL}?from=${from}&limit=${limit}`, {
+        return fetch(`${DATA_URL}?${lastRowId ? 'lastRowId='+lastRowId : ''}`, {
             redirect: "follow",
             method: 'GET',
             headers: {
@@ -62,7 +63,7 @@ export const getDataAPI = (from=1, limit=50)=>{
         .then(response=>{
             if(response.data || response.status == 200){
                 const { data } = response;
-                resolve(getAsObj(data))
+                resolve(setCacheDatas(getAsObj(data)))
             }
             throw response.status
             
