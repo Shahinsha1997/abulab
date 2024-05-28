@@ -1,7 +1,7 @@
 export const EXPENSE_LABEL = 'Expense'
 export const INCOME_LABEL = 'Income'
 export const OUTSTANDING_LABEL = 'Outstanding';
-export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss'];
+export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss.','Mast.'];
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
