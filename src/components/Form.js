@@ -47,7 +47,7 @@ const Form = ({
     patientId: "Patiend ID",
     name: 'Name',
     mobileNumber: 'Mobile Number',
-    description:'Description',
+    description:'Test List',
     drName:'Dr Name',
     totalAmount: 'Total Amount',
     paidAmount: 'Paid Amount',

@@ -94,6 +94,7 @@ const TestForm = ({
                     id='testName'
                     name="testName"
                     options={testArr}
+                    noOptionsText={'No Results Found'}
                     getOptionLabel={(option) => option.testName}
                     getOptionKey={(option) => option.testId}
                     fullWidth
