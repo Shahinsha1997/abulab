@@ -12,6 +12,7 @@ import ListItem from '@mui/material/ListItem';
 import { EXPENSE_LABEL, getAsObj, getEditedFormProperties, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
 import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
+import TestForm from './TestForm';
 const Form = ({
   addData,
   data,
@@ -22,7 +23,10 @@ const Form = ({
   setPreviousId,
   setSyncStatus,
   isAdmin,
-  drNamesList
+  drNamesList,
+  testObj,
+  testArr,
+  multiTestAdd
 }) => {
   const isAddForm = formType.indexOf('add') != -1
   const isIncomeForm = formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
@@ -32,12 +36,13 @@ const Form = ({
     name: '',
     mobileNumber: '',
     description:'',
+    testsArr:[],
     drName:'',
     totalAmount: '0',
     paidAmount: '0',
     comments: '',
     namePrefix: 'Mrs.'
-  }, ...(getEditedFormProperties(data[formType]))})
+  }, ...(getEditedFormProperties(data[formType],testObj))})
   const labelObj = {
     patientId: "Patiend ID",
     name: 'Name',
@@ -51,6 +56,16 @@ const Form = ({
   const [state, setState] = React.useState(initialState);
   const [errState, setErrorState] = React.useState({});
   const isMobile = useMediaQuery('(max-width: 600px)');
+
+  const handleTest = (e,values)=>{
+    let totalAmount = 0;
+    let description= ''
+    values.map(val=>{
+      description += val.testName+"|"
+      totalAmount += parseInt(val.testAmount || 0)
+    })
+    setState((prevState) => ({ ...prevState, description, testsArr:values, totalAmount }))
+  }
   React.useEffect(()=>{
     setState({...state, patientId: getProperId(previousID+1)})
   },[previousID])
@@ -87,7 +102,7 @@ const Form = ({
         errObj[key] = `${labelObj[key]} can't be Empty`;
         isError = true;
       }
-      if(amountFields.includes(key) && state[key]<0){
+      if(amountFields.includes(key) && (!state[key] || parseInt(state[key])<0)){
         errObj[key] = `${labelObj[key]} can't be less then 0`;
         isError = true;
       }
@@ -156,7 +171,7 @@ const Form = ({
                   }
                 >
                     <Typography gutterBottom variant="h5" component="div">
-                     {isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} Expenses`}
+                     {formType == 'addTests' ? 'Add Test Form' : isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} Expenses`}
                     </Typography>
                 </ListItem>
             </List>
@@ -172,8 +187,18 @@ const Form = ({
                 isAdmin={isAdmin}
                 isAddForm={isAddForm}
                 drNamesList={drNamesList}
+                handleTest={handleTest}
+                testObj={testArr}
             />
-            ) : (
+            ) : formType == 'addTests' ? (
+              <TestForm   
+                formType={formType}
+                toggleDrawer={toggleDrawer}
+                showAlert={showAlert}
+                testArr={testArr}
+                multiTestAdd={multiTestAdd}
+              />
+            ): (
               <ExpenseForm
                 handleInputChange={handleInputChange}
                 getIdPrefix={getIdPrefix}

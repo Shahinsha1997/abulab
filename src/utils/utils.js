@@ -84,7 +84,7 @@ export const getFormFields = (fieldType)=>{
             },
             'description' : {
                 id: 'description',
-                label: 'Description',
+                label: 'Test List',
                 'maxWidth': '150px'
             },
             'totalAmount' : {
@@ -184,6 +184,7 @@ export const ADD_DATA = 'ADD_DATA';
 export const MODIFY_DATA = 'MODIFY_DATA';
 export const MULTI_ADD = 'MULTI_ADD'
 export const GET_DATA = 'GET_DATA'
+export const MULTI_TEST_ADD = 'MULTI_TEST_ADD'
 
 export function bind(...handlers) {
     handlers.forEach((handler) => {
@@ -357,16 +358,23 @@ export const setCacheDatas = ({ids=[], obj={}}) =>{
     setLocalStorageData('dataIds',dataIds);
     return { ids: dataIds, obj: datas}
 }
-
+export const setCacheTestDatas = ({obj={}})=>{
+    let datas = getLocalStorageData('testDatas','{}');
+    datas = {...datas, ...obj}
+    setLocalStorageData('testDatas',datas);
+    return { obj: datas}
+}
 export const clearCache = ()=>{
     delete localStorage['datas']
     delete localStorage['dataIds']
     delete localStorage['lastCallTime']
+    delete localStorage['testDatas']
     window.location.reload();
 }
 
-export const getEditedFormProperties = (properties={})=>{
-    const { name } = properties;
+export const getEditedFormProperties = (properties={}, testObj)=>{
+    const { name, description } = properties;
+    const testsArr = [];
     if(name){
         for(let i=0;i<PREFIX_NAMES_LIST.length;i++){
             if(name.includes(PREFIX_NAMES_LIST[i])){
@@ -376,5 +384,22 @@ export const getEditedFormProperties = (properties={})=>{
             }
         }
     }
+    if(description){
+        description.split("|").map(test=>{
+            test && testObj[test] && testsArr.push(testObj[test]);
+        })
+        
+    }
+    properties['testsArr'] = testsArr;
     return properties
+}
+
+export const isSyncNowNeeded = ()=>{
+   var pendingDatas = ['addTestDatas','addPendingDatas','updatePendingDatas'];
+   for(let i=0;i<pendingDatas.length;i++){
+    if(getLocalStorageData(pendingDatas[i],'[]').length > 0){
+        return true;
+    }
+   }
+   return false;
 }

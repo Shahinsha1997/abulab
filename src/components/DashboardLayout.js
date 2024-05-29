@@ -4,9 +4,9 @@ import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
-import { logoutUser, addData,multiAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, setLocalStorageData } from '../utils/utils';
-import { addDataAPI, getDataAPI } from '../actions/APIActions';
+import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
+import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, isSyncNowNeeded, setLocalStorageData } from '../utils/utils';
+import { addDataAPI, addTestDataAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
 class DashboardLayout extends Component {
@@ -37,7 +37,8 @@ class DashboardLayout extends Component {
       'getFilteredDataIds',
       'getAlertContent',
       'setSyncStatus',
-      'syncNowDatas'
+      'syncNowDatas',
+      'syncTestDatas'
     ]
     bind.apply(this, methods);
   }
@@ -64,12 +65,22 @@ class DashboardLayout extends Component {
     </Snackbar>
     )
   }
+  syncTestDatas(){
+    const { multiTestAdd } = this.props;
+    const addTestDatas = getLocalStorageData('addTestDatas','[]');
+    if(addTestDatas.length > 0){
+      return addTestDataAPI().then(res=>{
+        multiTestAdd({data:res})
+      })
+    }
+  }
   syncNowDatas(){
     const { multiAdd, showAlert } = this.props;
     const { addTry, updateTry } = this.state;
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
     const type = addPendingDatas.length > 0 ? 'add' : 'update'
+    this.syncTestDatas();
     if((addPendingDatas.length > 0 || updatePendingDatas.length > 0 ) && !this.isSyncInProgress){
       this.isSyncInProgress = true;
       this.setSyncStatus(false)
@@ -157,6 +168,9 @@ class DashboardLayout extends Component {
         totalExpense += parseInt(totalAmount) 
        }else{
         totalIncome += parseInt(paidAmount)
+        if(isNaN(totalIncome)){
+          console.log(dataId)
+        }
         totalOutstanding += parseInt(dueAmount || 0)
        }
        return data[dataId]
@@ -173,9 +187,13 @@ class DashboardLayout extends Component {
   }
   getAllDatas(callbk){
     const { from , limit } = this.state;
-    const { getDatas, showAlert, logoutUser } = this.props;
-    getDataAPI().then(res=>{
-      getDatas({data: res, from})
+    const { getDatas, showAlert, logoutUser, multiTestAdd } = this.props;
+    const promises = [getDataAPI(),getTestDataAPI()]
+    Promise.all(promises).then(res=>{
+      const datas = res[0];
+      const testDatas = res[1];
+      getDatas({data: datas, from})
+      multiTestAdd({data:testDatas})
       callbk && callbk();
     }).catch(err=>{
       console.log(err)
@@ -202,7 +220,10 @@ class DashboardLayout extends Component {
       closeAlert, 
       showAlert, 
       isLogoutDisabled, 
-      drNamesList 
+      drNamesList,
+      testObj,
+      multiTestAdd,
+      testArr
     } = this.props
     const { 
       formType,
@@ -215,8 +236,6 @@ class DashboardLayout extends Component {
       totalOutstanding
     } = this.state;
     const { alertOptions={} } = appConfig
-    const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
-    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
     return (
         <Box
         sx={{
@@ -238,7 +257,7 @@ class DashboardLayout extends Component {
           toggleForm={this.toggleForm} 
           logoutUser={logoutUser} 
           patientCount={filteredDataIds.length}
-          syncNow={(addPendingDatas.length > 0 || updatePendingDatas.length > 0) && this.syncNowDatas}
+          syncNow={isSyncNowNeeded() && this.syncNowDatas}
         />
         <RightPanel 
           addData={addData} 
@@ -256,6 +275,9 @@ class DashboardLayout extends Component {
           showAlert={showAlert}
           setSyncStatus={this.setSyncStatus}
           drNamesList={drNamesList}
+          testArr={testArr}
+          testObj={testObj}
+          multiTestAdd={multiTestAdd}
         />
       </Box>
       
@@ -265,7 +287,7 @@ class DashboardLayout extends Component {
 
 
 const mapStateToProps = (state)=>{
-  const { data, dataIds,filteredIds, filteredByDrName, user, appConfig } = state;
+  const { data, dataIds,filteredIds, filteredByDrName, user, appConfig, testObj:testArr } = state;
   const { isAdmin, id } = user;
   return {
     data,
@@ -275,7 +297,9 @@ const mapStateToProps = (state)=>{
     isAdmin,
     appConfig,
     isLogoutDisabled: id  == '1714472861155',
-    drNamesList: getDrNameList(data,dataIds)
+    drNamesList: getDrNameList(data,dataIds),
+    testArr: Object.values(testArr),
+    testObj: getAsObj(Object.values(testArr),'testName').obj
   }
 }
 
@@ -285,6 +309,7 @@ export default connect(mapStateToProps,{
   multiAdd,
   getDatas,
   closeAlert,
-  showAlert
+  showAlert,
+  multiTestAdd
 })(DashboardLayout);
 

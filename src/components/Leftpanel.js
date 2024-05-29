@@ -24,7 +24,7 @@ const LeftPanel = ({
   patientCount
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
-  const [ adminSection, setAdminSection ] = useState('Hide')
+  const [ adminSection, setAdminSection ] = useState('Show')
   const [dateTime, setDateTime] = useState(new Date().toLocaleString("en-GB", {
       day: "numeric",
       month: "short",
@@ -52,6 +52,9 @@ const LeftPanel = ({
   const handleAddExpensesClick = () => {
     toggleForm('addExpenses')
   };
+  const handleAddTest = () =>{
+    toggleForm('addTests')
+  }
   const handleClearCache = ()=>{
     clearCache();
   }
@@ -77,7 +80,7 @@ const LeftPanel = ({
         minHeight: '100vh'
       }}
     >
-      <Box sx={{ padding: '1rem', textAlign: 'center', height:"30%" }}>
+      <Box sx={{ padding: '1rem', textAlign: 'center', height:"20%" }}>
         <img width="100px" height="100px" src='./AbuLabLogo.png' alt="Abulab" />
         <Typography variant="h6">Abu Laboratory</Typography>
         <Typography variant="body2">[ECG | X-Ray]</Typography>
@@ -85,7 +88,7 @@ const LeftPanel = ({
         <Typography variant="body2">{time}</Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "20%"  }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "30%"  }}>
         {isMobile ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
@@ -96,6 +99,9 @@ const LeftPanel = ({
               <AddIcon color="primary" />
               <Typography variant="body2">Add Expenses</Typography>
             </Box>
+            <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest} sx={{ padding: '8px 16px' }}>
+                Add/Edit Test
+            </Button>
             <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
                 Clear Cache
             </Button>
@@ -114,6 +120,9 @@ const LeftPanel = ({
             </Button>
             <Button variant="contained" startIcon={<AddIcon />} id="add-expenses-btn" onClick={handleAddExpensesClick} sx={{ padding: '8px 16px' }}>
                 Add Expenses
+            </Button>
+            <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest} sx={{ padding: '8px 16px' }}>
+                Add/Edit Test
             </Button>
             <Button variant="contained" startIcon={<NotInterestedIcon />} id="add-expenses-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
                 Clear Cache

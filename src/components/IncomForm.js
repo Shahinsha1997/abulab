@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
-import { Autocomplete } from '@mui/material';
 import Select from '@mui/material/Select';
 import { PREFIX_NAMES_LIST } from '../utils/utils';
+import { Autocomplete, TextField, Chip } from '@mui/material';
 const IncomeForm = ({
     handleInputChange, 
     getIdPrefix, 
@@ -17,9 +16,11 @@ const IncomeForm = ({
     errState={},
     isAdmin,
     isAddForm,
-    drNamesList
+    drNamesList,
+    testObj,
+    handleTest
 }) => {
-const { patientId, name, mobileNumber, description, drName, totalAmount, paidAmount, comments, namePrefix } = state;
+const { patientId, name, mobileNumber, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
 const isFieldDisabled = !(isAddForm || isAdmin)
 return(
@@ -62,7 +63,8 @@ return(
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
             <Autocomplete
-                value={drName}
+                value={drName} 
+                disabled={isFieldDisabled}
                 id={'drName'}
                 name="drName"
                 options={drNamesList || []}
@@ -74,7 +76,23 @@ return(
             {drNameErr && <Alert severity="error">{drNameErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Description" name="description" value={description} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
+                <Autocomplete
+                    multiple
+                    disabled={isFieldDisabled}
+                    value={testsArr}
+                    onChange={handleTest}
+                    options={Object.values(testObj)}
+                    getOptionLabel={(option) => option && option.testName || ''}
+                    getOptionKey={(option) => option && option.testId || ''}
+                    renderTags={(value, getTagProps) => value.map((option, index) => (
+                        <Chip key={option.testId} label={option.testName} {...getTagProps({ index })} />
+                        ))
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} label="Select Tests" placeholder="Search..." />
+                    )}
+                />
+            {/* <TextField label="Description" name="description" value={description} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} /> */}
             {descriptionErr && <Alert severity="error">{descriptionErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>

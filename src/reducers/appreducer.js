@@ -1,4 +1,4 @@
-import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr } from "../utils/utils";
+import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
@@ -59,6 +59,16 @@ const dataIdsReducers = (state=[], action={}) =>{
     }
 }
 
+const testDataReducer = (state = {}, action={}) => {
+  const { data={} } = action.payload || {}
+  const { obj } = data;
+    switch (action.type) {
+      case MULTI_TEST_ADD:
+        return {...state, ...obj}
+      default:
+        return state;
+    }
+  };
 const dataReducer = (state = {}, action={}) => {
   const { data={} } = action.payload || {}
   const { obj } = data;
@@ -131,6 +141,7 @@ export const getAllReducers = () =>{
             dataIds: dataIdsReducers,
             filteredIds: filteredDataIdReducers,
             filteredByDrName: filteredByDrName,
-            appConfig: appReducer 
+            appConfig: appReducer,
+            testObj: testDataReducer
     }
 }

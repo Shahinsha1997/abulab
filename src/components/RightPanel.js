@@ -22,7 +22,10 @@ const RightPanel = ({
   showAlert,
   setPreviousId,
   setSyncStatus,
-  drNamesList
+  drNamesList,
+  testObj,
+  testArr,
+  multiTestAdd
 }) => {
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
@@ -96,6 +99,9 @@ const RightPanel = ({
             data={data}
             isAdmin={isAdmin}
             drNamesList={drNamesList}
+            testObj={testObj}
+            multiTestAdd={multiTestAdd}
+            testArr={testArr}
           />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
