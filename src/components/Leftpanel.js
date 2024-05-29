@@ -10,6 +10,8 @@ import SyncIcon from '@mui/icons-material/Sync';
 import ReactToPrint from 'react-to-print';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import { clearCache, getLocalStorageData } from '../utils/utils';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import PersonIcon from '@mui/icons-material/Person';
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -83,7 +85,7 @@ const LeftPanel = ({
         <Typography variant="body2">{time}</Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: isAdmin ? "30%" : "40%"  }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "20%"  }}>
         {isMobile ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
@@ -128,33 +130,43 @@ const LeftPanel = ({
     <Box sx={{ height: '40%', width:'100%'}}>
     {isAdmin && (
       <>
-        <Box sx={{ display: 'flex', cursor:'pointer', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:2 }} onClick={toggleAdminSection}>
-          <Typography variant="h6">{adminSection} Admin Panel</Typography>
-        </Box>
+       <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection} sx={{ padding: '8px 16px' }}>
+            {adminSection} Admin Panel
+        </Button>
       {adminSection == 'Hide' && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:2 }}>
 
-         <Box sx={{ display: 'flex',  justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>Profit: ₹ {totalIncome - totalExpense}</Typography>
+         <Box sx={{ display: 'flex',  justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
+            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>Profit </Typography>
+            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>₹ {totalIncome - totalExpense}</Typography>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Income: ₹ {totalIncome}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Income </Typography>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>₹ {totalIncome}</Typography>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold', color: 'red' }}>Expenses: ₹ {totalExpense}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
+            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold', color: 'red' }}>Expenses </Typography>
+            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold', color: 'red' }}>₹ {totalExpense}</Typography>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Outstanding: ₹ {totalOutstanding}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Outstanding </Typography>
+            <Box sx={{display:'flex', flexDirection:'row'}}>
+              <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>₹ {totalOutstanding}</Typography>
+            </Box>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Patient Count: {patientCount}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Patient Count</Typography>
+            <Box sx={{display:'flex', flexDirection:'row'}}>
+              <PersonIcon/>
+              <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>{patientCount}</Typography>
+            </Box>
           </Box>
         </Box>
         )}
       </>
     )}
     </Box>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height:"20%" }}>
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height:"10%" }}>
         {/* <Box sx={{padding:"20px"}}>
               <Tooltip title="Not Implemented Yet Sorry...">
               {isMobile ? (
