@@ -403,3 +403,19 @@ export const isSyncNowNeeded = ()=>{
    }
    return false;
 }
+
+export const printPage = () =>{
+        var mywindow = window.open('', 'print page', 'height=700,width=900');
+        let data = jQuery('[id="tableContainer"]').html();
+        let head = jQuery('head').html();
+        mywindow.document.write('<html><head><title>my div</title>');
+        mywindow.document.write(head);
+        mywindow.document.write('</head><body >');
+        mywindow.document.write(data);
+        mywindow.document.write('</body></html>');
+        mywindow.document.close(); // necessary for IE >= 10
+        mywindow.focus(); // necessary for IE >= 10
+
+        mywindow.print();
+        return true;
+}

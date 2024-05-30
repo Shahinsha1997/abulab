@@ -9,7 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import SyncIcon from '@mui/icons-material/Sync';
 import ReactToPrint from 'react-to-print';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import { clearCache, getLocalStorageData } from '../utils/utils';
+import { clearCache, getLocalStorageData, printPage } from '../utils/utils';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import PersonIcon from '@mui/icons-material/Person';
 const LeftPanel = ({ 
@@ -88,7 +88,7 @@ const LeftPanel = ({
         <Typography variant="body2">{time}</Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "30%"  }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "25%"  }}>
         {isMobile ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
@@ -136,14 +136,14 @@ const LeftPanel = ({
         </>
       )}
     </Box>
-    <Box sx={{ height: '40%', width:'100%'}}>
+    <Box sx={{ height: isAdmin ? '35%' : '40%', width:'100%'}}>
     {isAdmin && (
       <>
        <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection} sx={{ padding: '8px 16px' }}>
             {adminSection} Admin Panel
         </Button>
       {adminSection == 'Hide' && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: 2, marginLeft:2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight:'80%', marginBottom: 2, marginLeft:2 , overflow:'auto'}}>
 
          <Box sx={{ display: 'flex',  justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
             <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>Profit </Typography>
@@ -175,20 +175,22 @@ const LeftPanel = ({
       </>
     )}
     </Box>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height:"10%" }}>
-        {/* <Box sx={{padding:"20px"}}>
-              <Tooltip title="Not Implemented Yet Sorry...">
+    <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center', height:"10%" }}>
+    {isAdmin && (
+        <Box sx={{padding:"20px"}}>
+              <Tooltip title="Print">
               {isMobile ? (
-                  <IconButton color="primary" id="print-btn" onClick={handlePrintClick}>
+                  <IconButton color="primary" id="print-btn" onClick={printPage}>
                       <PrintIcon />
                   </IconButton>
               ) : (
-                  <Button variant="contained" color="primary" startIcon={<PrintIcon />} id="print-btn" onClick={handlePrintClick} sx={{ padding: '8px 16px' }}>
+                  <Button variant="contained" color="primary" startIcon={<PrintIcon />} id="print-btn" onClick={printPage} sx={{ padding: '8px 16px' }}>
                   Print
                   </Button>
               )}
           </Tooltip>
-        </Box> */}
+        </Box>
+    )}
         <Box sx={{padding:"20px"}} >
             {isMobile ? (
             <Tooltip title={isLogoutDisabled ? "Sorry! You are not allowed to logout" : "Logout"}>

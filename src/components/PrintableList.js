@@ -46,7 +46,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     const { typeFilter, timeFilter } = filterObj;
     const filterType = timeFilter != 'All' ? typeFilter : ''
     return(
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} id="tableContainer">
         <Table stickyHeader>
           <TableHead>
             <StyledTableRow>
