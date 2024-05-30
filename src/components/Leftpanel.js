@@ -88,7 +88,7 @@ const LeftPanel = ({
         <Typography variant="body2">{time}</Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "25%"  }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "30%", maxHeight:'30%', overflow:'auto'  }}>
         {isMobile ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
@@ -136,7 +136,7 @@ const LeftPanel = ({
         </>
       )}
     </Box>
-    <Box sx={{ height: isAdmin ? '35%' : '40%', width:'100%'}}>
+    <Box sx={{ height: isAdmin ? '32%' : '40%', width:'100%'}}>
     {isAdmin && (
       <>
        <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection} sx={{ padding: '8px 16px' }}>
@@ -175,7 +175,7 @@ const LeftPanel = ({
       </>
     )}
     </Box>
-    <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center', height:"10%" }}>
+    <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center' }}>
     {isAdmin && (
         <Box sx={{padding:"20px"}}>
               <Tooltip title="Print">
@@ -191,7 +191,7 @@ const LeftPanel = ({
           </Tooltip>
         </Box>
     )}
-        <Box sx={{padding:"20px"}} >
+        <Box>
             {isMobile ? (
             <Tooltip title={isLogoutDisabled ? "Sorry! You are not allowed to logout" : "Logout"}>
                 <IconButton color="error" id="logout-btn" disabled={isLogoutDisabled} onClick={handleLogoutClick}>
