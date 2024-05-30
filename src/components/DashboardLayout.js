@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, isSyncNowNeeded, setLocalStorageData } from '../utils/utils';
+import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, isSyncNowNeeded, scheduleSync, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
@@ -80,6 +80,7 @@ class DashboardLayout extends Component {
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
     const type = addPendingDatas.length > 0 ? 'add' : 'update'
+    setLocalStorageData('lastSyncTime', Date.now());
     this.syncTestDatas();
     if((addPendingDatas.length > 0 || updatePendingDatas.length > 0 ) && !this.isSyncInProgress){
       this.isSyncInProgress = true;
@@ -114,7 +115,8 @@ class DashboardLayout extends Component {
     })
   }
   componentDidMount(){
-    const { multiAdd } = this.props;
+    const { multiAdd, showAlert } = this.props;
+    scheduleSync(this.syncNowDatas, showAlert)
     const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
     this.getAllDatas(()=>multiAdd({data:getAsObj([...pendingDatas, ...updatePendingDatas])}));
@@ -200,7 +202,6 @@ class DashboardLayout extends Component {
       if(err == 404){
         return logoutUser();
       }
-      
       showAlert({type: 'error', 'message': "Internal Server Error"})
     })
   }

@@ -1,3 +1,5 @@
+import { showAlert } from "../dispatcher/action";
+
 export const EXPENSE_LABEL = 'Expense'
 export const INCOME_LABEL = 'Income'
 export const OUTSTANDING_LABEL = 'Outstanding';
@@ -362,7 +364,7 @@ export const setCacheTestDatas = ({obj={}})=>{
     let datas = getLocalStorageData('testDatas','{}');
     datas = {...datas, ...obj}
     setLocalStorageData('testDatas',datas);
-    return { obj: datas}
+    return { obj: obj}
 }
 export const clearCache = ()=>{
     delete localStorage['datas']
@@ -418,4 +420,17 @@ export const printPage = () =>{
 
         mywindow.print();
         return true;
+}
+
+export const scheduleSync = (syncNow,showAlert)=>{
+    debugger;
+    const lastSyncTime = getLocalStorageData('lastSyncTime',Date.now(),false)
+    const currentTime = Date.now()
+    const oneHrMs = 60*60*1000
+    const remainingTime = oneHrMs-(currentTime-parseInt(lastSyncTime))
+    setTimeout(()=>{
+        showAlert({type: 'info', message: `Auto Sync Intiated...`})
+        syncNow();
+    },remainingTime)
+    showAlert({type: 'success', message: `Auto Sync Scheduled. Datas will be sync automatically in ${parseInt(remainingTime/(60*1000))} Minutes...`})
 }

@@ -59,9 +59,6 @@ const LeftPanel = ({
     clearCache();
   }
 
-  const handlePrintClick = () => {
-  };
-
   const handleLogoutClick = () => {
     logoutUser()
   };

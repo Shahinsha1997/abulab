@@ -147,6 +147,7 @@ const Form = ({
     toggleDrawer()();
     if(status != EXPENSE_LABEL && isAddForm){
       setPreviousId(patientId)
+      toggleForm(formType)
     }
     if(!isAddForm){
       setSyncStatus(true);
