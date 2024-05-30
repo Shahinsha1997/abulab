@@ -83,10 +83,10 @@ return(
                     onChange={handleTest}
                     options={Object.values(testObj)}
                     noOptionsText={Object.values(testObj).length > 0 ? 'No Result Found' : 'Please add atleast one test from Add/Edit Test Option'}
-                    getOptionLabel={(option) => option && option.testName || ''}
+                    getOptionLabel={(option) => option && `${option.testName} | ₹ ${option.testAmount}` || ''}
                     getOptionKey={(option) => option && option.testId || ''}
                     renderTags={(value, getTagProps) => value.map((option, index) => (
-                        <Chip key={option.testId} label={option.testName} {...getTagProps({ index })} />
+                        <Chip key={option.testId} label={`${option.testName} | ₹ ${option.testAmount}`} {...getTagProps({ index })} />
                         ))
                     }
                     renderInput={(params) => (
