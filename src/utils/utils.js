@@ -57,7 +57,7 @@ export const getFormFields = (fieldType)=>{
             'time' : {
                 id: 'time',
                 label: 'Date & Time',
-                'maxWidth': '150px'
+                'maxWidth': '120px'
             },
             'patientId' : {
                 id: 'patientId',
@@ -67,17 +67,17 @@ export const getFormFields = (fieldType)=>{
             'name' : {
                 id: 'name',
                 label: 'Name',
-                'maxWidth': '150px'
+                'maxWidth': '120px'
             },
             'mobileNumber' : {
                 id: 'mobileNumber',
                 label: 'Mobile Number',
-                'maxWidth': '50px'
+                'maxWidth': '75px'
             },
             'drName' : {
                 id: 'drName',
                 label: 'Doctor Name',
-                'maxWidth': '150px'
+                'maxWidth': '120px'
             },
             'status' : {
                 id: 'status',
@@ -92,22 +92,22 @@ export const getFormFields = (fieldType)=>{
             'totalAmount' : {
                 id: 'totalAmount',
                 label: 'Total Amount',
-                'maxWidth': '75px'
+                'maxWidth': '100px'
             },
             'discount' : {
                 id: 'discount',
                 label: 'Discount',
-                'maxWidth': '75px'
+                'maxWidth': '80px'
             },
             'paidAmount' : {
                 id: 'paidAmount',
                 label: 'Paid Amount',
-                'maxWidth': '75px'
+                'maxWidth': '80px'
             },
             'dueAmount' : {
                 id: 'dueAmount',
                 label: 'Due Amount',
-                'maxWidth': '75px'
+                'maxWidth': '80px'
             },
             'comments' : {
                 id: 'comments',
@@ -117,7 +117,7 @@ export const getFormFields = (fieldType)=>{
             'isScheduled' : {
                 id: 'isScheduled',
                 label: '',
-                'maxWidth': '75px'
+                'maxWidth': '50px'
             }
         },
         'profit' : {
@@ -442,7 +442,6 @@ export const printPage = () =>{
 }
 
 export const scheduleSync = (syncNow,showAlert)=>{
-    debugger;
     const lastSyncTime = getLocalStorageData('lastSyncTime',Date.now(),false)
     const currentTime = Date.now()
     const oneHrMs = 60*60*1000
