@@ -6,6 +6,11 @@ import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, 
 import Form from './Form';
 import { EXPENSE_LABEL, getDatasByProfit, getFormFields, getTimeFilter } from '../utils/utils';
 import PrintableList from './PrintableList';
+import AddIcon from '@mui/icons-material/Add';
+import Backdrop from '@mui/material/Backdrop';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
 const RightPanel = ({ 
   isFormVisible=true, 
   addData, 
@@ -27,6 +32,18 @@ const RightPanel = ({
   testArr,
   multiTestAdd
 }) => {
+  const actions = [
+    { icon: <AddIcon />, name: 'Test', type:'addTests' },
+    { icon: <AddIcon />, name: 'Expense', type:'addExpense' },
+    { icon: <AddIcon />, name: 'Income', type:'addIncome'}
+  ];
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = (e) => {
+    debugger;
+    setOpen(false);
+  }
+
     const [timeFilter, setTimeFilter] = useState('All')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
@@ -229,9 +246,7 @@ const RightPanel = ({
                 />
             }
                 />
-                
             </Box>
-
             <Button variant="contained" onClick={handleFilterSubmit}>
                 Filter Results
             </Button>
@@ -239,6 +254,27 @@ const RightPanel = ({
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
               <PrintableList tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
             </Box>
+              <SpeedDial
+                ariaLabel="SpeedDial tooltip example"
+                sx={{ position: 'absolute', bottom: 50, right: 50 }}
+                icon={<SpeedDialIcon />}
+                onClose={handleClose}
+                onOpen={handleOpen}
+                open={open}
+              >
+                {actions.map((action) => (
+                  <SpeedDialAction
+                    key={action.name}
+                    icon={action.icon}
+                    tooltipTitle={action.name}
+                    tooltipOpen
+                    onClick={()=>{
+                      handleClose();
+                      toggleForm(action.type)
+                    }}
+                  />
+                ))}
+              </SpeedDial>
           </Box>
         </Box>
       );

@@ -26,7 +26,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => ({
     backgroundColor: 'black',
     color: 'white'
   },
-  width: `calc(100vw - 200px)`
+  width: `calc(100vw - 175px)`
 }));
 
   const PrintableList = ({
