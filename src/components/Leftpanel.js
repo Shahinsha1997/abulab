@@ -77,7 +77,7 @@ const LeftPanel = ({
         minHeight: '100vh'
       }}
     >
-      <Box sx={{ padding: '1rem', textAlign: 'center', height:"20%" }}>
+      <Box sx={{ padding: '1rem', textAlign: 'center', height:"25%" }}>
         <img width="100px" height="100px" src='./AbuLabLogo.png' alt="Abulab" />
         <Typography variant="h6">Abu Laboratory</Typography>
         <Typography variant="body2">[ECG | X-Ray]</Typography>
@@ -99,15 +99,16 @@ const LeftPanel = ({
             <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest} sx={{ padding: '8px 16px' }}>
                 Add/Edit Test
             </Button>
-            <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
-                Clear Cache
-            </Button>
             {syncNow ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-expenses-btn" onClick={syncNow}>
                 <SyncIcon color="primary" />
                 <Typography variant="body2">Sync Now</Typography>
               </Box>
             ) : null}
+            <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
+                Clear Cache
+            </Button>
+            
             
           </>
         ) : (
@@ -121,14 +122,14 @@ const LeftPanel = ({
             <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest} sx={{ padding: '8px 16px' }}>
                 Add/Edit Test
             </Button>
-            <Button variant="contained" startIcon={<NotInterestedIcon />} id="add-expenses-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
-                Clear Cache
-            </Button>
-          {syncNow ? (
+            {syncNow ? (
             <Button variant="contained" startIcon={<SyncIcon />} id="add-expenses-btn" onClick={syncNow} sx={{ padding: '8px 16px' }}>
               Sync Now
             </Button>
             ): null}
+            <Button variant="contained" startIcon={<NotInterestedIcon />} id="add-expenses-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
+                Clear Cache
+            </Button>
             
         </>
       )}

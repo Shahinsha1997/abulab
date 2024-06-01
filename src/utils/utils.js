@@ -94,6 +94,11 @@ export const getFormFields = (fieldType)=>{
                 label: 'Total Amount',
                 'maxWidth': '75px'
             },
+            'discount' : {
+                id: 'discount',
+                label: 'Discount',
+                'maxWidth': '75px'
+            },
             'paidAmount' : {
                 id: 'paidAmount',
                 label: 'Paid Amount',
@@ -171,7 +176,7 @@ export const getFormFields = (fieldType)=>{
         }
     }[fieldType]
 }
-export const getCellFormattedVal = (cellName, value, statusType, filterType)=>{
+export const getCellFormattedVal = (cellName, value='', statusType, filterType)=>{
     if(['profit','profitByDoc'].includes(filterType)){
         return value == '' ? '-' : value;
     }

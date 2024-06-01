@@ -38,6 +38,7 @@ const Form = ({
     description:'',
     testsArr:[],
     drName:'',
+    discount:0,
     totalAmount: '0',
     paidAmount: '0',
     comments: '',
@@ -119,8 +120,9 @@ const Form = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName, comments, namePrefix} = state;
-    const status = getStatus(isIncomeForm, totalAmount-paidAmount)
+    const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName, comments, namePrefix, discount} = state;
+    const dueAmount = totalAmount- parseInt(discount) - paidAmount
+    const status = getStatus(isIncomeForm, dueAmount)
     if(isErrorFound('',status)){
       return;
     }
@@ -135,9 +137,10 @@ const Form = ({
       status,
       drName,
       description,
+      discount,
       totalAmount, 
       paidAmount:  status == EXPENSE_LABEL ? totalAmount : paidAmount, 
-      dueAmount: status == EXPENSE_LABEL ? 0 : totalAmount - paidAmount,
+      dueAmount: status == EXPENSE_LABEL ? 0 : dueAmount,
       isScheduled: true,
       comments
     })

@@ -20,9 +20,10 @@ const IncomeForm = ({
     testObj,
     handleTest
 }) => {
-const { patientId, name, mobileNumber, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix } = state;
+const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
 const isFieldDisabled = !(isAddForm || isAdmin)
+const dueAmount = (totalAmount-discount-paidAmount)
 return(
     <>
         <Box component="form" sx={{display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px'}}>
@@ -96,8 +97,9 @@ return(
             {/* <TextField label="Description" name="description" value={description} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} /> */}
             {descriptionErr && <Alert severity="error">{descriptionErr}</Alert>}
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Total Amount" name="totalAmount" value={totalAmount} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
+        <Box sx={{ display: 'flex', flexDirection: 'row', marginBottom: 2, padding:'10px' }}>
+            <TextField sx={{width:'60%'}} label="Total Amount" name="totalAmount" value={totalAmount} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
+            <TextField sx={{width:'40%'}} label="Discount" name="discount" value={discount} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
             {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
@@ -105,8 +107,8 @@ return(
             {paidAmountErr && <Alert severity="error">{paidAmountErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
-            <TextField label="Due Amount" name="dueAmount" value={totalAmount-paidAmount} onChange={handleInputChange} disabled fullWidth={isMobile} />
-            {totalAmount-paidAmount < 0 && <Alert severity="error">Due amount is less than 0</Alert>}
+            <TextField label="Due Amount" name="dueAmount" value={dueAmount} onChange={handleInputChange} disabled fullWidth={isMobile} />
+            {(dueAmount) < 0 && <Alert severity="error">Due amount is less than 0</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
             <TextField label="Comments / Remarks" name="comments" value={comments} onChange={handleInputChange} fullWidth={isMobile} />
