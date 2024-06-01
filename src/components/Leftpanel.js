@@ -21,6 +21,7 @@ const LeftPanel = ({
   totalIncome,
   totalExpense,
   totalOutstanding,
+  totalDiscount,
   patientCount
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
@@ -145,7 +146,7 @@ const LeftPanel = ({
 
          <Box sx={{ display: 'flex',  justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
             <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>Profit </Typography>
-            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>₹ {totalIncome - totalExpense}</Typography>
+            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>₹ {totalIncome - totalDiscount - totalExpense}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
             <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Income </Typography>
@@ -159,6 +160,12 @@ const LeftPanel = ({
             <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Outstanding </Typography>
             <Box sx={{display:'flex', flexDirection:'row'}}>
               <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>₹ {totalOutstanding}</Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
+            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Discount </Typography>
+            <Box sx={{display:'flex', flexDirection:'row'}}>
+              <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>₹ {totalDiscount}</Typography>
             </Box>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>

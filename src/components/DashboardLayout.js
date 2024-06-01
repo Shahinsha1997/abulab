@@ -25,6 +25,7 @@ class DashboardLayout extends Component {
       updateTry: 0,
       totalExpense: 0,
       totalIncome: 0,
+      totalDiscount:0,
       totalOutstanding: 0
     }
     this.previousID = '';
@@ -145,6 +146,7 @@ class DashboardLayout extends Component {
     let totalIncome =0;
     let totalExpense = 0;
     let totalOutstanding = 0;
+    let totalDiscount = 0;
     const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
     let { dataIds, filteredIds, filteredByDrName, data, showAlert } = this.props;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
@@ -157,11 +159,12 @@ class DashboardLayout extends Component {
       totalIncome = profitObj['totalIncome']
       totalExpense = profitObj['totalExpense']
       totalOutstanding = profitObj['totalOutstanding']
+      totalDiscount = profitObj['totalDiscount']
       dataIds = profitObj['dataIds']
       tableColumns = Object.values(getFormFields(typeFilter));
    }else{
     dataIds = dataIds.map(dataId=>{
-      const { totalAmount=0, dueAmount=0, paidAmount=0, status } = data[dataId];
+      const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0 } = data[dataId];
        if(status != EXPENSE_LABEL && !previousId && !this.previousID){
         this.previousID = data[dataId].patientId
          this.setPreviousId(this.previousID)
@@ -169,10 +172,8 @@ class DashboardLayout extends Component {
        if(status == EXPENSE_LABEL){
         totalExpense += parseInt(totalAmount) 
        }else{
+        totalDiscount += parseInt(discount || 0)
         totalIncome += parseInt(paidAmount)
-        if(isNaN(totalIncome)){
-          console.log(dataId)
-        }
         totalOutstanding += parseInt(dueAmount || 0)
        }
        return data[dataId]
@@ -184,6 +185,7 @@ class DashboardLayout extends Component {
       tableColumns,
       totalIncome,
       totalExpense,
+      totalDiscount,
       totalOutstanding
     })
   }
@@ -234,7 +236,8 @@ class DashboardLayout extends Component {
       filterObj ,
       totalIncome,
       totalExpense,
-      totalOutstanding
+      totalOutstanding,
+      totalDiscount
     } = this.state;
     const { alertOptions={} } = appConfig
     return (
@@ -253,6 +256,7 @@ class DashboardLayout extends Component {
           totalIncome={totalIncome} 
           totalExpense={totalExpense} 
           totalOutstanding={totalOutstanding} 
+          totalDiscount={totalDiscount}
           isAdmin={isAdmin} 
           isLogoutDisabled={isLogoutDisabled} 
           toggleForm={this.toggleForm} 

@@ -136,6 +136,11 @@ export const getFormFields = (fieldType)=>{
                 label: 'Income',
                 'maxWidth': '150px'
             },
+            'discount' : {
+                id: 'discount',
+                label: 'Discount',
+                'maxWidth': '150px'
+            },
             'outstanding' : {
                 id: 'outstanding',
                 label: 'Outstanding',
@@ -161,6 +166,11 @@ export const getFormFields = (fieldType)=>{
             'income' : {
                 id: 'income',
                 label: 'Income',
+                'maxWidth': '150px'
+            },
+            'discount' : {
+                id: 'discount',
+                label: 'Discount',
                 'maxWidth': '150px'
             },
             'outstanding' : {
@@ -279,27 +289,31 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     let totalIncome = 0;
     let totalExpense = 0;
     let totalOutstanding = 0;
+    let totalDiscount = 0;
     const getByTime = (id, type) =>{
             if(typeof resultObj[type] == 'undefined'){
                 resultObj[type] = {
                     income: 0,
                     expense: 0,
-                    outstanding: 0
+                    outstanding: 0,
+                    discount: 0
                 }
             }
-            const { totalAmount=0, dueAmount=0, paidAmount=0, status } = object[id];
+            const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0 } = object[id];
            
             if(status == EXPENSE_LABEL){
                 totalExpense += parseInt(totalAmount) 
                 resultObj[type].expense = resultObj[type].expense + parseInt(totalAmount)
             }else{
-                const {income, expense, outstanding } = resultObj[type];
+                const {income, expense, outstanding, discount:resDiscount=0 } = resultObj[type];
                 totalIncome += parseInt(paidAmount)
+                totalDiscount += parseInt(discount || 0)
                 totalOutstanding += parseInt(dueAmount || 0)
                 resultObj[type] = {
                     income: income+parseInt(paidAmount),
                     expense,
-                    outstanding: outstanding + parseInt(dueAmount || 0)
+                    outstanding: outstanding + parseInt(dueAmount || 0),
+                    discount: resDiscount + parseInt(discount || 0)
                 }
             }
     }
@@ -343,7 +357,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         const { income, expense } = resultObj[key]
         response.push({...resultObj[key], profit:income-expense,[keyName] : time})
     })
-    return { dataIds: response, totalExpense, totalIncome, totalOutstanding};
+    return { dataIds: response, totalExpense, totalIncome, totalOutstanding, totalDiscount};
 }
 
 export const getDrNameList = (data,ids=[])=>{
