@@ -5,8 +5,7 @@ import {
     GaugeContainer,
     GaugeValueArc,
     GaugeReferenceArc,
-    useGaugeState,
-    gaugeClasses
+    useGaugeState
   } from '@mui/x-charts/Gauge';
 import { getDatasByProfit, getTimeFilter } from '../utils/utils';
   function GaugePointer() {
@@ -59,7 +58,8 @@ const AdminDashBoard=({
     }
     const getCard = (obj)=>{
         const { name, previous, current, type } = obj;
-        const { color, percentage } = getGaugeObj(current, previous, type)
+        const { color, percentage } = getGaugeObj(current, previous, type);
+        const isCurrencySymbolNeeded = type != 'patient'
         return (
             <Box sx={{ padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Box
@@ -91,14 +91,14 @@ const AdminDashBoard=({
                     <GaugePointer />
                 </GaugeContainer>
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                        <Typography
-                        sx={{ fontWeight: 'bold', width:'100vw',fontSize: 20, textAlign:'center'}}
-                        variant="overline"
-                        display="block"
-                        gutterBottom
-                        >
-                        {`${current} / ${previous}`}
-                        </Typography>
+                    <Typography
+                    sx={{ fontWeight: 'bold', width:'100vw',fontSize: 20, textAlign:'center'}}
+                    variant="overline"
+                    display="block"
+                    gutterBottom
+                    >
+                    {`${isCurrencySymbolNeeded ? '₹ ' : ''}${current} / ${previous}`}
+                    </Typography>
                 </Box>
             </Box>
           </Box>
