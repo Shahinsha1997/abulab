@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContainer, Table, Button, TableHead, TableBody, TableRow, Paper, TextField, IconButton, InputAdornment, Autocomplete } from '@mui/material';
+import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContainer, Table, Button, TableHead, TableBody, TableRow, Paper, TextField, IconButton, InputAdornment, Autocomplete, useMediaQuery, Tooltip } from '@mui/material';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
@@ -12,6 +12,9 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import AdminDashBoard from './AdminDashboard'
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+
+import { useTheme } from '@mui/material/styles'; 
 const RightPanel = ({ 
   isFormVisible=true, 
   addData, 
@@ -40,6 +43,8 @@ const RightPanel = ({
     { icon: <AddIcon />, name: 'Expense', type:'addExpense' },
     { icon: <AddIcon />, name: 'Income', type:'addIncome'}
   ];
+  const isMobile = useMediaQuery('(max-width: 600px)');
+  const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = (e) => {
@@ -126,7 +131,7 @@ const RightPanel = ({
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'200px' }}>
             <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>
-                <FormControl sx={{ minWidth: 120 }}>
+                <FormControl sx={{ minWidth: isMobile ? 0 : 120 }}>
                 <InputLabel id="filter1-label">Time Frame</InputLabel>
                 <Select
                     labelId="filter1-label"
@@ -135,6 +140,7 @@ const RightPanel = ({
                     label="Time Frame"
                     onChange={handleTimeFilter}
                     IconProps={{ color: 'inherit' }}
+                    sx={{fontSize: 'inherit', height:isMobile ? '40px' : 'inherit', width:isMobile ? '100px': 'inherit'}}
                 >
                     <MenuItem value="All">All</MenuItem>
                     <MenuItem value="DayWise">
@@ -157,7 +163,7 @@ const RightPanel = ({
                     </MenuItem>
                 </Select>
                 </FormControl>
-                <Box sx={{padding:"0 20px"}}>
+                <Box sx={{padding:isMobile ? '0' : "0 20px"}}>
                 <TextField
                   id="timeFilterInput"
                   label="Date/Period"
@@ -188,6 +194,7 @@ const RightPanel = ({
                 label="Type Filter"
                 onChange={handleTypeFilter}
                 IconProps={{ color: 'inherit' }}
+                sx={{fontSize: 'inherit', height:isMobile ? '40px' : 'inherit', width:isMobile ? '100px': 'inherit'}}
                 >
                 <MenuItem value="All">All</MenuItem>
                 <MenuItem value="Income">
@@ -229,7 +236,7 @@ const RightPanel = ({
                 </Select>
             </FormControl>
 
-            <Box sx={{padding:"0 20px"}}>
+            <Box sx={{padding:isMobile ? '0' : "0 20px"}}>
             <Autocomplete
                 value={docInput}
                 id={'docFilterInput'}
@@ -250,9 +257,21 @@ const RightPanel = ({
             }
                 />
             </Box>
-            <Button variant="contained" onClick={handleFilterSubmit}>
+            {isMobile ? (
+              <Box onClick={handleFilterSubmit}>
+                <Tooltip
+                    title={'Filter'}
+                    placement="top"
+                    disableInteractive={theme.breakpoints.down('sm')}
+                  >
+                  <FilterAltIcon color="primary" />
+                </Tooltip>
+              </Box>
+            ): (
+              <Button variant="contained" onClick={handleFilterSubmit}>
                 Filter Results
-            </Button>
+              </Button>
+            )}
             </Box>
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
               {adminSection ? (
@@ -268,6 +287,7 @@ const RightPanel = ({
               )}
               
             </Box>
+            {isMobile ? null : (
               <SpeedDial
                 ariaLabel="SpeedDial tooltip example"
                 sx={{ position: 'absolute', bottom: 50, right: 50 }}
@@ -289,6 +309,8 @@ const RightPanel = ({
                   />
                 ))}
               </SpeedDial>
+            )}
+              
           </Box>
         </Box>
       );

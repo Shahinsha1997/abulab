@@ -12,6 +12,7 @@ import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import { clearCache, getLocalStorageData, printPage } from '../utils/utils';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import PersonIcon from '@mui/icons-material/Person';
+import { useTheme } from '@mui/material/styles'; 
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -56,7 +57,7 @@ const LeftPanel = ({
   const handleLogoutClick = () => {
     logoutUser()
   };
-
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -71,37 +72,66 @@ const LeftPanel = ({
         minHeight: '100vh'
       }}
     >
-      <Box sx={{ padding: '1rem', textAlign: 'center', height:"25%" }}>
-        <img width="100px" height="100px" src='./AbuLabLogo.png' alt="Abulab" />
-        <Typography variant="h6">Abu Laboratory</Typography>
-        <Typography variant="body2">[ECG | X-Ray]</Typography>
-        <Typography variant="body2">{dateTime}</Typography>
-        <Typography variant="body2">{time}</Typography>
+      <Box sx={{ padding: '1rem', textAlign: 'center', height:"25%"}}>
+        <Box sx={{display:isMobile? 'none' : ''}}>
+          <img width="100px" height="100px" src='./AbuLabLogo.png' alt="Abulab" />
+          <Typography variant="h6">Abu Laboratory</Typography>
+          <Typography variant="body2">[ECG | X-Ray]</Typography>
+          <Typography variant="body2">{dateTime}</Typography>
+          <Typography variant="body2">{time}</Typography>
+        </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "30%", maxHeight:'30%', overflow:'auto'  }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "65%", maxHeight:'65%', overflow:'auto'  }}>
         {isMobile ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
+              <Tooltip
+                title={'Add Income'}
+                placement="top"
+                disableInteractive={theme.breakpoints.down('sm')}
+              >
               <AddIcon color="primary" />
-              <Typography variant="body2">Add Income</Typography>
+              </Tooltip>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-expenses-btn" onClick={handleAddExpensesClick}>
+            <Tooltip
+                title={'Add Expenses'}
+                placement="top"
+                disableInteractive={theme.breakpoints.down('sm')}
+              >
               <AddIcon color="primary" />
-              <Typography variant="body2">Add Expenses</Typography>
+              </Tooltip>
             </Box>
-            <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest} sx={{ padding: '8px 16px' }}>
-                Add/Edit Test
-            </Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-test-btn" onClick={handleAddTest}>
+              <Tooltip
+                  title={'Add/Edit Test'}
+                  placement="top"
+                  disableInteractive={theme.breakpoints.down('sm')}
+                >
+                <AddIcon color="primary" />
+              </Tooltip>
+            </Box>
             {syncNow ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-expenses-btn" onClick={syncNow}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="sync-now-btn" onClick={syncNow}>
+                <Tooltip
+                title={'Sync Now'}
+                placement="top"
+                disableInteractive={theme.breakpoints.down('sm')}
+              >
                 <SyncIcon color="primary" />
-                <Typography variant="body2">Sync Now</Typography>
+                </Tooltip>
               </Box>
             ) : null}
-            <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
-                Clear Cache
-            </Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="clear-cache-btn" onClick={handleClearCache}>
+              <Tooltip
+                  title={'Clear Cache'}
+                  placement="top"
+                  disableInteractive={theme.breakpoints.down('sm')}
+                >
+                <NotInterestedIcon color="primary" />
+              </Tooltip>
+            </Box>
             
             
           </>
@@ -124,16 +154,13 @@ const LeftPanel = ({
             <Button variant="contained" startIcon={<NotInterestedIcon />} id="add-expenses-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
                 Clear Cache
             </Button>
-            
+            {isAdmin && (
+            <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection} sx={{ padding: '8px 16px' }}>
+                  {adminSection ? 'Hide' : 'Show'} Admin Panel
+            </Button>
+            )}
         </>
       )}
-    </Box>
-    <Box sx={{ height: isAdmin ? '32%' : '40%', width:'100%'}}>
-    {isAdmin && (
-       <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection} sx={{ padding: '8px 16px' }}>
-            {adminSection ? 'Hide' : 'Show'} Admin Panel
-        </Button>
-    )}
     </Box>
     <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center' }}>
     {isAdmin && (

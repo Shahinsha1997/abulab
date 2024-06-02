@@ -5,7 +5,7 @@ import { OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/Edit';
 import { DataGrid } from '@mui/x-data-grid';
-
+import { useTheme } from '@mui/material/styles'; 
 const MyDataGrid = styled(DataGrid)(({ theme }) => {
 
   const isMobile = useMediaQuery('(max-width: 600px)');
@@ -29,7 +29,12 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       backgroundColor: 'black',
       color: 'white'
     },
-    width: isMobile ? `calc(100vw - 130px)`:`calc(100vw - 175px)`
+    width: isMobile ? `600px`:`calc(100vw - 175px)`,
+    fontSize: 'inherit',
+    [theme.breakpoints.down('sm')]: { 
+      fontSize: 14
+    }
+    
   }
 });
 
@@ -81,7 +86,6 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
     });
     return(
         <MyDataGrid
-          width={'calc(100vw - 175px)'}
           rows={rows}
           slotProps={{
             row:{
@@ -96,6 +100,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
           hideFooterPagination
           hideFooterSelectedRowCount
           rowCount={rows.length}
+          density='comfortable'
       />
     )
   }
