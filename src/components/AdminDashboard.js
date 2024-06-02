@@ -5,8 +5,7 @@ import {
     GaugeContainer,
     GaugeValueArc,
     GaugeReferenceArc,
-    useGaugeState,
-    gaugeClasses
+    useGaugeState
   } from '@mui/x-charts/Gauge';
 import { getDatasByProfit, getTimeFilter } from '../utils/utils';
   function GaugePointer() {
@@ -93,7 +92,7 @@ const AdminDashBoard=({
                     display="block"
                     gutterBottom
                     >
-                    {`${isCurrencySymbolNeeded ? '₹ ' : ''}${current} / ${previous}`}
+                    {`${isCurrencySymbolNeeded ? '₹ ' : ''}${current.toLocaleString('en-IN')} / ${previous.toLocaleString('en-IN')}`}
                     </Typography>
                 </Box>
             </Box>
