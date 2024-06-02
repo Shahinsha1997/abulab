@@ -5,7 +5,8 @@ import {
     GaugeContainer,
     GaugeValueArc,
     GaugeReferenceArc,
-    useGaugeState
+    useGaugeState,
+    gaugeClasses
   } from '@mui/x-charts/Gauge';
 import { getDatasByProfit, getTimeFilter } from '../utils/utils';
   function GaugePointer() {
@@ -81,7 +82,7 @@ const AdminDashBoard=({
                 value={percentage}
                 cornerRadius="25%"
                 sx={(theme) => ({
-                    [`& .css-b9rdri-MuiGauge-referenceArc`]: {
+                    [`& .${gaugeClasses.valueArc}`]: {
                     fill: color,
                     }
                 })}
