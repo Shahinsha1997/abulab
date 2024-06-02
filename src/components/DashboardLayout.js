@@ -18,15 +18,17 @@ class DashboardLayout extends Component {
       limit: 50,
       previousId: '',
       filteredDataIds:[],
-      filterObj:{},
+      filterObj:{
+        timeFilter:'All', 
+        typeFilter:'All',
+        timeInput: '', 
+        docInput:''
+      },
       tableColumns: Object.values(getFormFields('allFields')),
       syncStatus: true,
       addTry: 0,
       updateTry: 0,
-      totalExpense: 0,
-      totalIncome: 0,
-      totalDiscount:0,
-      totalOutstanding: 0
+      adminSection: false
     }
     this.previousID = '';
     this.isSyncInProgress = false;
@@ -39,12 +41,19 @@ class DashboardLayout extends Component {
       'getAlertContent',
       'setSyncStatus',
       'syncNowDatas',
-      'syncTestDatas'
+      'syncTestDatas',
+      'toggleAdminSection'
     ]
     bind.apply(this, methods);
   }
   setPreviousId(id){
     this.setState({previousId: id})
+  }
+  toggleAdminSection(){
+    const { adminSection } = this.state;
+    this.setState({
+      adminSection : !adminSection
+    })
   }
   setSyncStatus(status){
     this.setState({
@@ -127,8 +136,8 @@ class DashboardLayout extends Component {
     const { dataIds } = this.props;
     const { filteredDataIds, filterObj } = this.state;
     const {
-      timeFilter='All', 
-      typeFilter='All'
+      timeFilter, 
+      typeFilter
     } = filterObj
     const isIntialLoad =  dataIds.length != filteredDataIds.length && timeFilter == 'All' && typeFilter == 'All'
     if(prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != this.state.syncStatus ){
@@ -143,10 +152,6 @@ class DashboardLayout extends Component {
       timeInput, 
       docInput=''
     } = filterObj
-    let totalIncome =0;
-    let totalExpense = 0;
-    let totalOutstanding = 0;
-    let totalDiscount = 0;
     const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
     let { dataIds, filteredIds, filteredByDrName, data, showAlert } = this.props;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
@@ -156,25 +161,14 @@ class DashboardLayout extends Component {
     }
     if(isProfitFilter && timeFilter != 'All'){
       let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
-      totalIncome = profitObj['totalIncome']
-      totalExpense = profitObj['totalExpense']
-      totalOutstanding = profitObj['totalOutstanding']
-      totalDiscount = profitObj['totalDiscount']
       dataIds = profitObj['dataIds']
       tableColumns = Object.values(getFormFields(typeFilter));
    }else{
     dataIds = dataIds.map(dataId=>{
-      const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0 } = data[dataId];
+      const { status } = data[dataId];
        if(status != EXPENSE_LABEL && !previousId && !this.previousID){
         this.previousID = data[dataId].patientId
          this.setPreviousId(this.previousID)
-       }
-       if(status == EXPENSE_LABEL){
-        totalExpense += parseInt(totalAmount) 
-       }else{
-        totalDiscount += parseInt(discount || 0)
-        totalIncome += parseInt(paidAmount)
-        totalOutstanding += parseInt(dueAmount || 0)
        }
        return data[dataId]
      })
@@ -182,11 +176,7 @@ class DashboardLayout extends Component {
    }
     this.setState({
       filteredDataIds: dataIds,
-      tableColumns,
-      totalIncome,
-      totalExpense,
-      totalDiscount,
-      totalOutstanding
+      tableColumns
     })
   }
   getAllDatas(callbk){
@@ -226,7 +216,8 @@ class DashboardLayout extends Component {
       drNamesList,
       testObj,
       multiTestAdd,
-      testArr
+      testArr,
+      dataIds
     } = this.props
     const { 
       formType,
@@ -234,10 +225,7 @@ class DashboardLayout extends Component {
       filteredDataIds, 
       tableColumns, 
       filterObj ,
-      totalIncome,
-      totalExpense,
-      totalOutstanding,
-      totalDiscount
+      adminSection
     } = this.state;
     const { alertOptions={} } = appConfig
     return (
@@ -253,15 +241,13 @@ class DashboardLayout extends Component {
         ) : null}
        
         <LeftPanel 
-          totalIncome={totalIncome} 
-          totalExpense={totalExpense} 
-          totalOutstanding={totalOutstanding} 
-          totalDiscount={totalDiscount}
           isAdmin={isAdmin} 
           isLogoutDisabled={isLogoutDisabled} 
           toggleForm={this.toggleForm} 
           logoutUser={logoutUser} 
           patientCount={filteredDataIds.length}
+          toggleAdminSection={this.toggleAdminSection}
+          adminSection={adminSection}
           syncNow={isSyncNowNeeded() && this.syncNowDatas}
         />
         <RightPanel 
@@ -269,6 +255,7 @@ class DashboardLayout extends Component {
           toggleForm={this.toggleForm} 
           formType={formType}
           data={data}
+          allDataIds={dataIds}
           dataIds={filteredDataIds}
           multiAdd={multiAdd}
           previousId={previousId}
@@ -283,6 +270,7 @@ class DashboardLayout extends Component {
           testArr={testArr}
           testObj={testObj}
           multiTestAdd={multiTestAdd}
+          adminSection={adminSection}
         />
       </Box>
       

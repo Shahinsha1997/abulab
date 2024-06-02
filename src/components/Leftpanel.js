@@ -18,14 +18,10 @@ const LeftPanel = ({
   toggleForm, 
   syncNow, 
   isLogoutDisabled,
-  totalIncome,
-  totalExpense,
-  totalOutstanding,
-  totalDiscount,
-  patientCount
+  toggleAdminSection,
+  adminSection
 }) => {
-  const isMobile = useMediaQuery('(max-width: 600px)'); // Adjust breakpoint as needed
-  const [ adminSection, setAdminSection ] = useState('Show')
+  const isMobile = useMediaQuery('(max-width: 600px)'); 
   const [dateTime, setDateTime] = useState(new Date().toLocaleString("en-GB", {
       day: "numeric",
       month: "short",
@@ -42,9 +38,6 @@ const LeftPanel = ({
       });
       setTime(date)
   },1000)
-  const toggleAdminSection = ()=>{
-    setAdminSection(adminSection == 'Show' ? 'Hide' : 'Show')
-  }
 
   const handleAddIncomeClick = () => {
     toggleForm('addIncome')
@@ -137,47 +130,9 @@ const LeftPanel = ({
     </Box>
     <Box sx={{ height: isAdmin ? '32%' : '40%', width:'100%'}}>
     {isAdmin && (
-      <>
        <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection} sx={{ padding: '8px 16px' }}>
-            {adminSection} Admin Panel
+            {adminSection ? 'Hide' : 'Show'} Admin Panel
         </Button>
-      {adminSection == 'Hide' && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight:'80%', marginBottom: 2, marginLeft:2 , overflow:'auto'}}>
-
-         <Box sx={{ display: 'flex',  justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
-            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>Profit </Typography>
-            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold',color: 'green'}}>₹ {totalIncome - totalDiscount - totalExpense}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Income </Typography>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>₹ {totalIncome}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
-            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold', color: 'red' }}>Expenses </Typography>
-            <Typography variant="body1" sx={{fontSize: 18, fontWeight: 'bold', color: 'red' }}>₹ {totalExpense}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Outstanding </Typography>
-            <Box sx={{display:'flex', flexDirection:'row'}}>
-              <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>₹ {totalOutstanding}</Typography>
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Discount </Typography>
-            <Box sx={{display:'flex', flexDirection:'row'}}>
-              <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>₹ {totalDiscount}</Typography>
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column' }}>
-            <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>Patient Count</Typography>
-            <Box sx={{display:'flex', flexDirection:'row'}}>
-              <PersonIcon/>
-              <Typography variant="body1"  sx={{fontSize: 18, fontWeight: 'bold'}}>{patientCount}</Typography>
-            </Box>
-          </Box>
-        </Box>
-        )}
-      </>
     )}
     </Box>
     <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center' }}>

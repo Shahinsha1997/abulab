@@ -11,6 +11,7 @@ import Backdrop from '@mui/material/Backdrop';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
+import AdminDashBoard from './AdminDashboard'
 const RightPanel = ({ 
   isFormVisible=true, 
   addData, 
@@ -30,7 +31,9 @@ const RightPanel = ({
   drNamesList,
   testObj,
   testArr,
-  multiTestAdd
+  multiTestAdd,
+  adminSection,
+  allDataIds=[]
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -121,7 +124,7 @@ const RightPanel = ({
             testArr={testArr}
           />
         ): null}
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'200px' }}>
             <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>
                 <FormControl sx={{ minWidth: 120 }}>
                 <InputLabel id="filter1-label">Time Frame</InputLabel>
@@ -252,7 +255,18 @@ const RightPanel = ({
             </Button>
             </Box>
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
-              <PrintableList tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+              {adminSection ? (
+                <Box sx={{height:'100vh', width:'calc(100vw - 180px)', border:'2px solid black'}}>
+                  <AdminDashBoard 
+                    allDataIds={allDataIds} 
+                    data={data}
+                    filterObj={filterObj}
+                  />
+                </Box>
+              ): (
+                <PrintableList tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+              )}
+              
             </Box>
               <SpeedDial
                 ariaLabel="SpeedDial tooltip example"
