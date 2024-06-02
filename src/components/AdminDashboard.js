@@ -81,14 +81,9 @@ const AdminDashBoard=({
                 endAngle={110}
                 value={percentage}
                 cornerRadius="25%"
-                sx={(theme) => ({
-                    [`& .${gaugeClasses.valueArc}`]: {
-                    fill: color,
-                    }
-                })}
                 >
                     <GaugeReferenceArc/>
-                    <GaugeValueArc/>
+                    <GaugeValueArc sx={{fill:color}}/>
                     <GaugePointer />
                 </GaugeContainer>
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
