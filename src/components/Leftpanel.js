@@ -13,6 +13,8 @@ import { clearCache, getLocalStorageData, printPage } from '../utils/utils';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import PersonIcon from '@mui/icons-material/Person';
 import { useTheme } from '@mui/material/styles'; 
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone';
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -132,8 +134,22 @@ const LeftPanel = ({
                 <NotInterestedIcon color="primary" />
               </Tooltip>
             </Box>
-            
-            
+            {isAdmin && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="clear-cache-btn" onClick={toggleAdminSection}>
+              <Tooltip
+                  title={'Clear Cache'}
+                  placement="top"
+                  disableInteractive={theme.breakpoints.down('sm')}
+                >
+                {adminSection ? (
+                  <AdminPanelSettingsTwoToneIcon color="primary" />
+                ): (
+                  <AdminPanelSettingsIcon color="primary" />
+                )}
+                
+              </Tooltip>
+            </Box>
+            )}
           </>
         ) : (
           <>

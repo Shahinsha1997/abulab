@@ -275,7 +275,7 @@ const RightPanel = ({
             </Box>
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'400px'}}>
               {adminSection ? (
-                <Box sx={{height:'100vh', width:'calc(100vw - 180px)', border:'2px solid black'}}>
+                <Box sx={{height:'100vh', width:isMobile ? 'calc(100vw - 100px)' : 'calc(100vw - 180px)', border:'2px solid black'}}>
                   <AdminDashBoard 
                     allDataIds={allDataIds} 
                     data={data}

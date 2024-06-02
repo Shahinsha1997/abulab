@@ -37,8 +37,9 @@ const AdminDashBoard=({
     filterObj
 })=>{
     const isMobile = useMediaQuery('(max-width: 600px)');
-   const [numCardsPerRow, setNumCardsPerRow] = useState(isMobile ? 1 : 2)
+    const [numCardsPerRow, setNumCardsPerRow] = useState(isMobile ? 1 : 2)
     const theme = useTheme();
+    const fontSize = isMobile ? 14 : 20;
     const calculateCardsPerRow = (containerWidth, cardWidth) => {
         const spacing = theme.spacing(2); 
         const availableWidth = containerWidth - spacing * 2; 
@@ -68,14 +69,14 @@ const AdminDashBoard=({
                 borderRadius: '20px',
                 boxShadow: '5px 5px 5px 5px',
                 border: '5px solid white',
-                height: 400,
-                width: 400,
+                height: isMobile ? 200 : 400,
+                width: isMobile ? 200 : 400,
               }}
             >
-            <Typography sx={{fontWeight:'bold', fontSize:20}}  variant="overline" display="block" gutterBottom>{name}</Typography>
+            <Typography sx={{fontWeight:'bold', fontSize}}  variant="overline" display="block" gutterBottom>{name}</Typography>
              <GaugeContainer
-                width={400}
-                height={300}
+                width={isMobile ? 200 : 400}
+                height={isMobile ? 100 : 300}
                 startAngle={-110}
                 endAngle={110}
                 value={percentage}
@@ -87,7 +88,7 @@ const AdminDashBoard=({
                 </GaugeContainer>
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                     <Typography
-                    sx={{ fontWeight: 'bold', width:'100vw',fontSize: 20, textAlign:'center'}}
+                    sx={{ fontWeight: 'bold', width:'100vw',fontSize, textAlign:'center'}}
                     variant="overline"
                     display="block"
                     gutterBottom

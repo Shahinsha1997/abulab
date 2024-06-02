@@ -29,7 +29,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       backgroundColor: 'black',
       color: 'white'
     },
-    width: isMobile ? `600px`:`calc(100vw - 175px)`,
+    width: isMobile ? `1800px`:`calc(100vw - 175px)`,
     fontSize: 'inherit',
     [theme.breakpoints.down('sm')]: { 
       fontSize: 14
@@ -60,7 +60,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       field: column.id,
       headerName: column.label,
       flex:1,
-      width: parseInt(column.maxWidth.replace('px','')),
+      width: 250 || parseInt(column.maxWidth.replace('px','')),
       ...(column.id === 'isScheduled' ? {
         renderCell: (params) => {
           return (
