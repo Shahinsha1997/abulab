@@ -1,33 +1,37 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, IconButton } from '@mui/material';
+import { Box, IconButton, useMediaQuery } from '@mui/material';
 import { OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/Edit';
 import { DataGrid } from '@mui/x-data-grid';
 
-const MyDataGrid = styled(DataGrid)(({ theme }) => ({
-  '& .MuiDataGrid-row:nth-of-type(odd)': {
-    backgroundColor: '#f5f5f5',
-    color:'black'
-  },
-  '& .MuiDataGrid-row:nth-of-type(even)': {
-    backgroundColor: '#ffffff',
-    color:'black'
-  },
-  '& .MuiDataGrid-footerContainer' : {
-    display: 'none'
-  },
-  '& .MuiDataGrid-columnHeader': {
-    backgroundColor: 'black',
-    color: 'white'
-  },
-  '& .MuiSvgIcon-root': {
-    backgroundColor: 'black',
-    color: 'white'
-  },
-  width: `calc(100vw - 175px)`
-}));
+const MyDataGrid = styled(DataGrid)(({ theme }) => {
+
+  const isMobile = useMediaQuery('(max-width: 600px)');
+  return {
+    '& .MuiDataGrid-row:nth-of-type(odd)': {
+      backgroundColor: '#f5f5f5',
+      color:'black'
+    },
+    '& .MuiDataGrid-row:nth-of-type(even)': {
+      backgroundColor: '#ffffff',
+      color:'black'
+    },
+    '& .MuiDataGrid-footerContainer' : {
+      display: 'none'
+    },
+    '& .MuiDataGrid-columnHeader': {
+      backgroundColor: 'black',
+      color: 'white'
+    },
+    '& .MuiSvgIcon-root': {
+      backgroundColor: 'black',
+      color: 'white'
+    },
+    width: isMobile ? `calc(100vw - 130px)`:`calc(100vw - 175px)`
+  }
+});
 
   const PrintableList = ({
     tableData, 
@@ -77,20 +81,21 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => ({
     });
     return(
         <MyDataGrid
-        rows={rows}
-        slotProps={{
-          row:{
-            onMouseEnter: handleRowEnter,
-            onMouseLeave: handleRowLeave
-          }
-        }}
-        disableExtendRowFullWidth={true}
-        columns={columns}
-        pageSize={Infinity}
-        paginationMode={'server'}
-        hideFooterPagination
-        hideFooterSelectedRowCount
-        rowCount={rows.length}
+          width={'calc(100vw - 175px)'}
+          rows={rows}
+          slotProps={{
+            row:{
+              onMouseEnter: handleRowEnter,
+              onMouseLeave: handleRowLeave
+            }
+          }}
+          disableExtendRowFullWidth={true}
+          columns={columns}
+          pageSize={Infinity}
+          paginationMode={'server'}
+          hideFooterPagination
+          hideFooterSelectedRowCount
+          rowCount={rows.length}
       />
     )
   }
