@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, isSyncNowNeeded, scheduleSync, setLocalStorageData } from '../utils/utils';
+import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
@@ -100,6 +100,7 @@ class DashboardLayout extends Component {
         showAlert({type: 'success', message: type == 'add' ? "Datas Sync done successfully..." : "Datas Updated Successfully"})
         this.setSyncStatus(true)
         this.isSyncInProgress = false;
+        scheduleSync(this.syncNowDatas, showAlert)
         this.setState({
           addTry: type == 'add' ? 0 : addTry,
           updateTry : type != 'add' ? 0 : updateTry
@@ -125,10 +126,11 @@ class DashboardLayout extends Component {
     })
   }
   componentDidMount(){
-    const { multiAdd, showAlert } = this.props;
+    const { multiAdd, showAlert, getDatas } = this.props;
     scheduleSync(this.syncNowDatas, showAlert)
     const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
+    getDatas({data: setCacheDatas({})})
     this.getAllDatas(()=>multiAdd({data:getAsObj([...pendingDatas, ...updatePendingDatas])}));
     
   }

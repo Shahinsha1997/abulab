@@ -447,12 +447,20 @@ export const printPage = () =>{
 
 export const scheduleSync = (syncNow,showAlert)=>{
     const lastSyncTime = getLocalStorageData('lastSyncTime',Date.now(),false)
+    const lastTimeOut = getLocalStorageData('timeout','',false)
     const currentTime = Date.now()
     const oneHrMs = 60*60*1000
     const remainingTime = oneHrMs-(currentTime-parseInt(lastSyncTime))
-    setTimeout(()=>{
+    const fn = ()=>{
         showAlert({type: 'info', message: `Auto Sync Intiated...`})
         syncNow();
-    },remainingTime)
+    }
+    if(remainingTime < 0){
+        fn();
+    }else{
+        clearTimeout(lastTimeOut);
+        const timeout = setTimeout(fn,remainingTime)
+        setLocalStorageData('timeout',timeout)
+    }
     showAlert({type: 'success', message: `Auto Sync Scheduled. Datas will be sync automatically in ${parseInt(remainingTime/(60*1000))} Minutes...`})
 }
