@@ -3,30 +3,38 @@ import { styled } from '@mui/material/styles';
 import { Box, IconButton, useMediaQuery } from '@mui/material';
 import { OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@mui/icons-material/EditOutlined';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles'; 
 const MyDataGrid = styled(DataGrid)(({ theme }) => {
 
   const isMobile = useMediaQuery('(max-width: 600px)');
   return {
-    '& .MuiDataGrid-row:nth-of-type(odd)': {
-      backgroundColor: '#f5f5f5',
-      color:'black'
+    '& .MuiDataGrid-row,': {
+      backgroundColor: '#242b38',
+      color:'#a7b0bd',
+      border: '1px dotted #2d3748'
+      
     },
-    '& .MuiDataGrid-row:nth-of-type(even)': {
-      backgroundColor: '#ffffff',
-      color:'black'
+    '& .MuiDataGrid-cell':{
+      border: 'none'
+    },
+    '& .Mui-selected': {
+      backgroundColor: '#242b38',
+      color:'#a7b0bd'
+    },
+    '& .MuiDataGrid-row:hover':{
+      backgroundColor: '#262f3d',
     },
     '& .MuiDataGrid-footerContainer' : {
       display: 'none'
     },
     '& .MuiDataGrid-columnHeader': {
-      backgroundColor: 'black',
+      backgroundColor: '#242b38',
       color: 'white'
     },
     '& .MuiSvgIcon-root': {
-      backgroundColor: 'black',
+      backgroundColor: '#242b38',
       color: 'white'
     },
     width: isMobile ? `1800px`:`calc(100vw - 175px)`,
@@ -86,6 +94,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
     });
     return(
         <MyDataGrid
+          id="tableContainer"
           rows={rows}
           slotProps={{
             row:{
@@ -100,6 +109,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
           hideFooterPagination
           hideFooterSelectedRowCount
           rowCount={rows.length}
+          disableSelectionOnClick
           density='comfortable'
       />
     )

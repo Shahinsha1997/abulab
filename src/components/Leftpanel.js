@@ -179,7 +179,7 @@ const LeftPanel = ({
       )}
     </Box>
     <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center' }}>
-    {isAdmin && (
+    {isAdmin && false && (
         <Box sx={{padding:"20px"}}>
               <Tooltip title="Print">
               {isMobile ? (
