@@ -99,7 +99,7 @@ return(
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'row', marginBottom: 2, padding:'10px' }}>
             <TextField sx={{width:'60%'}} label="Total Amount" name="totalAmount" value={totalAmount} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
-            <TextField sx={{width:'40%'}} label="Discount" name="discount" value={discount} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth={isMobile} />
+            <TextField sx={{width:'40%'}} label="Discount" name="discount" value={discount} onChange={handleInputChange} required fullWidth={isMobile} />
             {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
