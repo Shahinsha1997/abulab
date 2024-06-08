@@ -82,7 +82,7 @@ const AdminDashBoard=({
                 value={percentage}
                 cornerRadius="25%"
                 >
-                    <GaugeReferenceArc/>
+                    <GaugeReferenceArc sx={{ fill: 'rgb(234 238 255 / 17%)'}}/>
                     <GaugeValueArc sx={{fill:color}}/>
                     <GaugePointer/>
                 </GaugeContainer>
