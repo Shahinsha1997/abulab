@@ -62,12 +62,12 @@ const AdminDashBoard=({
         const { color, percentage } = getGaugeObj(current, previous, type);
         const isCurrencySymbolNeeded = type != 'patient'
         return (
-            <Box sx={{ padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Box sx={{ padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', color:'white' }}>
             <Box
               sx={{
                 padding: '20px',
                 borderRadius: '20px',
-                boxShadow: '5px 5px 5px 5px',
+                boxShadow: '3px 3px 3px 3px',
                 border: '5px solid white',
                 height: isMobile ? 200 : 400,
                 width: isMobile ? 200 : 400,
@@ -84,7 +84,7 @@ const AdminDashBoard=({
                 >
                     <GaugeReferenceArc/>
                     <GaugeValueArc sx={{fill:color}}/>
-                    <GaugePointer />
+                    <GaugePointer/>
                 </GaugeContainer>
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                     <Typography
