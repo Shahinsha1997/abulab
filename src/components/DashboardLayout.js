@@ -235,7 +235,7 @@ class DashboardLayout extends Component {
         sx={{
           display: 'grid',
           gridTemplateColumns: 'max-content 1fr', 
-          minHeight: '100vh'
+          // minHeight: '100vh'
         }}
       >
         { alertOptions.type ? (

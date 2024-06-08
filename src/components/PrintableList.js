@@ -4,6 +4,7 @@ import { Box, IconButton, useMediaQuery } from '@mui/material';
 import { OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/EditOutlined';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles'; 
 const MyDataGrid = styled(DataGrid)(({ theme }) => {
@@ -71,14 +72,39 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       width: 250 || parseInt(column.maxWidth.replace('px','')),
       ...(column.id === 'isScheduled' ? {
         renderCell: (params) => {
+          const { mobileNumber, isScheduled, id, status, name, dueAmount } = params.row
+          let message = 'Hi Sir/Madam,\n\n';
+          message += `${name}'s report is ready.Please come and collect from Abu Lab.\n`;
+          message += `${dueAmount > 0 ? 'Please Pay your due amount ₹ '+dueAmount+' while collecting your report from lab.': ''}`
+          message += `\n\n_Thanks & Regards,_ \n*ABU LAB*`
+          const whatsappLink = mobileNumber == '-' ? '' : `https://wa.me/${mobileNumber}?text=`+encodeURIComponent(message);
           return (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'row' }}>
-            <ScheduleIcon style={{ visibility: params.row.isScheduled ? 'visible' : 'hidden' ,color: '#ffa726',paddingTop: '8px', backgroundColor: 'transparent' }} />
-            { (params.row.status == OUTSTANDING_LABEL || isAdmin) && (
-              <IconButton color="white" sx={{visibility:hoveredCellId == params.id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Edit"  onClick={() => toggleForm((params.id || '').toString())}>
+            <Box sx={{width:"20px"}}>
+            { (status == OUTSTANDING_LABEL || isAdmin) && (
+              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Edit"  onClick={() => toggleForm((id || '').toString())}>
               <EditIcon style={{backgroundColor: 'transparent',color:'#1876d2'}}/>
             </IconButton>
             )}
+            </Box>
+            <Box sx={{width:"20px", paddingLeft:'20px'}}>
+            {whatsappLink ? (
+              <IconButton 
+                href={whatsappLink} 
+                target="_blank"
+                rel="noopener noreferrer"  
+                aria-label="Report Status on Whatsapp"
+                // sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',}}
+                sx={{visibility:'hidden'}} // Not Open Yet.
+
+              >
+                <WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />
+              </IconButton>
+            ) : null}
+            </Box>
+            <Box sx={{width:"20px", paddingLeft:'20px', marginTop:'7px'}}>
+              <ScheduleIcon style={{ visibility: isScheduled ? 'visible' : 'hidden' ,color: '#ffa726',paddingTop: '8px', backgroundColor: 'transparent' }} />
+            </Box>
           </Box>
           )
           }
