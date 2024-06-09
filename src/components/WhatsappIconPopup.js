@@ -34,7 +34,7 @@ const WhatsAppIconPopup = ({
         return setAnchorEl(null)
     }
     message += `\n\nமிக்க நன்றி.,\n\n*அபு லேப்,*\nமேலப்பாளையம்.`
-    window.open(`https://wa.me/${mobileNumber}?text=`+encodeURIComponent(message), '_blank');
+    window.open(`https://wa.me/+91${mobileNumber}?text=`+encodeURIComponent(message), '_blank');
   }
 
   const options = [
