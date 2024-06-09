@@ -4,9 +4,9 @@ import { Box, IconButton, useMediaQuery } from '@mui/material';
 import { OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/EditOutlined';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles'; 
+import WhatsAppIconPopup from './WhatsappIconPopup';
 const MyDataGrid = styled(DataGrid)(({ theme }) => {
 
   const isMobile = useMediaQuery('(max-width: 600px)');
@@ -55,14 +55,12 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
     isAdmin
   }) =>{
     const [hoveredCellId, setIsCellHovered] = useState(false);
-
     const handleRowEnter = (params) => {
       setIsCellHovered(params.currentTarget.dataset.id);
     };
     const handleRowLeave = ()=>{
       setIsCellHovered(false)
     }
-
     const { typeFilter, timeFilter } = filterObj;
     const filterType = timeFilter != 'All' ? typeFilter : ''
     const columns = tableColumns.map((column) => ({
@@ -72,12 +70,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       width: 250 || parseInt(column.maxWidth.replace('px','')),
       ...(column.id === 'isScheduled' ? {
         renderCell: (params) => {
-          const { mobileNumber, isScheduled, id, status, name, dueAmount } = params.row
-          let message = 'Hi Sir/Madam,\n\n';
-          message += `${name}'s report is ready.Please come and collect from Abu Lab.\n`;
-          message += `${dueAmount > 0 ? 'Please Pay your due amount ₹ '+dueAmount+' while collecting your report from lab.': ''}`
-          message += `\n\n_Thanks & Regards,_ \n*ABU LAB*`
-          const whatsappLink = mobileNumber == '-' ? '' : `https://wa.me/${mobileNumber}?text=`+encodeURIComponent(message);
+          const { isScheduled, id, status } = params.row
           return (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'row' }}>
             <Box sx={{width:"20px"}}>
@@ -88,19 +81,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
             )}
             </Box>
             <Box sx={{width:"20px", paddingLeft:'20px'}}>
-            {whatsappLink ? (
-              <IconButton 
-                href={whatsappLink} 
-                target="_blank"
-                rel="noopener noreferrer"  
-                aria-label="Report Status on Whatsapp"
-                // sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',}}
-                sx={{visibility:'hidden'}} // Not Open Yet.
-
-              >
-                <WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />
-              </IconButton>
-            ) : null}
+              <WhatsAppIconPopup rowDetails={params.row} hoveredCellId={hoveredCellId}/>
             </Box>
             <Box sx={{width:"20px", paddingLeft:'20px', marginTop:'7px'}}>
               <ScheduleIcon style={{ visibility: isScheduled ? 'visible' : 'hidden' ,color: '#ffa726',paddingTop: '8px', backgroundColor: 'transparent' }} />

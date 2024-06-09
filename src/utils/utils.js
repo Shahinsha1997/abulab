@@ -461,6 +461,7 @@ export const scheduleSync = (syncNow,showAlert)=>{
         clearTimeout(lastTimeOut);
         const timeout = setTimeout(fn,remainingTime)
         setLocalStorageData('timeout',timeout)
+        showAlert({type: 'success', message: `Auto Sync Scheduled. Datas will be sync automatically in ${parseInt(remainingTime/(60*1000))} Minutes...`})
     }
-    showAlert({type: 'success', message: `Auto Sync Scheduled. Datas will be sync automatically in ${parseInt(remainingTime/(60*1000))} Minutes...`})
+    
 }
