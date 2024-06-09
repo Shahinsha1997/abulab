@@ -9,6 +9,7 @@ import { authenticate } from '../actions/APIActions';
 import { changePathName, getLocalStorageData, setLocalStorageData } from '../utils/utils';
 
 import { Navigate } from 'react-router-dom';
+import { Box } from '@mui/material';
 class LoginPage extends Component {
   constructor(props) {
     super(props);
@@ -53,7 +54,17 @@ class LoginPage extends Component {
     const { isNavigateNeed, currentPath } = this.props
     return (
       isNavigateNeed ? <Navigate to={currentPath} replace />  :
-      <div className="login-page" style={{ backgroundColor: '#f5f5f5', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}> {/* Added background color, flexbox for centering, and minimum height */}
+      <div className="login-page" style={{ backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}> {/* Added background color, flexbox for centering, and minimum height */}
+        <Box sx={{display:'flex'}}>
+        <div style={{ display: 'flex', padding:10, justifyContent: 'center' }}>
+          <img
+              src="./AbuLabLogo.png"
+              alt="Abulab"
+              style={{ maxWidth: '100%', maxHeight: '150px' }}
+            />
+          </div>
+          </Box>
+          <Box sx={{display:'flex'}}>
         <div style={{ padding: 20, borderRadius: 5, backgroundColor: 'white', maxWidth: 400 }}> {/* Added padding, rounded corners, and max-width for form container */}
           <Typography variant="h5" style={{ marginBottom: 20 }}>Login</Typography>
           <form onSubmit={this.handleSubmit}>
@@ -86,6 +97,7 @@ class LoginPage extends Component {
           </form>
           {error && <Alert severity="error">{error}</Alert>}
         </div>
+        </Box>
       </div>
     );
   }
