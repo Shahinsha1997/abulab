@@ -273,7 +273,7 @@ const RightPanel = ({
               </Button>
             )}
             </Box>
-            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow:'auto', backgroundColor:'#252b38'}}>
+            <Box sx={{ flexDirection: 'column', overflow:'auto', backgroundColor:'#252b38', width:'100%'}}>
               {adminSection ? (
                 <Box sx={{ width:isMobile ? 'calc(100vw - 100px)' : 'calc(100vw - 180px)', border:'2px solid black'}}>
                   <AdminDashBoard 

@@ -235,7 +235,8 @@ class DashboardLayout extends Component {
         sx={{
           display: 'flex',
           height: '100vh',
-          overflow: 'hidden' 
+          alignItems: 'stretch'
+          // overflow: 'hidden' 
           // minHeight: '100vh'
         }}
       >
@@ -254,7 +255,7 @@ class DashboardLayout extends Component {
           syncNow={isSyncNowNeeded() && this.syncNowDatas}
         />
         </Box>
-        <Box sx={{flexGrow:1}}>
+        <Box sx={{flexGrow:1, overflow: 'hidden' }}>
         <RightPanel 
           addData={addData} 
           toggleForm={this.toggleForm} 
