@@ -233,15 +233,16 @@ class DashboardLayout extends Component {
     return (
         <Box
         sx={{
-          display: 'grid',
-          gridTemplateColumns: 'max-content 1fr', 
+          display: 'flex',
+          height: '100vh',
+          overflow: 'hidden' 
           // minHeight: '100vh'
         }}
       >
         { alertOptions.type ? (
           this.getAlertContent()
         ) : null}
-       
+       <Box sx={{width: { xs: '50px', sm: '100px', md: '200px' }, flexShrink: 0 }}>
         <LeftPanel 
           isAdmin={isAdmin} 
           isLogoutDisabled={isLogoutDisabled} 
@@ -252,6 +253,8 @@ class DashboardLayout extends Component {
           adminSection={adminSection}
           syncNow={isSyncNowNeeded() && this.syncNowDatas}
         />
+        </Box>
+        <Box sx={{flexGrow:1}}>
         <RightPanel 
           addData={addData} 
           toggleForm={this.toggleForm} 
@@ -274,6 +277,7 @@ class DashboardLayout extends Component {
           multiTestAdd={multiTestAdd}
           adminSection={adminSection}
         />
+        </Box>
       </Box>
       
     );
