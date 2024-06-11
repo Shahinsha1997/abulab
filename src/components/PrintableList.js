@@ -38,7 +38,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       backgroundColor: '#242b38',
       color: 'white'
     },
-    width: isMobile ? `1800px`:`calc(100vw - 175px)`,
+    width: isMobile ? `1800px`:`1800px`,
     fontSize: 'inherit',
     [theme.breakpoints.down('sm')]: { 
       fontSize: 14
