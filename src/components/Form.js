@@ -165,7 +165,7 @@ const Form = ({
         anchor="right"
         open={formType}
       >
-        <Box sx={{width: isMobile ? "100%" : "350px"}}>
+        <Box sx={{width: isMobile ? "100vw" : "350px"}}>
         <List dense={true}>
                 <ListItem
                   secondaryAction={
