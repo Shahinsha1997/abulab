@@ -81,9 +81,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
             )}
             </Box>
             <Box sx={{width:"20px", paddingLeft:'20px'}}>
-              {isAdmin ? (
                 <WhatsAppIconPopup rowDetails={params.row} hoveredCellId={hoveredCellId}/>
-              ) : null}
             </Box>
             <Box sx={{width:"20px", paddingLeft:'20px', marginTop:'7px'}}>
               <ScheduleIcon style={{ visibility: isScheduled ? 'visible' : 'hidden' ,color: '#ffa726',paddingTop: '8px', backgroundColor: 'transparent' }} />
