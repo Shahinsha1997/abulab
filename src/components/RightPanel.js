@@ -103,7 +103,7 @@ const RightPanel = ({
             display: 'grid',
             gridTemplateColumns: '1fr 3fr',
             minHeight: '100vh',
-            width: { xs: '100%' },
+            width: { xs: '100%'},
             height: '100vh',
             backgroundColor: 'lightblue',
             display: 'flex',
@@ -275,7 +275,7 @@ const RightPanel = ({
             </Box>
             <Box sx={{ flexDirection: 'column', overflow:'auto', backgroundColor:'#252b38', width:'100%'}}>
               {adminSection ? (
-                <Box sx={{ width:isMobile ? 'calc(100vw - 100px)' : 'calc(100vw - 180px)', border:'2px solid black'}}>
+                <Box sx={{ width:isMobile ? '100vw' : 'calc(100vw - 180px)', border:'2px solid black'}}>
                   <AdminDashBoard 
                     allDataIds={allDataIds} 
                     data={data}

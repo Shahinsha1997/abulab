@@ -165,7 +165,7 @@ const Form = ({
         anchor="right"
         open={formType}
       >
-        <Box sx={{width: isMobile ? "500px" : "350px"}}>
+        <Box sx={{width: isMobile ? "100%" : "350px"}}>
         <List dense={true}>
                 <ListItem
                   secondaryAction={
@@ -174,7 +174,7 @@ const Form = ({
                     </IconButton>
                   }
                 >
-                    <Typography gutterBottom variant="h5" component="div">
+                    <Typography gutterBottom style={{fontSize: '1.5rem'}} component="div">
                      {formType == 'addTests' ? 'Add Test Form' : isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} Expenses`}
                     </Typography>
                 </ListItem>

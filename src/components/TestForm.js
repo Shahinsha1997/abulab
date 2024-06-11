@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import { Alert } from '@mui/material';
+import { Alert, Container, Grid } from '@mui/material';
 import { Autocomplete, TextField } from '@mui/material';
 import { getAsObj, getLocalStorageData, setCacheTestDatas, setLocalStorageData } from '../utils/utils';
 
@@ -87,8 +87,9 @@ const TestForm = ({
     const { testAmount } = state;
     const { testName: nameError, testAmount: totalAmountErr } = errState;
     return(
-        <>
-            <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
+        <Container maxWidth="sm">
+        <Grid container spacing={2} sx={{display:'flex', flexDirection:'column'}}>
+            <Grid item>
                 <Autocomplete
                     value={state}
                     id='testName'
@@ -102,24 +103,24 @@ const TestForm = ({
                     renderInput={(params) => <TextField {...params} name="testName" sx={{width:'100%'}} onChange={handleInputChange} label={labelObj['testName']} fullWidth />}
                     />
                 {nameError && <Alert severity="error">{nameError}</Alert>}
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
+            </Grid>
+            <Grid item>
                 <TextField label={labelObj['testAmount']} name="testAmount" value={testAmount} onChange={handleInputChange} required fullWidth />
                 {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
+            </Grid>
+            <Grid item>
                 <Button type="submit" variant="contained" color="primary" sx={{ padding:'10px', width: '100%' }} onClick={handleSubmit}>
                     Submit
                 </Button>
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: 2, padding:'10px' }}>
+            </Grid>
+            <Grid item>
                 <Button type="submit" variant="contained" color="error" sx={{ padding:'10px', width: '100%' }} onClick={toggleDrawer(false)}>
                     Cancel
                 </Button>
-            </Box>
-        </>
-        )
-}
+            </Grid>
+        </Grid>
+    </Container>
+)}
 
 
 
