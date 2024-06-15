@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import { Alert, Container, Grid } from '@mui/material';
+import { Alert, Container, Grid, InputAdornment } from '@mui/material';
 import { Autocomplete, TextField } from '@mui/material';
 import { getAsObj, getLocalStorageData, setCacheTestDatas, setLocalStorageData } from '../utils/utils';
 
@@ -105,7 +105,17 @@ const TestForm = ({
                 {nameError && <Alert severity="error">{nameError}</Alert>}
             </Grid>
             <Grid item>
-                <TextField label={labelObj['testAmount']} name="testAmount" value={testAmount} onChange={handleInputChange} required fullWidth />
+                <TextField 
+                    label={labelObj['testAmount']} 
+                    name="testAmount" 
+                    value={testAmount} 
+                    onChange={handleInputChange} 
+                    required 
+                    fullWidth 
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                    }}
+                />
                 {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
             </Grid>
             <Grid item>

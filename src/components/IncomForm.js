@@ -5,7 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
 import Select from '@mui/material/Select';
 import { PREFIX_NAMES_LIST } from '../utils/utils';
-import { Autocomplete, TextField, Chip, Container, Grid } from '@mui/material';
+import { Autocomplete, TextField, Chip, Container, Grid, InputAdornment } from '@mui/material';
 const IncomeForm = ({
     handleInputChange, 
     getIdPrefix, 
@@ -28,7 +28,6 @@ return(
     <Container maxWidth="sm">
         <Grid container spacing={2} sx={{display:'flex', flexDirection:'column'}}>
             <Grid item sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ paddingRight: 1, fontWeight: 'bold' }}>{getIdPrefix()}</Box>
                 <TextField
                     label="Patient ID"
                     name="patientId"
@@ -36,6 +35,9 @@ return(
                     onChange={handleInputChange}
                     required
                     fullWidth
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">{getIdPrefix()}</InputAdornment>,
+                      }}
                 />
             </Grid>
             <Grid item>
@@ -97,16 +99,59 @@ return(
                 {descriptionErr && <Alert severity="error">{descriptionErr}</Alert>}
             </Grid>
             <Grid item>
-                <TextField sx={{width:'60%'}} label="Total Amount" name="totalAmount" value={totalAmount} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth />
-                <TextField sx={{width:'40%'}} label="Discount" name="discount" value={discount} onChange={handleInputChange} required fullWidth />
+                <TextField 
+                    sx={{width:'60%'}} 
+                    label="Total Amount" 
+                    name="totalAmount" 
+                    value={totalAmount} 
+                    disabled={isFieldDisabled} 
+                    onChange={handleInputChange} 
+                    required 
+                    fullWidth 
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                    }}
+                />
+                <TextField 
+                    sx={{width:'40%'}} 
+                    label="Discount" 
+                    name="discount" 
+                    value={discount} 
+                    onChange={handleInputChange} 
+                    required 
+                    fullWidth 
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                    }}
+                />
                 {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
             </Grid>
             <Grid item>
-                <TextField label="Paid Amount" name="paidAmount" value={paidAmount} onChange={handleInputChange} required fullWidth />
+                <TextField 
+                    label="Paid Amount" 
+                    name="paidAmount" 
+                    value={paidAmount} 
+                    onChange={handleInputChange} 
+                    required 
+                    fullWidth 
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                    }}
+                />
                 {paidAmountErr && <Alert severity="error">{paidAmountErr}</Alert>}
             </Grid>
             <Grid item>
-                <TextField label="Due Amount" name="dueAmount" value={dueAmount} onChange={handleInputChange} disabled fullWidth />
+                <TextField 
+                    label="Due Amount" 
+                    name="dueAmount" 
+                    value={dueAmount} 
+                    onChange={handleInputChange} 
+                    disabled 
+                    fullWidth 
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                    }}
+                />
                 {(dueAmount) < 0 && <Alert severity="error">Due amount is less than 0</Alert>}
             </Grid>
             <Grid item>
