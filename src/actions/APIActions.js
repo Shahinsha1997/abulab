@@ -1,7 +1,7 @@
 import { getAsObj, getLocalStorageData, setCacheDatas, setCacheTestDatas, setLocalStorageData } from "../utils/utils"
 
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbzQwiDTC1cUes9q6MrOHEqu7W0OIxQlaeDB4CxUUcaCQ5dwjzTdMLu6ZzuGKjpJvYMu/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbxO--wScJso_QGR5K6mK3cSDd2tPgxtpfgJE-6qON5cL4ZrjLPHYRlMoWGS77zGYcur_w/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbwXzas0Zyc6DD1cJgfBlWn0Sd8WKSO3PCQAw1u6SklnrFHM939VhKb7gdOtFAN61Y8BVQ/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -41,6 +41,8 @@ export const addDataAPI = (type) =>{
                 setLocalStorageData(inProgressKey,[]);
                 return resolve(setCacheDatas(getAsObj(data,'time',false)))
             }
+            setLocalStorageData(pendingKey,[...inProgressData, ...data])
+            setLocalStorageData(inProgressKey,[]);
             throw response.status
             
         })
@@ -96,12 +98,17 @@ export const getTestDataAPI = ()=>{
 
 
 export const addTestDataAPI = () =>{
-    const data = getLocalStorageData('addTestDatas', '[]');
+    const pendingKey = 'addTestDatas'
+    const inProgressKey = 'addInProgressTestDatas'
+    const data = getLocalStorageData(pendingKey, '[]');
+    const inProgressData = getLocalStorageData(inProgressKey, '[]');
+    setLocalStorageData(inProgressKey,[...inProgressData, ...data])
+    setLocalStorageData(pendingKey,[]);
     return new Promise((resolve, reject)=>{
         return fetch(DATA_URL, {
             redirect: "follow",
             method: 'POST',
-            body: JSON.stringify({"payload": data, "type": 'testData'}), 
+            body: JSON.stringify({"payload": [...inProgressData, ...data], "type": 'testData'}), 
             headers: {
                 "Content-Type": "text/plain;charset=utf-8",
             }
@@ -110,9 +117,11 @@ export const addTestDataAPI = () =>{
         .then(response=>{
             console.log(response)
             if(response.status == 200){
-                setLocalStorageData('addTestDatas',[]);
+                setLocalStorageData(inProgressKey,[]);
                 return resolve(setCacheTestDatas(getAsObj(data,'testId')))
             }
+            setLocalStorageData(pendingKey,[...inProgressData, ...data])
+            setLocalStorageData(inProgressKey,[]);
             throw response.status
             
         })

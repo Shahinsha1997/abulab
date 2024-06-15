@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
+import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
@@ -41,7 +41,6 @@ class DashboardLayout extends Component {
       'getAlertContent',
       'setSyncStatus',
       'syncNowDatas',
-      'syncTestDatas',
       'toggleAdminSection'
     ]
     bind.apply(this, methods);
@@ -75,47 +74,42 @@ class DashboardLayout extends Component {
     </Snackbar>
     )
   }
-  syncTestDatas(){
-    const { multiTestAdd } = this.props;
-    const addTestDatas = getLocalStorageData('addTestDatas','[]');
-    if(addTestDatas.length > 0){
-      return addTestDataAPI().then(res=>{
-        multiTestAdd({data:res})
-      })
-    }
-  }
   syncNowDatas(){
-    const { multiAdd, showAlert } = this.props;
-    const { addTry, updateTry } = this.state;
+    const { multiAdd, showAlert, multiTestAdd } = this.props;
+    const { addTry=0, updateTry=0, addTestTry=0 } = this.state;
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
-    const type = addPendingDatas.length > 0 ? 'add' : 'update'
+    const addTestDatas = getLocalStorageData('addTestDatas','[]');
+    const type = addPendingDatas.length > 0 ? 'add' : updatePendingDatas.length > 0 ? 'update' : 'addTest'
+    const apiMethod = type == 'addTest' ? addTestDataAPI : addDataAPI 
+    const reducerMethod = type == 'addTest' ? multiTestAdd : multiAdd
     setLocalStorageData('lastSyncTime', Date.now());
-    this.syncTestDatas();
-    if((addPendingDatas.length > 0 || updatePendingDatas.length > 0 ) && !this.isSyncInProgress){
+    if((addPendingDatas.length > 0 || updatePendingDatas.length > 0  || addTestDatas.length > 0) && !this.isSyncInProgress){
       this.isSyncInProgress = true;
       this.setSyncStatus(false)
-      return addDataAPI(type).then((res)=>{
-        multiAdd({data:res})
-        showAlert({type: 'success', message: type == 'add' ? "Datas Sync done successfully..." : "Datas Updated Successfully"})
+      return apiMethod(type).then((res)=>{
+        reducerMethod({data:res})
+        showAlert({type: 'success', message: getMessages(type).success})
         this.setSyncStatus(true)
         this.isSyncInProgress = false;
         scheduleSync(this.syncNowDatas, showAlert)
         this.setState({
-          addTry: type == 'add' ? 0 : addTry,
-          updateTry : type != 'add' ? 0 : updateTry
-        }, ()=>type == 'add' && updatePendingDatas.length ? this.syncNowDatas() : '')
+          addTry: 0,
+          updateTry : 0,
+          addTestTry: 0
+        }, ()=>this.syncNowDatas())
       }).catch(err=>{
-        this.setSyncStatus(true)
-        if(addTry > 5 || updateTry > 5){
+        this.setSyncStatus(false)
+        this.isSyncInProgress = false;
+        if(addTry > 5 || updateTry > 5 || addTestTry > 5){
           return showAlert({type: 'error', message:'Please Contact Shahinsha...'})
         }
         this.setState({
           addTry: type == 'add' ? addTry + 1 : addTry,
-          updateTry : type != 'add' ? updateTry + 1 : updateTry
+          updateTry : type == 'update' ? updateTry + 1 : updateTry,
+          addTestTry: type == 'addTest' ? addTestTry + 1 : addTestTry
         },()=>this.syncNowDatas(type))
-        console.log('Err',err)
-        showAlert({type: 'error', message:type == 'add'  ?  "Datas doesn't sync properly..." : "Datas doesn't updated successfully"})
+        showAlert({type: 'error', message:getMessages(type).fail})
       })
     }
   }

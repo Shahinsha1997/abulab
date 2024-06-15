@@ -4,6 +4,7 @@ export const EXPENSE_LABEL = 'Expense'
 export const INCOME_LABEL = 'Income'
 export const OUTSTANDING_LABEL = 'Outstanding';
 export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss.','Mast.'];
+export const MAX_DAYS_FOR_APPOINTMENT = 7;
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
@@ -465,3 +466,31 @@ export const scheduleSync = (syncNow,showAlert)=>{
     }
     
 }
+
+export const copyToClipboard = (content)=>{
+    debugger;
+    navigator.clipboard.writeText(content)
+        .then(() => {
+        console.log('Content copied to clipboard!');
+        })
+        .catch((err) => {
+        console.error('Failed to copy content:', err);
+        });
+  }
+
+  export const getMessages = (type) =>{
+    return {
+        'add' : {
+            'success' : 'Datas Sync done successfully...',
+            'fail' : "Datas doesn't sync properly..."
+        },
+        'update' : {
+            'success' : 'Datas Updated Successfully...',
+            'fail' : "Datas doesn't updated successfully"
+        },
+        'addTest' : {
+            'success' : 'Test Datas  added/updated Successfully...',
+            'fail' : "Test Datas doesn't added/updated successfully"
+        }
+    }[type]
+  }
