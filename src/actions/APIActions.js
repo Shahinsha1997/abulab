@@ -1,7 +1,7 @@
 import { getAsObj, getLocalStorageData, setCacheDatas, setCacheTestDatas, setLocalStorageData } from "../utils/utils"
 
-const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbzQwiDTC1cUes9q6MrOHEqu7W0OIxQlaeDB4CxUUcaCQ5dwjzTdMLu6ZzuGKjpJvYMu/exec'
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbwXzas0Zyc6DD1cJgfBlWn0Sd8WKSO3PCQAw1u6SklnrFHM939VhKb7gdOtFAN61Y8BVQ/exec'
+const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbyzv_FekWZBKuK7gw2m-jqVdVtXAG_IJLRw9RTEFOvy2RDMYFZD2nwqN4WGvJidxYLG/exec'
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbz0pCi98WMzi013pODkDAAMh1RaJl9mW2tYaoiaEeqmqKeqbW44Yzi4o712341huL04zw/exec'
 export const authenticate = (userName, password) =>{
     return new Promise((resolve, reject)=>{
         return fetch(AUTHENTICATE_URL, {
@@ -53,8 +53,9 @@ export const addDataAPI = (type) =>{
 export const getDataAPI = ()=>{
     const lastRowId = getLocalStorageData('lastCallTime','', false);
     setLocalStorageData('lastCallTime',Date.now())
+    const userObj = getLocalStorageData('userObj',{})
     return new Promise((resolve, reject)=>{
-        return fetch(`${DATA_URL}?${lastRowId ? 'lastRowId='+lastRowId : ''}`, {
+        return fetch(`${DATA_URL}?userId=${userObj.id}${lastRowId ? '&lastRowId='+lastRowId : ''}`, {
             redirect: "follow",
             method: 'GET',
             headers: {

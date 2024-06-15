@@ -42,7 +42,8 @@ const Form = ({
     totalAmount: '0',
     paidAmount: '0',
     comments: '',
-    namePrefix: 'Mrs.'
+    namePrefix: 'Mrs.',
+    adminVisibilty: false
   }, ...(getEditedFormProperties(data[formType],testObj))})
   const labelObj = {
     patientId: "Patiend ID",
@@ -74,7 +75,10 @@ const Form = ({
     setState({...state, ...initialState})
   },[formType])
   const handleInputChange = (event, val) => {
-    const { name='drName', value } = event.target;
+    let { name='drName', value } = event.target;
+    if(name == 'adminVisibilty'){
+      value = val;
+    }
     setState((prevState) => ({ ...prevState, [name]: val || value }));
     setErrorState({})
   };
@@ -103,7 +107,7 @@ const Form = ({
         errObj[key] = `${labelObj[key]} can't be Empty`;
         isError = true;
       }
-      if(amountFields.includes(key) && (!state[key] || parseInt(state[key])<0)){
+      if(amountFields.includes(key) && parseInt(state[key])<0){
         errObj[key] = `${labelObj[key]} can't be less then 0`;
         isError = true;
       }
@@ -120,19 +124,30 @@ const Form = ({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const { patientId, name, mobileNumber, totalAmount, paidAmount, description, drName, comments, namePrefix, discount} = state;
+    const { 
+      patientId,
+      name, 
+      mobileNumber, 
+      totalAmount, 
+      paidAmount, 
+      description, 
+      drName, 
+      comments, 
+      namePrefix, 
+      discount,
+      adminVisibilty
+    } = state;
     const dueAmount = totalAmount- parseInt(discount) - paidAmount
     const status = getStatus(isIncomeForm, dueAmount)
     if(isErrorFound('',status)){
       return;
     }
-
     const localStorageKey = isAddForm ? 'addPendingDatas' : 'updatePendingDatas'
     const addPending = getLocalStorageData(localStorageKey,'[]');
     const data = Object.assign({
       time: isAddForm ? Date.now() : parseInt(formType),
       patientId: status == EXPENSE_LABEL ? '' : patientId, 
-      name: status == EXPENSE_LABEL ? name: namePrefix+name,
+      name: status == EXPENSE_LABEL ? (adminVisibilty ? name+"|Admin Only" : name): namePrefix+name,
       mobileNumber, 
       status,
       drName,
@@ -211,6 +226,7 @@ const Form = ({
                 handleSubmit={handleSubmit}
                 toggleDrawer={toggleDrawer}
                 errState={errState}
+                isAdmin={isAdmin}
               />
             )}
             

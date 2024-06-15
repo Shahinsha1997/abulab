@@ -1,22 +1,22 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import MenuItem from '@mui/material/MenuItem';
-import { Alert, Container, Grid } from '@mui/material';
+import { Alert, Container, Grid, InputAdornment } from '@mui/material';
+import { FormControlLabel, Checkbox } from '@mui/material';
 
-
-const IncomeForm = ({
+const ExpenseForm = ({
     handleInputChange, 
     getIdPrefix, 
     state,
     isMobile,
     toggleDrawer,
     handleSubmit,
-    errState={}
+    errState={},
+    isAdmin
 }) => {
-const { patientId, name, mobileNumber, description, drName, status, totalAmount, paidAmount } = state;
+const { patientId, name, mobileNumber, description, drName, status, totalAmount, paidAmount, adminVisibilty } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
+const checkBox = adminVisibilty ? {checked:true} : {}
 return(
     <Container maxWidth="sm">
         <Grid container spacing={2} sx={{display:'flex', flexDirection:'column'}}>
@@ -25,10 +25,27 @@ return(
                 {nameError && <Alert severity="error">{nameError}</Alert>}
             </Grid>
             <Grid item>
-                <TextField label="Description" name="description" value={description} onChange={handleInputChange} required fullWidth />
+                <TextField label="Description" name="description" value={description} onChange={handleInputChange} fullWidth />
             </Grid>
+            {isAdmin ? (
+                <Grid item>
+                <FormControlLabel
+                    control={<Checkbox name='adminVisibilty' checked={adminVisibilty} onChange={handleInputChange} />}
+                    label="Visibility to Only Admin"
+                    />
+                </Grid>
+            ) : null}
             <Grid item>
-                <TextField label="Total Amount" name="totalAmount" value={totalAmount} onChange={handleInputChange} required fullWidth />
+                <TextField 
+                    label="Total Amount" 
+                    name="totalAmount" 
+                    value={totalAmount} 
+                    onChange={handleInputChange} 
+                    fullWidth  
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                    }}
+                />
                 {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
             </Grid>
             <Grid item>
@@ -48,4 +65,4 @@ return(
 
 
 
-export default IncomeForm;
+export default ExpenseForm;

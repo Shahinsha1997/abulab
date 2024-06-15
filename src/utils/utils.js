@@ -399,19 +399,20 @@ export const clearCache = ()=>{
 }
 
 export const getEditedFormProperties = (properties={}, testObj)=>{
-    const { name, description } = properties;
+    const updatedProperties = {...properties}
+    const { name, description } = updatedProperties;
     const testsArr = [];
     if(name){
         for(let i=0;i<PREFIX_NAMES_LIST.length;i++){
             if(name.includes(PREFIX_NAMES_LIST[i])){
-                properties['name'] = name.replace(PREFIX_NAMES_LIST[i],'');
-                properties['namePrefix'] = PREFIX_NAMES_LIST[i];
+                updatedProperties['name'] = name.replace(PREFIX_NAMES_LIST[i],'');
+                updatedProperties['namePrefix'] = PREFIX_NAMES_LIST[i];
                 break;
             }
         }
         if(name.toLowerCase().includes('|admin only')){
-            properties['name'] = name.replace('|Admin Only','');
-            properties['adminVisibilty'] = true;
+            updatedProperties['name'] = name.replace('|Admin Only','');
+            updatedProperties['adminVisibilty'] = true;
         }
     }
     if(description){
@@ -419,8 +420,8 @@ export const getEditedFormProperties = (properties={}, testObj)=>{
             test && testObj[test] && testsArr.push(testObj[test]);
         })
     }
-    properties['testsArr'] = testsArr;
-    return properties
+    updatedProperties['testsArr'] = testsArr;
+    return updatedProperties
 }
 
 export const isSyncNowNeeded = ()=>{
