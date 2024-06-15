@@ -409,12 +409,15 @@ export const getEditedFormProperties = (properties={}, testObj)=>{
                 break;
             }
         }
+        if(name.toLowerCase().includes('|admin only')){
+            properties['name'] = name.replace('|Admin Only','');
+            properties['adminVisibilty'] = true;
+        }
     }
     if(description){
         description.split("|").map(test=>{
             test && testObj[test] && testsArr.push(testObj[test]);
         })
-        
     }
     properties['testsArr'] = testsArr;
     return properties
@@ -468,7 +471,6 @@ export const scheduleSync = (syncNow,showAlert)=>{
 }
 
 export const copyToClipboard = (content)=>{
-    debugger;
     navigator.clipboard.writeText(content)
         .then(() => {
         console.log('Content copied to clipboard!');
@@ -493,4 +495,11 @@ export const copyToClipboard = (content)=>{
             'fail' : "Test Datas doesn't added/updated successfully"
         }
     }[type]
+  }
+
+  export const getCurrentMonth = ()=>{
+    const date = new Date();
+    const month = date.getMonth()+1
+    const year = date.getFullYear();
+    return `${month > 9 ? month : '0'+month}/${year}`
   }

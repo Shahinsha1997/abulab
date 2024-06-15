@@ -4,7 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { EXPENSE_LABEL, getDatasByProfit, getFormFields, getTimeFilter } from '../utils/utils';
+import { EXPENSE_LABEL, getCurrentMonth, getDatasByProfit, getFormFields, getTimeFilter } from '../utils/utils';
 import PrintableList from './PrintableList';
 import AddIcon from '@mui/icons-material/Add';
 import Backdrop from '@mui/material/Backdrop';
@@ -48,14 +48,13 @@ const RightPanel = ({
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = (e) => {
-    debugger;
     setOpen(false);
   }
 
-    const [timeFilter, setTimeFilter] = useState('All')
+    const [timeFilter, setTimeFilter] = useState('MonthWise')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
-    const [timeInput, setTimeInput] = useState('')
+    const [timeInput, setTimeInput] = useState(getCurrentMonth())
     const [docInput, setDocInput] = useState('')
     
     

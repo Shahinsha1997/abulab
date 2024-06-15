@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
+import { EXPENSE_LABEL, bind, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 
@@ -19,9 +19,9 @@ class DashboardLayout extends Component {
       previousId: '',
       filteredDataIds:[],
       filterObj:{
-        timeFilter:'All', 
+        timeFilter:'MonthWise', 
         typeFilter:'All',
-        timeInput: '', 
+        timeInput: getCurrentMonth(), 
         docInput:''
       },
       tableColumns: Object.values(getFormFields('allFields')),
