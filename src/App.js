@@ -6,6 +6,7 @@ import PrivateRoute from './components/PrivateRoute';
 import { changePathName } from './utils/utils';
 import { Provider } from 'react-redux';
 import { store } from './store';
+import AppointmentForm from './components/AppoinmentPage';
 class App extends Component {
   constructor(props){
     super(props);
@@ -39,6 +40,7 @@ class App extends Component {
             <Route path="/" element={<PrivateRoute />}>
               <Route path="/dashboard" element={<DashboardLayout />} /> 
             </Route>
+            <Route path="/appointments" element={<AppointmentForm/>} />
           </Routes>
         </BrowserRouter>
       </Provider>

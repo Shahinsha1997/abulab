@@ -36,7 +36,9 @@ const RightPanel = ({
   testArr,
   multiTestAdd,
   adminSection,
-  allDataIds=[]
+  allDataIds=[],
+  isFetching,
+  page
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -126,6 +128,7 @@ const RightPanel = ({
             testObj={testObj}
             multiTestAdd={multiTestAdd}
             testArr={testArr}
+            page={page}
           />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'200px' }}>
@@ -272,7 +275,7 @@ const RightPanel = ({
               </Button>
             )}
             </Box>
-            <Box sx={{ flexDirection: 'column', overflow:'auto', backgroundColor:'#252b38', width:'100%'}}>
+            <Box sx={{ flexDirection: 'column', flexGrow: 1, overflow:'auto', backgroundColor:'#252b38', width:'100%'}}>
               {adminSection ? (
                 <Box sx={{ width:isMobile ? '100vw' : 'calc(100vw - 180px)', border:'2px solid black'}}>
                   <AdminDashBoard 
@@ -282,7 +285,7 @@ const RightPanel = ({
                   />
                 </Box>
               ): (
-                <PrintableList tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+                <PrintableList isFetching={isFetching} tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
               )}
               
             </Box>

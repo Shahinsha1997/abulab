@@ -4,7 +4,9 @@ export const EXPENSE_LABEL = 'Expense'
 export const INCOME_LABEL = 'Income'
 export const OUTSTANDING_LABEL = 'Outstanding';
 export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss.','Mast.'];
-export const MAX_DAYS_FOR_APPOINTMENT = 7;
+export const ONE_DAY_IN_MS = 24*60*60*1000
+export const APPOINTMENTS_VIEW = 'Appointments_View';
+export const LAB_VIEW = 'Lab_View'
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
@@ -184,6 +186,48 @@ export const getFormFields = (fieldType)=>{
                 label: 'Expense',
                 'maxWidth': '150px'
             }
+        },
+        [APPOINTMENTS_VIEW] : {
+            'id' : {
+                id: 'id',
+                label: 'ID',
+                'maxWidth': '80px'
+            },
+            'name' : {
+                id: 'name',
+                label: 'name',
+                'maxWidth': '150px'
+            },
+            'age' : {
+                id: 'age',
+                label: 'Age',
+                'maxWidth': '150px'
+            },
+            'mobileNumber' : {
+                id: 'mobileNumber',
+                label: 'Mobile Number',
+                'maxWidth': '150px'
+            },
+            'address' : {
+                id: 'address',
+                label: 'Address',
+                'maxWidth': '200px'
+            },
+            'appointmentDate' : {
+                id: 'appointmentDate',
+                label: 'Appointment Date',
+                'maxWidth': '150px'
+            },
+            'drName': {
+                id: 'drName',
+                label: 'Doctor Name',
+                'maxWidth': '150px'
+            },
+            'otherOptions' : {
+                id:'otherOptions',
+                label: '',
+                'maxWidth': '100px'
+            }
         }
     }[fieldType]
 }
@@ -195,6 +239,20 @@ export const getCellFormattedVal = (cellName, value='', statusType, filterType)=
         return getTimeWithDate(value)
     }else if(cellName == 'patientId' && statusType != EXPENSE_LABEL){
         return getIdPrefix(value)
+    }else if(cellName == 'appointmentDate'){
+        const isToday = new Date().setHours(0,0,0,0);
+        const isTomorrow = isToday + ONE_DAY_IN_MS;
+        if(value == isToday){
+            return 'Today'
+        }else if(value == isTomorrow){
+            return 'Tomorrow'
+        }else{
+            return new Date(value).toLocaleString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+                })
+        }
     }
     return value == '' ? '-' : value;
 }
@@ -203,6 +261,7 @@ export const MODIFY_DATA = 'MODIFY_DATA';
 export const MULTI_ADD = 'MULTI_ADD'
 export const GET_DATA = 'GET_DATA'
 export const MULTI_TEST_ADD = 'MULTI_TEST_ADD'
+export const MULTI_APPOINTMENT_ADD = 'MULTI_APPOINTMENT_ADD'
 
 export function bind(...handlers) {
     handlers.forEach((handler) => {
@@ -384,10 +443,10 @@ export const setCacheDatas = ({ids=[], obj={}}) =>{
     setLocalStorageData('dataIds',dataIds);
     return { ids: dataIds, obj: datas}
 }
-export const setCacheTestDatas = ({obj={}})=>{
-    let datas = getLocalStorageData('testDatas','{}');
+export const setCacheTestDatas = ({obj={}},key='testDatas')=>{
+    let datas = getLocalStorageData(key,'{}');
     datas = {...datas, ...obj}
-    setLocalStorageData('testDatas',datas);
+    setLocalStorageData(key,datas);
     return { obj: obj}
 }
 export const clearCache = ()=>{
@@ -398,7 +457,7 @@ export const clearCache = ()=>{
     window.location.reload();
 }
 
-export const getEditedFormProperties = (properties={}, testObj)=>{
+export const getEditedFormProperties = (properties={}, testObj, page)=>{
     const updatedProperties = {...properties}
     const { name, description } = updatedProperties;
     const testsArr = [];
@@ -504,3 +563,7 @@ export const copyToClipboard = (content)=>{
     const year = date.getFullYear();
     return `${month > 9 ? month : '0'+month}/${year}`
   }
+
+export const getAppoinmentsData = (appoinmentData)=>{
+    return appoinmentData.sort((a, b) => a.appointmentDate - b.appointmentDate);
+}

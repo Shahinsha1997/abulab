@@ -7,6 +7,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles'; 
 import WhatsAppIconPopup from './WhatsappIconPopup';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 const MyDataGrid = styled(DataGrid)(({ theme }) => {
 
   const isMobile = useMediaQuery('(max-width: 600px)');
@@ -38,7 +39,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       backgroundColor: '#242b38',
       color: 'white'
     },
-    width: isMobile ? `1800px`:`1800px`,
+    width: `1800px`,
     fontSize: 'inherit',
     [theme.breakpoints.down('sm')]: { 
       fontSize: 14
@@ -52,7 +53,8 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
     tableColumns, 
     filterObj, 
     toggleForm,
-    isAdmin
+    isAdmin,
+    isFetching
   }) =>{
     const [hoveredCellId, setIsCellHovered] = useState(false);
     const handleRowEnter = (params) => {
@@ -89,10 +91,23 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
           </Box>
           )
           }
-      } : {}),
+      } : column.id =='otherOptions' ? {
+        renderCell: (params) =>{
+          const { id } = params.row
+          return (
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'row' }}>
+              <Box sx={{width:"20px"}}>
+              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Add as Income"  onClick={() => toggleForm((id || '').toString())}>
+                <NoteAddIcon style={{backgroundColor: 'transparent',color:'#1876d2'}}/>
+              </IconButton>
+              </Box>
+            </Box>
+          )
+        }
+      }: {}),
     }));
     const rows = tableData.map((row) => {
-      const resp = {id: row.time || row.drName}
+      const resp = {id: row.time || row.drName || row.id}
       for(let i=0;i<tableColumns.length;i++){
         resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
       }
@@ -118,6 +133,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
           rowCount={rows.length}
           disableSelectionOnClick
           density='comfortable'
+          loading={isFetching}
       />
     )
   }

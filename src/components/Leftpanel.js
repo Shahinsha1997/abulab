@@ -9,12 +9,14 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import SyncIcon from '@mui/icons-material/Sync';
 import ReactToPrint from 'react-to-print';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import { clearCache, getLocalStorageData, printPage } from '../utils/utils';
+import { APPOINTMENTS_VIEW, LAB_VIEW, clearCache, getLocalStorageData, printPage } from '../utils/utils';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import PersonIcon from '@mui/icons-material/Person';
 import { useTheme } from '@mui/material/styles'; 
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone';
+import EventSharpIcon from '@mui/icons-material/EventSharp';
+import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -22,7 +24,9 @@ const LeftPanel = ({
   syncNow, 
   isLogoutDisabled,
   toggleAdminSection,
-  adminSection
+  adminSection,
+  setPage,
+  page
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); 
   const [dateTime, setDateTime] = useState(new Date().toLocaleString("en-GB", {
@@ -55,6 +59,9 @@ const LeftPanel = ({
   const handleClearCache = ()=>{
     clearCache();
   }
+  const handleAppointmentsPage = ()=>{
+    setPage(page == LAB_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)
+  }
 
   const handleLogoutClick = () => {
     logoutUser()
@@ -76,7 +83,18 @@ const LeftPanel = ({
     >
       <Box sx={{ padding: '1rem', textAlign: 'center', height:"25%"}}>
         <Box sx={{display:isMobile? 'none' : ''}}>
-          <img width="100px" height="100px" src='./AbuLabLogo.png' alt="Abulab" />
+          <Box sx={{display:'flex',flexDirection:'column'}} >
+              <img
+                src="./AbuLabLogoHeader.png"
+                alt="Abulab"
+                style={{ maxWidth: '100%', maxHeight: '150px', width:'200px' }}
+              />
+            <img
+                src="./AbuLabLogoFooter.png"
+                alt="Abulab"
+                style={{ maxWidth: '100%', maxHeight: '150px', width:'200px' }}
+              />
+            </Box>
           <Typography variant="h6">Abu Laboratory</Typography>
           <Typography variant="body2">[ECG | X-Ray]</Typography>
           <Typography variant="body2">{dateTime}</Typography>
@@ -114,6 +132,32 @@ const LeftPanel = ({
                 <AddIcon color="primary" />
               </Tooltip>
             </Box>
+            {isAdmin && (
+              <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-appointment-btn" onClick={()=>window.open('/appointments','_self')}>
+              <Tooltip
+                  title={'Add Appointment'}
+                  placement="top"
+                  disableInteractive={theme.breakpoints.down('sm')}
+                >
+                <AddIcon color="primary" />
+              </Tooltip>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="sync-now-btn" onClick={handleAppointmentsPage}>
+                <Tooltip
+                  title={`${page == APPOINTMENTS_VIEW ? 'Hide ' : 'Show ' } Appointments`}
+                  placement="top"
+                  disableInteractive={theme.breakpoints.down('sm')}
+                >
+                  {page == APPOINTMENTS_VIEW ? (
+                    <EventTwoToneIcon color="primary" />
+                 ): (
+                   <EventSharpIcon color="primary" />
+                  )}
+                </Tooltip>
+              </Box>
+              </>
+            )}
             {syncNow ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="sync-now-btn" onClick={syncNow}>
                 <Tooltip
@@ -146,32 +190,41 @@ const LeftPanel = ({
                 ): (
                   <AdminPanelSettingsIcon color="primary" />
                 )}
-                
               </Tooltip>
             </Box>
             )}
           </>
         ) : (
           <>
-            <Button variant="contained" startIcon={<AddIcon />} id="add-income-btn" onClick={handleAddIncomeClick} sx={{ padding: '8px 16px'}}>
+            <Button variant="contained" startIcon={<AddIcon />} id="add-income-btn" onClick={handleAddIncomeClick}>
               Add Income
             </Button>
-            <Button variant="contained" startIcon={<AddIcon />} id="add-expenses-btn" onClick={handleAddExpensesClick} sx={{ padding: '8px 16px' }}>
+            <Button variant="contained" startIcon={<AddIcon />} id="add-expenses-btn" onClick={handleAddExpensesClick}>
                 Add Expenses
             </Button>
-            <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest} sx={{ padding: '8px 16px' }}>
+            <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest}>
                 Add/Edit Test
             </Button>
+            {isAdmin && (
+            <>
+              <Button variant="contained" startIcon={<AddIcon />} id="add-appoinment-btn" onClick={()=>window.open('/appointments','_self')}>
+                  Add Appointment
+              </Button>
+              <Button variant="contained" startIcon={<EventSharpIcon />} id="show-appoinment-btn" onClick={handleAppointmentsPage}>
+                  {`${page == APPOINTMENTS_VIEW ? 'Hide ' : 'Show ' } Appointments`}
+              </Button>
+            </>
+            )}
             {syncNow ? (
-            <Button variant="contained" startIcon={<SyncIcon />} id="add-expenses-btn" onClick={syncNow} sx={{ padding: '8px 16px' }}>
+            <Button variant="contained" startIcon={<SyncIcon />} id="sync-now-btn" onClick={syncNow} sx={{ padding: '8px 16px',  }}>
               Sync Now
             </Button>
             ): null}
-            <Button variant="contained" startIcon={<NotInterestedIcon />} id="add-expenses-btn" onClick={handleClearCache} sx={{ padding: '8px 16px' }}>
+            <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache}>
                 Clear Cache
             </Button>
             {isAdmin && (
-            <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection} sx={{ padding: '8px 16px' }}>
+            <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection}>
                   {adminSection ? 'Hide' : 'Show'} Admin Panel
             </Button>
             )}

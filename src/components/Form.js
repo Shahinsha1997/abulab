@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { EXPENSE_LABEL, getAsObj, getEditedFormProperties, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, getAsObj, getEditedFormProperties, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
 import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
 import TestForm from './TestForm';
@@ -26,10 +26,11 @@ const Form = ({
   drNamesList,
   testObj,
   testArr,
-  multiTestAdd
+  multiTestAdd,
+  page
 }) => {
-  const isAddForm = formType.indexOf('add') != -1
-  const isIncomeForm = formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
+  const isAddForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('add') != -1
+  const isIncomeForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
   const initialState = ({...{
     open: false,
     patientId: getProperId(previousID+1),
@@ -163,7 +164,7 @@ const Form = ({
     setLocalStorageData(localStorageKey, addPending)
     addData({data: getAsObj([data])});
     toggleDrawer()();
-    if(status != EXPENSE_LABEL && isAddForm){
+    if(status != EXPENSE_LABEL && isAddForm && page != APPOINTMENTS_VIEW){
       setPreviousId(patientId)
       toggleForm(formType)
     }

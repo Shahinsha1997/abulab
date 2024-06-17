@@ -1,4 +1,4 @@
-import { ADD_DATA, MODIFY_DATA, MULTI_ADD, GET_DATA, MULTI_TEST_ADD } from "../utils/utils";
+import { ADD_DATA, MODIFY_DATA, MULTI_ADD, GET_DATA, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD } from "../utils/utils";
 
 export const setUser = (datas={}) => {
     return {
@@ -43,5 +43,10 @@ export const closeAlert = () =>({
 
 export const multiTestAdd = (data) =>({
     type: MULTI_TEST_ADD,
+    payload: data
+})
+
+export const multiAppointmentAdd = (data) =>({
+    type: MULTI_APPOINTMENT_ADD,
     payload: data
 })

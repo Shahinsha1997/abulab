@@ -1,4 +1,4 @@
-import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD } from "../utils/utils";
+import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
@@ -64,6 +64,16 @@ const testDataReducer = (state = {}, action={}) => {
   const { obj } = data;
     switch (action.type) {
       case MULTI_TEST_ADD:
+        return {...state, ...obj}
+      default:
+        return state;
+    }
+  };
+const appointmentReducer = (state = {}, action={}) => {
+  const { data={} } = action.payload || {}
+  const { obj } = data;
+    switch (action.type) {
+      case MULTI_APPOINTMENT_ADD:
         return {...state, ...obj}
       default:
         return state;
@@ -136,12 +146,13 @@ function appReducer(state=appReducerInitialState,action){
 
 export const getAllReducers = () =>{
     return {
-            user: userReducer,
-            data: dataReducer,
-            dataIds: dataIdsReducers,
-            filteredIds: filteredDataIdReducers,
-            filteredByDrName: filteredByDrName,
-            appConfig: appReducer,
-            testObj: testDataReducer
+        user: userReducer,
+        data: dataReducer,
+        dataIds: dataIdsReducers,
+        filteredIds: filteredDataIdReducers,
+        filteredByDrName: filteredByDrName,
+        appConfig: appReducer,
+        testObj: testDataReducer,
+        appointmentObj: appointmentReducer
     }
 }

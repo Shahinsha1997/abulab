@@ -4,11 +4,10 @@ import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
 import { Box } from '@mui/material';
 import { connect } from 'react-redux';
-import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert } from '../dispatcher/action';
-import { EXPENSE_LABEL, bind, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
-import { addDataAPI, addTestDataAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
+import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd } from '../dispatcher/action';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, bind, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
+import { addDataAPI, addTestDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
-
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -18,12 +17,14 @@ class DashboardLayout extends Component {
       limit: 50,
       previousId: '',
       filteredDataIds:[],
+      isFetching: false,
       filterObj:{
         timeFilter:'MonthWise', 
         typeFilter:'All',
         timeInput: getCurrentMonth(), 
         docInput:''
       },
+      page:LAB_VIEW,
       tableColumns: Object.values(getFormFields('allFields')),
       syncStatus: true,
       addTry: 0,
@@ -41,12 +42,28 @@ class DashboardLayout extends Component {
       'getAlertContent',
       'setSyncStatus',
       'syncNowDatas',
-      'toggleAdminSection'
+      'toggleAdminSection',
+      'setPage',
+      'getAppoinmentDatas',
+      'setIsFetching'
     ]
     bind.apply(this, methods);
   }
+  setIsFetching(status){
+    this.setState({
+      isFetching: status
+    })
+  }
   setPreviousId(id){
     this.setState({previousId: id})
+  }
+  setPage(page){
+    this.setState({
+      page
+    })
+    if(page == APPOINTMENTS_VIEW){
+      this.getAppoinmentDatas();
+    }
   }
   toggleAdminSection(){
     const { adminSection } = this.state;
@@ -59,19 +76,33 @@ class DashboardLayout extends Component {
       syncStatus: status
     })
   }
+  getAppoinmentDatas(){
+    const { showAlert, multiAppointmentAdd } = this.props;
+    this.setIsFetching(true)
+    getAppointmentDatasAPI().then(res=>{
+      this.setIsFetching(false)
+      multiAppointmentAdd({data:res})
+    }).catch(err=>{
+      if(err == 404){
+        return logoutUser();
+      }
+      this.setIsFetching(false)
+      showAlert({type: 'error', 'message': "Internal Server Error"})
+    })
+  }
   getAlertContent(){
     const { appConfig, closeAlert } = this.props;
     const { alertOptions } = appConfig
     const { type, message } = alertOptions;
     return (
       <Snackbar
-      open={true}
-      autoHideDuration={type == 'success' ? 5000 : undefined} // Duration in milliseconds (here, 6 seconds)
-      onClose={() => type == 'success' && closeAlert()} // Function to handle closing
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position
-    >
-     <Alert severity={type} onClose={closeAlert}>{message}</Alert>
-    </Snackbar>
+        open={true}
+        autoHideDuration={type == 'success' ? 5000 : undefined} // Duration in milliseconds (here, 6 seconds)
+        onClose={() => type == 'success' && closeAlert()} // Function to handle closing
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position
+      >
+        <Alert severity={type} onClose={closeAlert}>{message}</Alert>
+      </Snackbar>
     )
   }
   syncNowDatas(){
@@ -130,18 +161,18 @@ class DashboardLayout extends Component {
   }
   componentDidUpdate(prevProps, prevState){
     const { dataIds } = this.props;
-    const { filteredDataIds, filterObj } = this.state;
+    const { filteredDataIds, filterObj, syncStatus, page, isFetching } = this.state;
     const {
       timeFilter, 
       typeFilter
     } = filterObj
     const isIntialLoad =  dataIds.length != filteredDataIds.length && timeFilter == 'All' && typeFilter == 'All'
-    if(prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != this.state.syncStatus ){
+    if(prevState.page != page || isFetching != prevState.isFetching || prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != syncStatus ){
       this.getFilteredDataIds();
     }
   }
   getFilteredDataIds(){
-    let { previousId, filterObj, tableColumns } = this.state;
+    let { previousId, filterObj, tableColumns, page } = this.state;
     const {
       timeFilter='All', 
       typeFilter='', 
@@ -149,13 +180,24 @@ class DashboardLayout extends Component {
       docInput=''
     } = filterObj
     const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
-    let { dataIds, filteredIds, filteredByDrName, data, showAlert } = this.props;
+    let { 
+      dataIds, 
+      filteredIds, 
+      filteredByDrName, 
+      data, 
+      showAlert, 
+      appointmentObj 
+    } = this.props;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
     dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
     if(isProfitFilter && timeFilter == 'All'){
       showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Frame'})
     }
-    if(isProfitFilter && timeFilter != 'All'){
+    if(page == APPOINTMENTS_VIEW){
+      tableColumns = Object.values(getFormFields(APPOINTMENTS_VIEW));
+      dataIds = getAppoinmentsData(Object.values(appointmentObj))
+    }
+    else if(isProfitFilter && timeFilter != 'All'){
       let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
       dataIds = profitObj['dataIds']
       tableColumns = Object.values(getFormFields(typeFilter));
@@ -213,7 +255,8 @@ class DashboardLayout extends Component {
       testObj,
       multiTestAdd,
       testArr,
-      dataIds
+      dataIds,
+      appointmentObj
     } = this.props
     const { 
       formType,
@@ -221,18 +264,18 @@ class DashboardLayout extends Component {
       filteredDataIds, 
       tableColumns, 
       filterObj ,
-      adminSection
+      adminSection,
+      page,
+      isFetching
     } = this.state;
     const { alertOptions={} } = appConfig
     return (
         <Box
-        sx={{
-          display: 'flex',
-          height: '100vh',
-          alignItems: 'stretch'
-          // overflow: 'hidden' 
-          // minHeight: '100vh'
-        }}
+          sx={{
+            display: 'flex',
+            height: '100vh',
+            alignItems: 'stretch'
+          }}
       >
         { alertOptions.type ? (
           this.getAlertContent()
@@ -247,6 +290,8 @@ class DashboardLayout extends Component {
           toggleAdminSection={this.toggleAdminSection}
           adminSection={adminSection}
           syncNow={isSyncNowNeeded() && this.syncNowDatas}
+          setPage={this.setPage}
+          page={page}
         />
         </Box>
         <Box sx={{flexGrow:1, overflow: 'hidden' }}>
@@ -254,7 +299,7 @@ class DashboardLayout extends Component {
           addData={addData} 
           toggleForm={this.toggleForm} 
           formType={formType}
-          data={data}
+          data={page == APPOINTMENTS_VIEW ? appointmentObj : data}
           allDataIds={dataIds}
           dataIds={filteredDataIds}
           multiAdd={multiAdd}
@@ -271,6 +316,8 @@ class DashboardLayout extends Component {
           testObj={testObj}
           multiTestAdd={multiTestAdd}
           adminSection={adminSection}
+          page={page}
+          isFetching={isFetching}
         />
         </Box>
       </Box>
@@ -281,7 +328,16 @@ class DashboardLayout extends Component {
 
 
 const mapStateToProps = (state)=>{
-  const { data, dataIds,filteredIds, filteredByDrName, user, appConfig, testObj:testArr } = state;
+  const { 
+    data, 
+    dataIds,
+    filteredIds, 
+    filteredByDrName, 
+    user, 
+    appConfig, 
+    testObj:testArr,
+    appointmentObj
+  } = state;
   const { isAdmin, id } = user;
   return {
     data,
@@ -293,7 +349,8 @@ const mapStateToProps = (state)=>{
     isLogoutDisabled: id  == '1714472861155',
     drNamesList: getDrNameList(data,dataIds),
     testArr: Object.values(testArr),
-    testObj: getAsObj(Object.values(testArr),'testName').obj
+    testObj: getAsObj(Object.values(testArr),'testName').obj,
+    appointmentObj
   }
 }
 
@@ -304,6 +361,7 @@ export default connect(mapStateToProps,{
   getDatas,
   closeAlert,
   showAlert,
-  multiTestAdd
+  multiTestAdd,
+  multiAppointmentAdd
 })(DashboardLayout);
 
