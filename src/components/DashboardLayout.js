@@ -31,6 +31,7 @@ class DashboardLayout extends Component {
       updateTry: 0,
       adminSection: false
     }
+    this.dueWithMobile = {};
     this.previousID = '';
     this.isSyncInProgress = false;
     const methods = [
@@ -188,6 +189,14 @@ class DashboardLayout extends Component {
       showAlert, 
       appointmentObj 
     } = this.props;
+    const dueWithMobile = {};
+    dataIds.map(dataId=>{
+      const { mobileNumber, dueAmount=0 } = data[dataId];
+      if(dueAmount > 0){
+        dueWithMobile[mobileNumber] = (dueWithMobile[mobileNumber] || 0) + dueAmount;
+       }
+    })
+    this.dueWithMobile = dueWithMobile;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
     dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
     if(isProfitFilter && timeFilter == 'All'){
@@ -208,6 +217,7 @@ class DashboardLayout extends Component {
         this.previousID = data[dataId].patientId
          this.setPreviousId(this.previousID)
        }
+       
        return data[dataId]
      })
     tableColumns = Object.values(getFormFields('allFields'))
@@ -318,6 +328,7 @@ class DashboardLayout extends Component {
           adminSection={adminSection}
           page={page}
           isFetching={isFetching}
+          dueWithMobile={this.dueWithMobile}
         />
         </Box>
       </Box>

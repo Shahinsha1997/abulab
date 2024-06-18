@@ -38,7 +38,8 @@ const RightPanel = ({
   adminSection,
   allDataIds=[],
   isFetching,
-  page
+  page,
+  dueWithMobile
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -129,6 +130,7 @@ const RightPanel = ({
             multiTestAdd={multiTestAdd}
             testArr={testArr}
             page={page}
+            dueWithMobile={dueWithMobile}
           />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'200px' }}>

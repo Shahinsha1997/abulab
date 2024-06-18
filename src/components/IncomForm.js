@@ -18,7 +18,8 @@ const IncomeForm = ({
     isAddForm,
     drNamesList,
     testObj,
-    handleTest
+    handleTest,
+    dueWithMobile
 }) => {
 const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix } = state;
 const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
@@ -60,7 +61,18 @@ return(
                 {nameError && <Alert severity="error">{nameError}</Alert>}
             </Grid>
             <Grid item>
-                <TextField label="Mobile Number" name="mobileNumber" value={mobileNumber} disabled={isFieldDisabled} onChange={handleInputChange} required fullWidth />
+                <TextField 
+                    label="Mobile Number" 
+                    name="mobileNumber" 
+                    value={mobileNumber} 
+                    disabled={isFieldDisabled} 
+                    onChange={handleInputChange} 
+                    inputProps={{
+                        maxLength: 10
+                    }}
+                    fullWidth 
+                />
+                {dueWithMobile[mobileNumber] && <Alert severity="info">{`Exist Due Amount ₹ ${dueWithMobile[mobileNumber]}`}</Alert>}
                 {mobileNumberErr && <Alert severity="error">{mobileNumberErr}</Alert>}
             </Grid>
             <Grid item>

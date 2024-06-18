@@ -27,7 +27,8 @@ const Form = ({
   testObj,
   testArr,
   multiTestAdd,
-  page
+  page,
+  dueWithMobile
 }) => {
   const isAddForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('add') != -1
   const isIncomeForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
@@ -209,6 +210,7 @@ const Form = ({
                 drNamesList={drNamesList}
                 handleTest={handleTest}
                 testObj={testArr}
+                dueWithMobile={dueWithMobile}
             />
             ) : formType == 'addTests' ? (
               <TestForm   
