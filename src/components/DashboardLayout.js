@@ -196,7 +196,6 @@ class DashboardLayout extends Component {
         dueWithMobile[mobileNumber] = (dueWithMobile[mobileNumber] || 0) + dueAmount;
        }
     })
-    console.log(dueWithMobile)
     this.dueWithMobile = dueWithMobile;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
     dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
