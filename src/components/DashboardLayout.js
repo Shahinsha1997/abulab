@@ -192,10 +192,11 @@ class DashboardLayout extends Component {
     const dueWithMobile = {};
     dataIds.map(dataId=>{
       const { mobileNumber, dueAmount=0 } = data[dataId];
-      if(dueAmount > 0){
+      if(dueAmount > 0 && mobileNumber.toString().length == 10){
         dueWithMobile[mobileNumber] = (dueWithMobile[mobileNumber] || 0) + dueAmount;
        }
     })
+    console.log(dueWithMobile)
     this.dueWithMobile = dueWithMobile;
     dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
     dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
