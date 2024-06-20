@@ -52,7 +52,7 @@ const AdminDashBoard=({
         const yellowColor = '#c6af43'
         const redColor = '#c64367'
         let colorArr = [greenColor, yellowColor, redColor];
-        if(type != 'expense'){
+        if(!['expense','outstanding'].includes(type)){
             colorArr = [redColor, yellowColor, greenColor]
         }
         return { color: percentage <= 35 ? colorArr[0] : percentage <= 70 ? colorArr[1] : colorArr[2] , percentage}
