@@ -141,7 +141,7 @@ function AppointmentForm() {
     navigator.geolocation.getCurrentPosition((position) => {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-      setFormData({ ...formData,isLocationChecked:true, address:`${latitude},${longitude}` });
+      setFormData({ ...formData,isLocationChecked:true, address:`${latitude} || ${longitude}` });
     }, (error) => {      
       setAlert({type: 'error', message:getMessage('location','fail')})
     });

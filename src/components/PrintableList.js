@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, IconButton, useMediaQuery } from '@mui/material';
+import { Box, IconButton, Link, useMediaQuery } from '@mui/material';
 import { OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/EditOutlined';
@@ -104,6 +104,15 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
             </Box>
           )
         }
+      } : column.id =='address' ? {
+        renderCell: (params) =>{
+          const { address } = params.row
+          if(address.includes(' || ')){
+            const [latitude,longitude] = address.split(' || ');
+            return <Link target="_blank" href={`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=bicycling`}>Open Map</Link>  
+          }
+          return address;
+         }
       }: {}),
     }));
     const rows = tableData.map((row) => {
