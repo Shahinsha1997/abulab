@@ -17,7 +17,7 @@ import {
     FormControlLabel,
     Checkbox
 } from '@mui/material';
-import { PREFIX_NAMES_LIST, getLocalStorageData } from '../utils/utils';
+import { PREFIX_NAMES_LIST, getLocalStorageData, setLocalStorageData } from '../utils/utils';
 import '../css/appoinmentpage.css'
 import { MAX_DAYS_FOR_APPOINTMENT, MAX_TIME, getMessage } from '../utils/appoinmentutil';
 import { useDispatch } from 'react-redux';
@@ -33,7 +33,8 @@ function AppointmentForm() {
     drName: '',
     age: '',
     isLocationChecked:false,
-    isLocationVisible: navigator.geolocation
+    isLocationVisible: navigator.geolocation,
+    isPreviousDataPresent: getLocalStorageData('previousData','{}').name
   }
   const [formData, setFormData] = useState(initialState);
   const [alert, setAlert] = useState({})
@@ -105,6 +106,10 @@ function AppointmentForm() {
       </Snackbar>
     )
   }
+  const fillPreviousData = ()=>{
+    const formData = getLocalStorageData('previousData','{}');
+    setFormData({...formData})
+  }
   const handleChange = (event) => {
     let { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
@@ -117,6 +122,12 @@ function AppointmentForm() {
     if(isErrorFound()){
       return;
     }
+    const getPreviousData = (formData)=>{
+      const newFormData = {...formData};
+      delete newFormData.isPreviousDataPresent;
+      return newFormData;
+    }
+    setLocalStorageData("previousData",getPreviousData(formData));
     setIsInprogress(true)
     addAppointmentAPI({
       name: gender+name,
@@ -128,7 +139,7 @@ function AppointmentForm() {
     }).then(res=>{
       setIsInprogress(false)
       setAlert({type: 'success', message:getMessage('addAPI','success')})
-      setFormData(initialState);
+      setFormData({...initialState, isPreviousDataPresent: getLocalStorageData('previousData','{}').name});
     }).catch(err=>{
       setIsInprogress(false)
       setAlert({type: 'error', message:getMessage('addAPI','fail')})
@@ -151,7 +162,7 @@ function AppointmentForm() {
     setFormData(initialState);
   };
   const {id:isUserLoggedIn} = getLocalStorageData('userObj','{}')
-  const { gender, name, mobileNumber, address, appointmentDate, age, drName, isLocationChecked, isLocationVisible } = formData;
+  const { gender, name, mobileNumber, address, appointmentDate, age, drName, isLocationChecked, isLocationVisible, isPreviousDataPresent } = formData;
   const { nameErr, mobileNumberErr, addressErr, drNameErr, appointmentDateErr } = errorData;
   return (
     <Container maxWidth="sm">
@@ -178,6 +189,17 @@ function AppointmentForm() {
           <Typography align="center">
             Book an Appointment with us for Home Visit.
           </Typography>
+          {
+            isPreviousDataPresent ? (
+              <Grid item align="center">
+                <FormControlLabel
+                  control={<Checkbox name='fillPreviousData' onChange={fillPreviousData} />}
+                  label="Fill details from my previous appointment"
+                />
+              </Grid>
+            ) : null
+          }
+          
         </Grid>
         <Grid item xs={12}>
           <form onSubmit={handleSubmit}>
@@ -245,11 +267,11 @@ function AppointmentForm() {
                 address.length == 0 ? <Alert severity="info">{getMessage('address','info')}</Alert> : null}
                 {isLocationVisible ? (
                   <Grid item>
-                  <FormControlLabel
-                    control={<Checkbox name='isLocationChecked' checked={isLocationChecked} onChange={getCurrentLocation} />}
-                    label="Get My current Location"
-                  />
-                </Grid>
+                    <FormControlLabel
+                      control={<Checkbox name='isLocationChecked' checked={isLocationChecked} onChange={getCurrentLocation} />}
+                      label="Get My current Location"
+                    />
+                  </Grid>
                 ) : null}
             </Box>
             <Box sx={{padding:2}}>
