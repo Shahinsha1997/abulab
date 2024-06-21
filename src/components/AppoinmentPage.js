@@ -13,14 +13,15 @@ import {
     FormControl,
     InputAdornment,
     Snackbar,
-    CircularProgress
+    CircularProgress,
+    FormControlLabel,
+    Checkbox
 } from '@mui/material';
 import { PREFIX_NAMES_LIST, getLocalStorageData } from '../utils/utils';
 import '../css/appoinmentpage.css'
 import { MAX_DAYS_FOR_APPOINTMENT, MAX_TIME, getMessage } from '../utils/appoinmentutil';
 import { useDispatch } from 'react-redux';
 import { addAppointmentAPI } from '../actions/APIActions';
-import { showAlert } from '../dispatcher/action';
 function AppointmentForm() {
   const initialState = {
     gender: PREFIX_NAMES_LIST[0],
@@ -31,6 +32,8 @@ function AppointmentForm() {
     address:'',
     drName: '',
     age: '',
+    isLocationChecked:false,
+    isLocationVisible: navigator.geolocation
   }
   const [formData, setFormData] = useState(initialState);
   const [alert, setAlert] = useState({})
@@ -131,12 +134,24 @@ function AppointmentForm() {
       setAlert({type: 'error', message:getMessage('addAPI','fail')})
     })
   };
-
+  const getCurrentLocation = ()=>{
+    if(isLocationChecked){
+      return setFormData({ ...formData,isLocationChecked:false, address:'' });
+    }
+    navigator.geolocation.getCurrentPosition((position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      setFormData({ ...formData,isLocationChecked:true, address:`${latitude},${longitude}` });
+    }, (error) => {      
+      setAlert({type: 'error', message:getMessage('location','fail')})
+    });
+    
+  }
   const handleReset = () => {
     setFormData(initialState);
   };
   const {id:isUserLoggedIn} = getLocalStorageData('userObj','{}')
-  const { gender, name, mobileNumber, address, appointmentDate, age, drName } = formData;
+  const { gender, name, mobileNumber, address, appointmentDate, age, drName, isLocationChecked, isLocationVisible } = formData;
   const { nameErr, mobileNumberErr, addressErr, drNameErr, appointmentDateErr } = errorData;
   return (
     <Container maxWidth="sm">
@@ -221,12 +236,21 @@ function AppointmentForm() {
                   value={address}
                   onChange={handleChange}
                   error={addressErr}
+                  disabled={isLocationChecked}
                   InputProps={{
                     endAdornment: <InputAdornment position="end">Melapalayam, TVL</InputAdornment>,
                   }}
                 />
                 {addressErr ? <Alert severity="error">{addressErr}</Alert> :
                 address.length == 0 ? <Alert severity="info">{getMessage('address','info')}</Alert> : null}
+                {isLocationVisible ? (
+                  <Grid item>
+                  <FormControlLabel
+                    control={<Checkbox name='isLocationChecked' checked={isLocationChecked} onChange={getCurrentLocation} />}
+                    label="Get My current Location"
+                  />
+                </Grid>
+                ) : null}
             </Box>
             <Box sx={{padding:2}}>
               <TextField

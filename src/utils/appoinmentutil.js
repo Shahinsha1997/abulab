@@ -22,6 +22,9 @@ const appoinmentMessages = {
     addAPI:{
         'success' : 'Appointment Scheduled Successfully.',
         'fail' : "Sorry! can't able to schedule the appointment, Please try again."
+    },
+    location:{
+        'fail' : "Sorry! Can't able to get location"
     }
 }
 
