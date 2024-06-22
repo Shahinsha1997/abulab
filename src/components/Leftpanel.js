@@ -17,6 +17,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
 import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -26,7 +27,8 @@ const LeftPanel = ({
   toggleAdminSection,
   adminSection,
   setPage,
-  page
+  page,
+  toggleFilterPopup
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); 
   const [dateTime, setDateTime] = useState(new Date().toLocaleString("en-GB", {
@@ -105,6 +107,16 @@ const LeftPanel = ({
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "65%", maxHeight:'65%', overflow:'auto'  }}>
         {isMobile ? (
           <>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={toggleFilterPopup}>
+              <Tooltip
+                title={'Filter'}
+                placement="top"
+                disableInteractive={theme.breakpoints.down('sm')}
+              >
+              <FilterAltIcon color="primary" />
+              </Tooltip>
+            </Box>
+          
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
               <Tooltip
                 title={'Add Income'}

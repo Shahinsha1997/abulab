@@ -15,6 +15,7 @@ import AdminDashBoard from './AdminDashboard'
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 import { useTheme } from '@mui/material/styles'; 
+import FilterPopup from './FilterPopup';
 const RightPanel = ({ 
   isFormVisible=true, 
   addData, 
@@ -41,7 +42,9 @@ const RightPanel = ({
   page,
   dueWithMobile,
   isListHide,
-  setListHide
+  setListHide,
+  toggleFilterPopup,
+  filterPopup
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -61,7 +64,6 @@ const RightPanel = ({
     const [showDoctorInput, setShowDoctorInput] = useState(false);
     const [timeInput, setTimeInput] = useState(getCurrentMonth())
     const [docInput, setDocInput] = useState('')
-    
     
     const handleTimeFilter = (e)=>{
         setTimeFilter(e.target.value)
@@ -136,8 +138,28 @@ const RightPanel = ({
             dueWithMobile={dueWithMobile}
           />
         ): null}
+        {filterPopup ? (
+          <FilterPopup 
+              handleTimeFilter={handleTimeFilter}
+              getPlaceholder={getPlaceholder}
+              handleInput={handleInput}
+              handleTypeFilter={handleTypeFilter}
+              timeFilter={timeFilter}
+              typeFilter={typeFilter}
+              timeInput={timeInput}
+              docInput={docInput}
+              drNamesList={drNamesList}
+              showDoctorInput={showDoctorInput}
+              isMobile={isMobile}
+              title={'Filters'}
+              toggleForm={toggleFilterPopup}
+              isAdmin={isAdmin}
+              handleFilterSubmit={handleFilterSubmit}
+          />
+        ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'200px' }}>
-            <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>
+              {!isMobile ? (
+                <Box sx={{ flexGrow: 0, display: 'flex', padding: '1rem', alignItems:'center' }}>
                 <FormControl sx={{ minWidth: isMobile ? 0 : 120 }}>
                 <InputLabel id="filter1-label">Time Frame</InputLabel>
                 <Select
@@ -185,7 +207,6 @@ const RightPanel = ({
                       endAdornment: (
                       <InputAdornment position="end">
                           <IconButton>
-                          {/* Add calendar icon or other visual cue based on your needs */}
                           </IconButton>
                       </InputAdornment>
                       ),
@@ -264,22 +285,11 @@ const RightPanel = ({
             }
                 />
             </Box>
-            {isMobile ? (
-              <Box onClick={handleFilterSubmit}>
-                <Tooltip
-                    title={'Filter'}
-                    placement="top"
-                    disableInteractive={theme.breakpoints.down('sm')}
-                  >
-                  <FilterAltIcon color="primary" />
-                </Tooltip>
-              </Box>
-            ): (
-              <Button variant="contained" onClick={handleFilterSubmit}>
+            <Button variant="contained" startIcon={<FilterAltIcon />} onClick={handleFilterSubmit}>
                 Filter Results
-              </Button>
-            )}
+            </Button>
             </Box>
+              ) : null}
             {!isListHide ? (
               <Box sx={{ flexDirection: 'column', flexGrow: 1, overflow:'auto', backgroundColor:'#252b38', width:'100%'}}>
               {adminSection ? (

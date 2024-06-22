@@ -57,6 +57,11 @@ export const getIdPrefix = (value)=>{
 export const getFormFields = (fieldType)=>{
     return {
         'allFields' : {
+            'isScheduled' : {
+                id: 'isScheduled',
+                label: 'More Options',
+                'maxWidth': '50px'
+            },
             'time' : {
                 id: 'time',
                 label: 'Date & Time',
@@ -116,11 +121,6 @@ export const getFormFields = (fieldType)=>{
                 id: 'comments',
                 label: 'Comments / Remarks',
                 'maxWidth': '150px'
-            },
-            'isScheduled' : {
-                id: 'isScheduled',
-                label: '',
-                'maxWidth': '50px'
             }
         },
         'profit' : {
@@ -188,6 +188,11 @@ export const getFormFields = (fieldType)=>{
             }
         },
         [APPOINTMENTS_VIEW] : {
+            'otherOptions' : {
+                id:'otherOptions',
+                label: 'More Options',
+                'maxWidth': '100px'
+            },
             'id' : {
                 id: 'id',
                 label: 'ID',
@@ -222,11 +227,6 @@ export const getFormFields = (fieldType)=>{
                 id: 'drName',
                 label: 'Doctor Name',
                 'maxWidth': '150px'
-            },
-            'otherOptions' : {
-                id:'otherOptions',
-                label: '',
-                'maxWidth': '100px'
             }
         }
     }[fieldType]

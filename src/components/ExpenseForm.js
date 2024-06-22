@@ -3,20 +3,97 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { Alert, Container, Grid, InputAdornment } from '@mui/material';
 import { FormControlLabel, Checkbox } from '@mui/material';
+import { EXPENSE_LABEL, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, isFormErrorFound, setLocalStorageData } from '../utils/utils';
 
 const ExpenseForm = ({
-    handleInputChange, 
-    getIdPrefix, 
-    state,
-    isMobile,
     toggleDrawer,
-    handleSubmit,
-    errState={},
-    isAdmin
+    isAdmin,
+    formType,
+    isAddForm,
+    data,
+    addData,
+    setSyncStatus,
+    showAlert
 }) => {
-const { patientId, name, mobileNumber, description, drName, status, totalAmount, paidAmount, adminVisibilty } = state;
-const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
-const checkBox = adminVisibilty ? {checked:true} : {}
+    const initialState = ({...{
+        open: false,
+        name: '',
+        description:'',
+        totalAmount: '0',
+        adminVisibilty: false,
+        isExternalLab: false
+      }, ...(getEditedFormProperties(data[formType]))})
+      const [state, setState] = React.useState(initialState);
+      const [errState, setErrorState] = React.useState({});
+      React.useEffect(()=>{
+        setState({...state, ...initialState})
+      },[formType])
+      const handleInputChange = (event, val) => {
+        let { name='drName', value } = event.target;
+        if(name == 'adminVisibilty' || name == 'isExternalLab'){
+          value = val;
+        }
+        setState((prevState) => ({ ...prevState, [name]: val || value }));
+        setErrorState({})
+      };
+const handleExpenseSubmit = (event)=>{
+    event.preventDefault();
+    const { 
+        name, 
+        totalAmount, 
+        description, 
+        adminVisibilty
+    } = state;
+    const { isError, errObj } = isFormErrorFound('',EXPENSE_LABEL,state)
+    if(isError){
+        return setErrorState(errObj)
+    }
+    const localStorageKey = isAddForm ? 'addPendingDatas' : 'updatePendingDatas'
+    const addPending = getLocalStorageData(localStorageKey,'[]');
+    const getFullName = ()=>{
+        let fullName = name;
+        fullName += adminVisibilty ? '|Admin Only' : '';
+        fullName += isExternalLab ? '|External Lab' : ''
+        return fullName
+    }
+    const payload = Object.assign({
+        time: isAddForm ? Date.now() : parseInt(formType),
+        patientId: '', 
+        name: getFullName(),
+        mobileNumber: '', 
+        status: EXPENSE_LABEL,
+        drName: '',
+        description,
+        discount: 0,
+        totalAmount : getAmountVal(totalAmount), 
+        paidAmount:  getAmountVal(totalAmount), 
+        dueAmount: 0,
+        isScheduled: true,
+        comments: ''
+    })
+    addPending.splice(0,0,payload)
+    setLocalStorageData(localStorageKey, addPending)
+    addData({data: getAsObj([payload])});
+    toggleDrawer()();
+    if(!isAddForm){
+        setSyncStatus(true);
+        setTimeout(()=>setSyncStatus(false),1)
+    }
+    showAlert({type: 'success', message:isAddForm ? "Datas Queued for Expense Add Successfully..." : "Datas Queued for Expense Update successfully"})
+}
+const {
+    name, 
+    description, 
+    status, 
+    totalAmount, 
+    adminVisibilty,
+    isExternalLab 
+} = state;
+const { 
+    name: nameError, 
+    description: descriptionErr, 
+    totalAmount: totalAmountErr
+} = errState;
 return(
     <Container maxWidth="sm">
         <Grid container spacing={2} sx={{display:'flex', flexDirection:'column'}}>
@@ -27,14 +104,6 @@ return(
             <Grid item>
                 <TextField label="Description" name="description" value={description} onChange={handleInputChange} fullWidth />
             </Grid>
-            {isAdmin ? (
-                <Grid item>
-                <FormControlLabel
-                    control={<Checkbox name='adminVisibilty' checked={adminVisibilty} onChange={handleInputChange} />}
-                    label="Visibility to Only Admin"
-                    />
-                </Grid>
-            ) : null}
             <Grid item>
                 <TextField 
                     label="Total Amount" 
@@ -48,8 +117,22 @@ return(
                 />
                 {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
             </Grid>
+            {isAdmin ? (
+                <Grid item>
+                <FormControlLabel
+                    control={<Checkbox name='adminVisibilty' checked={adminVisibilty} onChange={handleInputChange} />}
+                    label="Visibility to Only Admin"
+                    />
+                </Grid>
+            ) : null}
             <Grid item>
-                <Button type="submit" variant="contained" color="primary" sx={{ padding:'10px', width: '100%' }} onClick={handleSubmit}>
+                <FormControlLabel
+                    control={<Checkbox name='isExternalLab' checked={isExternalLab} onChange={handleInputChange} />}
+                    label="Is External Lab Expense?"
+                    />
+            </Grid>
+            <Grid item>
+                <Button type="submit" variant="contained" color="primary" sx={{ padding:'10px', width: '100%' }} onClick={handleExpenseSubmit}>
                     Submit
                 </Button>
             </Grid>

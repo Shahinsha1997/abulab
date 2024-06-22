@@ -30,7 +30,8 @@ class DashboardLayout extends Component {
       addTry: 0,
       updateTry: 0,
       adminSection: false,
-      isListHide: false
+      isListHide: false,
+      filterPopup: false
     }
     this.dueWithMobile = {};
     this.previousID = '';
@@ -48,9 +49,16 @@ class DashboardLayout extends Component {
       'setPage',
       'getAppoinmentDatas',
       'setIsFetching',
-      'setListHide'
+      'setListHide',
+      'toggleFilterPopup'
     ]
     bind.apply(this, methods);
+  }
+  toggleFilterPopup(){
+    const { filterPopup } = this.state;
+    this.setState({
+      filterPopup: !filterPopup
+    }) 
   }
   setIsFetching(status){
     this.setState({
@@ -257,7 +265,8 @@ class DashboardLayout extends Component {
   applyFilters(filters){
     this.setState({
       filterObj : filters,
-      page: LAB_VIEW
+      page: LAB_VIEW,
+      filterPopup: false
     }, this.getFilteredDataIds)
   }
   render() {
@@ -287,7 +296,8 @@ class DashboardLayout extends Component {
       adminSection,
       page,
       isFetching,
-      isListHide
+      isListHide,
+      filterPopup
     } = this.state;
     const { alertOptions={} } = appConfig
     return (
@@ -313,6 +323,7 @@ class DashboardLayout extends Component {
           syncNow={isSyncNowNeeded() && this.syncNowDatas}
           setPage={this.setPage}
           page={page}
+          toggleFilterPopup={this.toggleFilterPopup}
         />
         </Box>
         <Box sx={{flexGrow:1, overflow: 'hidden' }}>
@@ -342,6 +353,8 @@ class DashboardLayout extends Component {
           dueWithMobile={this.dueWithMobile}
           isListHide={isListHide}
           setListHide={this.setListHide}
+          toggleFilterPopup={this.toggleFilterPopup}
+          filterPopup={filterPopup}
         />
         </Box>
       </Box>
