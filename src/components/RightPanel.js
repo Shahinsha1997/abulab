@@ -39,7 +39,9 @@ const RightPanel = ({
   allDataIds=[],
   isFetching,
   page,
-  dueWithMobile
+  dueWithMobile,
+  isListHide,
+  setListHide
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -80,6 +82,7 @@ const RightPanel = ({
     }
 
     const handleFilterSubmit = ()=>{
+      setListHide(true)
       applyFilters({
         timeFilter, 
         typeFilter, 
@@ -277,7 +280,8 @@ const RightPanel = ({
               </Button>
             )}
             </Box>
-            <Box sx={{ flexDirection: 'column', flexGrow: 1, overflow:'auto', backgroundColor:'#252b38', width:'100%'}}>
+            {!isListHide ? (
+              <Box sx={{ flexDirection: 'column', flexGrow: 1, overflow:'auto', backgroundColor:'#252b38', width:'100%'}}>
               {adminSection ? (
                 <Box sx={{ width:isMobile ? '100vw' : 'calc(100vw - 180px)', border:'2px solid black'}}>
                   <AdminDashBoard 
@@ -291,6 +295,7 @@ const RightPanel = ({
               )}
               
             </Box>
+            ) : null}
             {isMobile ? null : (
               <SpeedDial
                 ariaLabel="SpeedDial tooltip example"

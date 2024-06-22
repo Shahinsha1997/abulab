@@ -115,8 +115,8 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
          }
       }: {}),
     }));
-    const rows = tableData.map((row) => {
-      const resp = {id: row.time || row.drName || row.id}
+    const rows = tableData.map((row, index) => {
+      const resp = {id: `${(row.time || row.drName || row.id)}_${index}`}
       for(let i=0;i<tableColumns.length;i++){
         resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
       }
@@ -133,6 +133,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
               onMouseLeave: handleRowLeave
             }
           }}
+          getRowId={(row)=>row.id}
           disableExtendRowFullWidth={true}
           columns={columns}
           pageSize={Infinity}

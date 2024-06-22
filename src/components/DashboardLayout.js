@@ -29,7 +29,8 @@ class DashboardLayout extends Component {
       syncStatus: true,
       addTry: 0,
       updateTry: 0,
-      adminSection: false
+      adminSection: false,
+      isListHide: false
     }
     this.dueWithMobile = {};
     this.previousID = '';
@@ -46,7 +47,8 @@ class DashboardLayout extends Component {
       'toggleAdminSection',
       'setPage',
       'getAppoinmentDatas',
-      'setIsFetching'
+      'setIsFetching',
+      'setListHide'
     ]
     bind.apply(this, methods);
   }
@@ -57,6 +59,9 @@ class DashboardLayout extends Component {
   }
   setPreviousId(id){
     this.setState({previousId: id})
+  }
+  setListHide(value){
+    this.setState({isListHide:value})
   }
   setPage(page){
     this.setState({
@@ -224,7 +229,8 @@ class DashboardLayout extends Component {
    }
     this.setState({
       filteredDataIds: dataIds,
-      tableColumns
+      tableColumns,
+      isListHide: false
     })
   }
   getAllDatas(callbk){
@@ -276,7 +282,8 @@ class DashboardLayout extends Component {
       filterObj ,
       adminSection,
       page,
-      isFetching
+      isFetching,
+      isListHide
     } = this.state;
     const { alertOptions={} } = appConfig
     return (
@@ -329,6 +336,8 @@ class DashboardLayout extends Component {
           page={page}
           isFetching={isFetching}
           dueWithMobile={this.dueWithMobile}
+          isListHide={isListHide}
+          setListHide={this.setListHide}
         />
         </Box>
       </Box>

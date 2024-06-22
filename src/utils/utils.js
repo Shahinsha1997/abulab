@@ -354,13 +354,15 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     let totalExpense = 0;
     let totalOutstanding = 0;
     let totalDiscount = 0;
+    let patientCount = 0;
     const getByTime = (id, type) =>{
             if(typeof resultObj[type] == 'undefined'){
                 resultObj[type] = {
                     income: 0,
                     expense: 0,
                     outstanding: 0,
-                    discount: 0
+                    discount: 0,
+                    patientCount:0
                 }
             }
             const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0 } = object[id];
@@ -373,11 +375,13 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
                 totalIncome += parseInt(paidAmount)
                 totalDiscount += parseInt(discount || 0)
                 totalOutstanding += parseInt(dueAmount || 0)
+                patientCount += 1;
                 resultObj[type] = {
                     income: income+parseInt(paidAmount),
                     expense,
                     outstanding: outstanding + parseInt(dueAmount || 0),
-                    discount: resDiscount + parseInt(discount || 0)
+                    discount: resDiscount + parseInt(discount || 0),
+                    patientCount
                 }
             }
     }
@@ -421,7 +425,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         const { income, expense } = resultObj[key]
         response.push({...resultObj[key], profit:income-expense,[keyName] : time})
     })
-    return { dataIds: response, totalExpense, totalIncome, totalOutstanding, totalDiscount};
+    return { dataIds: response, totalExpense, totalIncome, totalOutstanding, totalDiscount, patientCount};
 }
 
 export const getDrNameList = (data,ids=[])=>{

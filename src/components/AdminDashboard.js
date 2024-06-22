@@ -109,12 +109,14 @@ const AdminDashBoard=({
         totalExpense,
         totalOutstanding,
         totalDiscount,
+        patientCount
     } = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
     let {
         totalIncome: previousTotalIncome, 
         totalExpense: previousTotalExpense,
         totalOutstanding : previousTotalOutstanding,
         totalDiscount: previousTotalDiscount,
+        patientCount: previousPatientCount
     } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
     const previousProfit = previousTotalIncome - previousTotalDiscount - previousTotalExpense
     const profit = totalIncome - totalDiscount - totalExpense
@@ -124,7 +126,7 @@ const AdminDashBoard=({
         getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense}),
         getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),
         getCard({name: 'Discount Panel', type: 'discount', previous: previousTotalDiscount, current: totalDiscount}),
-        getCard({name: 'Patient Panel', type: 'patient', previous: previousDataIds.length, current: dataIds.length}),
+        getCard({name: 'Patient Panel', type: 'patient', previous: previousPatientCount, current: patientCount}),
     ];
     useEffect(() => {
         const containerWidth = containerRef.current.offsetWidth;
