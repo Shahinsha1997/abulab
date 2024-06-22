@@ -64,17 +64,20 @@ class DashboardLayout extends Component {
     this.setState({isListHide:value})
   }
   setPage(page){
+    const { adminSection} = this.state
     this.setState({
-      page
+      page,
+      adminSection: page == APPOINTMENTS_VIEW ? false : adminSection
     })
     if(page == APPOINTMENTS_VIEW){
       this.getAppoinmentDatas();
     }
   }
   toggleAdminSection(){
-    const { adminSection } = this.state;
+    const { adminSection, page } = this.state;
     this.setState({
-      adminSection : !adminSection
+      adminSection : !adminSection,
+      page: !adminSection ? LAB_VIEW : page
     })
   }
   setSyncStatus(status){
@@ -253,7 +256,8 @@ class DashboardLayout extends Component {
   }
   applyFilters(filters){
     this.setState({
-      filterObj : filters
+      filterObj : filters,
+      page: LAB_VIEW
     }, this.getFilteredDataIds)
   }
   render() {
