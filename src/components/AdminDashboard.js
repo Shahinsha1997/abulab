@@ -52,13 +52,13 @@ const AdminDashBoard=({
         const yellowColor = '#c6af43'
         const redColor = '#c64367'
         let colorArr = [greenColor, yellowColor, redColor];
-        if(!['expense','outstanding'].includes(type)){
+        if(!['expense','outstanding','externalLab'].includes(type)){
             colorArr = [redColor, yellowColor, greenColor]
         }
         return { color: percentage <= 35 ? colorArr[0] : percentage <= 70 ? colorArr[1] : colorArr[2] , percentage}
     }
     const getCard = (obj)=>{
-        const { name, previous, current, type } = obj;
+        const { name, previous, current, type, desc } = obj;
         const { color, percentage } = getGaugeObj(current, previous, type);
         const isCurrencySymbolNeeded = type != 'patient'
         return (
@@ -73,7 +73,8 @@ const AdminDashBoard=({
                 width: isMobile ? 200 : 400,
               }}
             >
-            <Typography sx={{fontWeight:'bold', fontSize}}  variant="overline" display="block" gutterBottom>{name}</Typography>
+              <Typography sx={{fontWeight:'bold', fontSize, lineHeight:1}}  variant="overline" display="block">{name}</Typography>
+              {desc ? <Typography variant="body2" sx={{ fontSize: fontSize - 6 }}>{desc}</Typography> : null}
              <GaugeContainer
                 width={isMobile ? 200 : 400}
                 height={isMobile ? 100 : 300}
@@ -109,21 +110,24 @@ const AdminDashBoard=({
         totalExpense,
         totalOutstanding,
         totalDiscount,
-        patientCount
+        patientCount,
+        externalLabAmount
     } = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
     let {
         totalIncome: previousTotalIncome, 
         totalExpense: previousTotalExpense,
         totalOutstanding : previousTotalOutstanding,
         totalDiscount: previousTotalDiscount,
-        patientCount: previousPatientCount
+        patientCount: previousPatientCount,
+        externalLabAmount: prevExternalLabAmount
     } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
     const previousProfit = previousTotalIncome - previousTotalDiscount - previousTotalExpense
     const profit = totalIncome - totalDiscount - totalExpense
     const cards = [
-        getCard({name: 'Profit Panel', type: 'profit', previous: previousProfit, current: profit}),
-        getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome, current: totalIncome}),
+        getCard({name: 'Profit Panel', type: 'profit', previous: previousProfit, current: profit, desc:"(Paid Amount - Expense - Discount)"}),
+        getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome, current: totalIncome, desc:'(Paid Amount)'}),
         getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense}),
+        getCard({name: 'External Lab Expense', type: 'externalLab', previous: prevExternalLabAmount, current: externalLabAmount}),
         getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),
         getCard({name: 'Discount Panel', type: 'discount', previous: previousTotalDiscount, current: totalDiscount}),
         getCard({name: 'Patient Panel', type: 'patient', previous: previousPatientCount, current: patientCount}),

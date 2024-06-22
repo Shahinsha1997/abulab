@@ -355,6 +355,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     let totalOutstanding = 0;
     let totalDiscount = 0;
     let patientCount = 0;
+    let externalLabAmount = 0 ;
     const getByTime = (id, type) =>{
             if(typeof resultObj[type] == 'undefined'){
                 resultObj[type] = {
@@ -365,11 +366,14 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
                     patientCount:0
                 }
             }
-            const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0 } = object[id];
+            const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0, name='' } = object[id];
            
             if(status == EXPENSE_LABEL){
                 totalExpense += parseInt(totalAmount) 
                 resultObj[type].expense = resultObj[type].expense + parseInt(totalAmount)
+                if(['endocare','micro lab'].includes(name.toLowerCase().trim()) || name.toLowerCase().includes('|external lab')){
+                    externalLabAmount += parseInt(totalAmount);
+                }
             }else{
                 const {income, expense, outstanding, discount:resDiscount=0 } = resultObj[type];
                 totalIncome += parseInt(paidAmount)
@@ -425,7 +429,15 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         const { income, expense } = resultObj[key]
         response.push({...resultObj[key], profit:income-expense,[keyName] : time})
     })
-    return { dataIds: response, totalExpense, totalIncome, totalOutstanding, totalDiscount, patientCount};
+    return { 
+        dataIds: response, 
+        totalExpense, 
+        totalIncome, 
+        totalOutstanding, 
+        totalDiscount, 
+        patientCount,
+        externalLabAmount
+    };
 }
 
 export const getDrNameList = (data,ids=[])=>{
@@ -461,7 +473,7 @@ export const clearCache = ()=>{
     window.location.reload();
 }
 
-export const getEditedFormProperties = (properties={}, testObj, page)=>{
+export const getEditedFormProperties = (properties={}, testObj={})=>{
     const updatedProperties = {...properties}
     const { name, description } = updatedProperties;
     const testsArr = [];
@@ -476,6 +488,10 @@ export const getEditedFormProperties = (properties={}, testObj, page)=>{
         if(name.toLowerCase().includes('|admin only')){
             updatedProperties['name'] = name.replace('|Admin Only','');
             updatedProperties['adminVisibilty'] = true;
+        }
+        if(name.toLowerCase().includes('|external lab')){
+            updatedProperties['name'] = updatedProperties['name'].replace('|External Lab','');
+            updatedProperties['isExternalLab'] = true;
         }
     }
     if(description){
@@ -573,3 +589,44 @@ export const getAppoinmentsData = (appoinmentData)=>{
 }
 
 export const getAmountVal = (value)=> value || 0
+
+
+
+export const isFormErrorFound = (fieldKey, statusType,state)=>{
+    const labelObj = {
+        patientId: "Patiend ID",
+        name: 'Name',
+        mobileNumber: 'Mobile Number',
+        description:'Test List',
+        drName:'Dr Name',
+        totalAmount: 'Total Amount',
+        paidAmount: 'Paid Amount',
+        comments: 'Comments / Remarks'
+      }
+    const keys = Object.keys(state);
+    const errObj = {};
+    let isError = false;
+    const checkError = (key)=>{
+        let emptyValFields = ["patientId","name","mobileNumber","description","drName"];
+        let amountFields = ["totalAmount","paidAmount"]
+        if(statusType == EXPENSE_LABEL){
+        emptyValFields = ["name","description"];
+        amountFields = ["totalAmount"]
+        }
+        if(emptyValFields.includes(key)
+        && state[key] == ''){
+        errObj[key] = `${labelObj[key]} can't be Empty`;
+        isError = true;
+        }
+        if(amountFields.includes(key) && parseInt(state[key])<0){
+        errObj[key] = `${labelObj[key]} can't be less then 0`;
+        isError = true;
+        }
+    }
+    if(fieldKey){
+        checkError(fieldKey)
+    }else{
+        keys.map(key=>checkError(key))
+    }
+    return {isError, errObj};
+}
