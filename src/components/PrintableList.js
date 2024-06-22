@@ -72,12 +72,12 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       width: 250 || parseInt(column.maxWidth.replace('px','')),
       ...(column.id === 'isScheduled' ? {
         renderCell: (params) => {
-          const { isScheduled, id, status } = params.row
+          const { isScheduled, id, timeInMs, status } = params.row
           return (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'row' }}>
             <Box sx={{width:"20px"}}>
             { (status == OUTSTANDING_LABEL || isAdmin) && (
-              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Edit"  onClick={() => toggleForm((id || '').toString())}>
+              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Edit"  onClick={() => toggleForm((timeInMs || '').toString())}>
               <EditIcon style={{backgroundColor: 'transparent',color:'#1876d2'}}/>
             </IconButton>
             )}
@@ -116,7 +116,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       }: {}),
     }));
     const rows = tableData.map((row, index) => {
-      const resp = {id: `${(row.time || row.drName || row.id)}_${index}`}
+      const resp = {id: `${(row.time || row.drName || row.id)}_${index}`, timeInMs: row.time}
       for(let i=0;i<tableColumns.length;i++){
         resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
       }
