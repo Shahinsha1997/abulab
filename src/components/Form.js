@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { APPOINTMENTS_VIEW, EXPENSE_LABEL, getAsObj, getEditedFormProperties, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, getAmountVal, getAsObj, getEditedFormProperties, getIdPrefix, getLocalStorageData, getProperId, getStatus, setLocalStorageData } from '../utils/utils';
 import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
 import TestForm from './TestForm';
@@ -146,6 +146,7 @@ const Form = ({
     }
     const localStorageKey = isAddForm ? 'addPendingDatas' : 'updatePendingDatas'
     const addPending = getLocalStorageData(localStorageKey,'[]');
+    
     const data = Object.assign({
       time: isAddForm ? Date.now() : parseInt(formType),
       patientId: status == EXPENSE_LABEL ? '' : patientId, 
@@ -154,10 +155,10 @@ const Form = ({
       status,
       drName,
       description,
-      discount,
-      totalAmount, 
-      paidAmount:  status == EXPENSE_LABEL ? totalAmount : paidAmount, 
-      dueAmount: status == EXPENSE_LABEL ? 0 : dueAmount,
+      discount : getAmountVal(discount),
+      totalAmount : getAmountVal(totalAmount), 
+      paidAmount:  getAmountVal(status == EXPENSE_LABEL ? totalAmount : paidAmount), 
+      dueAmount: getAmountVal(status == EXPENSE_LABEL ? 0 : dueAmount),
       isScheduled: true,
       comments
     })

@@ -567,3 +567,5 @@ export const copyToClipboard = (content)=>{
 export const getAppoinmentsData = (appoinmentData)=>{
     return appoinmentData.sort((a, b) => a.appointmentDate - b.appointmentDate);
 }
+
+export const getAmountVal = (value)=> value || 0
