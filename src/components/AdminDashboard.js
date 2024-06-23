@@ -58,7 +58,7 @@ const AdminDashBoard=({
         return { color: percentage <= 35 ? colorArr[0] : percentage <= 70 ? colorArr[1] : colorArr[2] , percentage}
     }
     const getCard = (obj)=>{
-        const { name, previous, current, type, desc } = obj;
+        const { name, previous, current, type, desc='' } = obj;
         const { color, percentage } = getGaugeObj(current, previous, type);
         const isCurrencySymbolNeeded = type != 'patient'
         return (
@@ -73,11 +73,13 @@ const AdminDashBoard=({
                 width: isMobile ? 200 : 400,
               }}
             >
-              <Typography sx={{fontWeight:'bold', fontSize, lineHeight:1}}  variant="overline" display="block">{name}</Typography>
-              {desc ? <Typography variant="body2" sx={{ fontSize: fontSize - 6 }}>{desc}</Typography> : null}
+              <Box sx={{paddingBottom:(desc ? 2 : 4)/(isMobile ? 2 : 1)}}>
+                <Typography sx={{fontWeight:'bold', fontSize, lineHeight:1}}  variant="overline" display="block">{name}</Typography>
+                {desc ? <Typography variant="body2" sx={{ fontSize: fontSize - 4 }}>{desc}</Typography> : null}
+              </Box>
              <GaugeContainer
                 width={isMobile ? 200 : 400}
-                height={isMobile ? 100 : 300}
+                height={isMobile ? 150 : 300}
                 startAngle={-110}
                 endAngle={110}
                 value={percentage}
@@ -138,7 +140,7 @@ const AdminDashBoard=({
         setNumCardsPerRow(calculateCardsPerRow(containerWidth, cardWidth));
       }, []);
     return (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap',  height: 'calc(100vh - 100px)', overflowY: 'auto'}} ref={containerRef} >
+        <Box sx={{ display: 'flex', flexWrap: 'wrap',  flexGrow:1, overflowY: 'auto'}} ref={containerRef} >
         <Grid container spacing={2}> 
             {cards.map((card, index) => (
             <Grid item key={index} xs={12 / numCardsPerRow}> 
