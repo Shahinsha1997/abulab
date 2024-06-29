@@ -456,7 +456,7 @@ class DashboardLayout extends Component {
             <Box sx={{display:'flex'}}>
               {this.getRightPanel()}
             </Box>
-            <Box sx={{display:'flex',height:'10vh', background:'#252b38', color:'white', border:'2px solid white'}}>
+            <Box sx={{display:'flex',height:'10vh', background:'#252b38', color:'white', border:'1px solid white', borderRadius:'10px'}}>
               {this.getBottomPanel()}
             </Box>
           </Box>

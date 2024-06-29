@@ -110,7 +110,7 @@ const RightPanel = ({
           sx={{
             display: 'grid',
             gridTemplateColumns: '1fr 3fr',
-            minHeight: isMobile ? '85vh' : '100vh',
+            minHeight: isMobile ? '90vh' : '100vh',
             backgroundColor: 'lightblue',
             display: 'flex',
             flexDirection: 'column',
