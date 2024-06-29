@@ -20,7 +20,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
             <Card style={{ background:isScheduled ? '#ffa50094' : '#252b38', color:'white',border:'2px solid white', borderRadius:'10px'}}>
                 <CardContent>
                 <Grid container sx={{display:'flex', flexDirection:'column'}}>
-                    <Grid container sx={{display:'flex', flexDirection:'row', padding:0.1}} spacing={1}>
+                    <Grid container sx={{display:'flex', flexDirection:'row'}} spacing={1}>
                         <Grid item sx={{display:'flex', width:'50%'}}>
                             <Typography style={styles.root}>{name}</Typography>
                         </Grid>
@@ -36,7 +36,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid container sx={{display:'flex', flexDirection:'row', padding:0.1}} spacing={1}>
+                    <Grid container sx={{display:'flex', flexDirection:'row'}} spacing={1}>
                         <Grid item sx={{display:'flex'}}>
                             <Typography>{time}</Typography>
                         </Grid>
@@ -46,7 +46,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
                             </Grid>
                         )}
                     </Grid>
-                    <Grid container sx={{display:'flex', flexDirection:'row', padding:0.1}} spacing={1}>
+                    <Grid container sx={{display:'flex', flexDirection:'row'}} spacing={1}>
                         <Grid item sx={{display:'flex',fontWeight: 'medium'}}>
                             <Typography>T.A: ₹ {totalAmount == '-' ? 0 : totalAmount}</Typography>
                         </Grid>
@@ -126,7 +126,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
             height={800}
             itemCount={items.length}
             width={'100%'}
-            itemSize={130} 
+            itemSize={140} 
             itemData={items}
         >
         {({ index, style }) => (
