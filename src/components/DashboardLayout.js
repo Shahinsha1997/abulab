@@ -2,12 +2,23 @@ import React, { Component } from 'react';
 import LeftPanel from './Leftpanel';
 import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
-import { Box } from '@mui/material';
+import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, bind, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
+import EventSharpIcon from '@mui/icons-material/EventSharp';
+import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone';
+import AddIcon from '@mui/icons-material/Add';
+import LogoutIcon from '@mui/icons-material/Logout';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { CloseOutlined } from '@mui/icons-material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import SyncIcon from '@mui/icons-material/Sync';
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -31,7 +42,9 @@ class DashboardLayout extends Component {
       updateTry: 0,
       adminSection: false,
       isListHide: false,
-      filterPopup: false
+      filterPopup: false,
+      addPopup: null,
+      popupType: ''
     }
     this.dueWithMobile = {};
     this.previousID = '';
@@ -50,7 +63,9 @@ class DashboardLayout extends Component {
       'getAppoinmentDatas',
       'setIsFetching',
       'setListHide',
-      'toggleFilterPopup'
+      'toggleFilterPopup',
+      'getRightPanel',
+      'getBottomPanel'
     ]
     bind.apply(this, methods);
   }
@@ -269,17 +284,97 @@ class DashboardLayout extends Component {
       filterPopup: false
     }, this.getFilteredDataIds)
   }
-  render() {
+  getBottomPanel = ()=>{
     const { 
       logoutUser, 
+      isAdmin, 
+      appConfig, 
+      isLogoutDisabled, 
+      isMobile
+    } = this.props
+    const { 
+      filteredDataIds, 
+      adminSection,
+      page,
+      addPopup,
+      popupType
+    } = this.state;
+
+  const handleClick = (event,type) => {
+    this.setState({addPopup: event.currentTarget, popupType: type});
+  };
+  const handleClose = () => {
+    this.setState({addPopup: null});
+  };
+    let options = [
+      { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
+      { label: 'Admin Panel', icon: adminSection ? <AdminPanelSettingsTwoToneIcon/> : <AdminPanelSettingsIcon />, handleClick:this.toggleAdminSection },
+      { label: 'Add', icon: <AddIcon />, handleClick:(e)=>handleClick(e,'addPopup')},
+      { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page == LAB_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},
+      { label: 'More', icon: <MoreVertIcon/>, handleClick: (e)=>handleClick(e,'morePopup') },
+    ];
+    !isAdmin && options.splice(1,1)
+    const addOptions = [
+      { label: 'Add Income', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addIncome')}},
+      { label: 'Add Expense', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addExpenses')} },
+      { label: 'Add/Update Test', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addTests')} },
+      { label: 'Add Appointment', icon: <AddIcon />, handleClick:()=>window.open('/appointments','_self') },
+      { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
+    ];
+    let moreOptions = [
+      { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
+      { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
+      { label: 'Logout', icon: <LogoutIcon disabled={isLogoutDisabled} sx={{color:'red'}} />, sx:{color:'red'}, handleClick: logoutUser },
+      { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
+    ];
+   !isSyncNowNeeded() && moreOptions.splice(0,1)
+    const poupOptions = popupType == 'addPopup' ? addOptions : moreOptions;
+      return ( 
+        <Box sx={{display:'flex', flexDirection:'row'}}>
+           <Grid container sx={{ display: 'flex', flexShrink:0 }} spacing={options.length == 5 ? 1.5 : 7}>
+        {options.map((option, index) => (
+          <Grid item key={option.label}>
+            <IconButton onClick={option.handleClick} sx={{color:'white', ...option.sx, fontSize:['0.7rem','1rem','1.3rem']}}> 
+              <Grid container direction="column" alignItems="center"> 
+                <Grid item>
+                  {option.icon}
+                </Grid>
+                <Grid item>
+                  <Typography variant="body2" noWrap component="div" sx={{ fontSize: ['0.7rem','1rem','1.3rem'] }}>
+                    {option.label}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </IconButton>
+          </Grid>
+        ))}
+      </Grid>
+      <Menu
+        id="menu-add-options"
+        anchorEl={addPopup}
+        open={addPopup}
+        onClose={handleClose}
+        MenuListProps={{ 'aria-labelledby': 'menu-add-options' }}
+      >
+        {poupOptions.map((option, index) => (
+        <MenuItem onClick={option.handleClick} sx={{...(option.sx || {})}}>
+          <ListItemIcon>
+            {option.icon}
+          </ListItemIcon>
+          <ListItemText>{option.label}</ListItemText>
+        </MenuItem>
+        ))}
+      </Menu>
+        </Box>
+      )
+  }
+  getRightPanel = ()=>{
+    const { 
       data, 
       addData, 
       multiAdd, 
       isAdmin, 
-      appConfig, 
-      closeAlert, 
       showAlert, 
-      isLogoutDisabled, 
       drNamesList,
       testObj,
       multiTestAdd,
@@ -299,6 +394,51 @@ class DashboardLayout extends Component {
       isListHide,
       filterPopup
     } = this.state;
+    return (
+      <RightPanel 
+        addData={addData} 
+        toggleForm={this.toggleForm} 
+        formType={formType}
+        data={page == APPOINTMENTS_VIEW ? appointmentObj : data}
+        allDataIds={dataIds}
+        dataIds={filteredDataIds}
+        multiAdd={multiAdd}
+        previousId={previousId}
+        setPreviousId={this.setPreviousId}
+        applyFilters={this.applyFilters}
+        isAdmin={isAdmin}
+        tableColumns={tableColumns}
+        filterObj={filterObj}
+        showAlert={showAlert}
+        setSyncStatus={this.setSyncStatus}
+        drNamesList={drNamesList}
+        testArr={testArr}
+        testObj={testObj}
+        multiTestAdd={multiTestAdd}
+        adminSection={adminSection}
+        page={page}
+        isFetching={isFetching}
+        dueWithMobile={this.dueWithMobile}
+        isListHide={isListHide}
+        setListHide={this.setListHide}
+        toggleFilterPopup={this.toggleFilterPopup}
+        filterPopup={filterPopup}
+      />
+    )
+  }
+  render() {
+    const { 
+      logoutUser, 
+      isAdmin, 
+      appConfig, 
+      isLogoutDisabled, 
+      isMobile
+    } = this.props
+    const { 
+      filteredDataIds, 
+      adminSection,
+      page,
+    } = this.state;
     const { alertOptions={} } = appConfig
     return (
         <Box
@@ -310,61 +450,41 @@ class DashboardLayout extends Component {
       >
         { alertOptions.type ? (
           this.getAlertContent()
-        ) : null}
-       <Box sx={{width: { xs: '50px', sm: '100px', md: '200px' }, flexShrink: 0 }}>
-        <LeftPanel 
-          isAdmin={isAdmin} 
-          isLogoutDisabled={isLogoutDisabled} 
-          toggleForm={this.toggleForm} 
-          logoutUser={logoutUser} 
-          patientCount={filteredDataIds.length}
-          toggleAdminSection={this.toggleAdminSection}
-          adminSection={adminSection}
-          syncNow={isSyncNowNeeded() && this.syncNowDatas}
-          setPage={this.setPage}
-          page={page}
-          toggleFilterPopup={this.toggleFilterPopup}
-        />
-        </Box>
-        <Box sx={{flexGrow:1, overflow: 'hidden' }}>
-        <RightPanel 
-          addData={addData} 
-          toggleForm={this.toggleForm} 
-          formType={formType}
-          data={page == APPOINTMENTS_VIEW ? appointmentObj : data}
-          allDataIds={dataIds}
-          dataIds={filteredDataIds}
-          multiAdd={multiAdd}
-          previousId={previousId}
-          setPreviousId={this.setPreviousId}
-          applyFilters={this.applyFilters}
-          isAdmin={isAdmin}
-          tableColumns={tableColumns}
-          filterObj={filterObj}
-          showAlert={showAlert}
-          setSyncStatus={this.setSyncStatus}
-          drNamesList={drNamesList}
-          testArr={testArr}
-          testObj={testObj}
-          multiTestAdd={multiTestAdd}
-          adminSection={adminSection}
-          page={page}
-          isFetching={isFetching}
-          dueWithMobile={this.dueWithMobile}
-          isListHide={isListHide}
-          setListHide={this.setListHide}
-          toggleFilterPopup={this.toggleFilterPopup}
-          filterPopup={filterPopup}
-        />
-        </Box>
+        ) : null }
+        {isMobile ? (
+          <Box sx={{display:'flex', flexDirection:'column', overflow:'hidden'}}>
+            <Box sx={{display:'flex'}}>
+              {this.getRightPanel()}
+            </Box>
+            <Box sx={{display:'flex',height:'10vh', background:'#252b38', color:'white', border:'2px solid white'}}>
+              {this.getBottomPanel()}
+            </Box>
+          </Box>
+        ) : (
+          <>
+            <LeftPanel
+              isAdmin={isAdmin} 
+              isLogoutDisabled={isLogoutDisabled} 
+              toggleForm={this.toggleForm} 
+              logoutUser={logoutUser} 
+              patientCount={filteredDataIds.length}
+              toggleAdminSection={this.toggleAdminSection}
+              adminSection={adminSection}
+              syncNow={isSyncNowNeeded() && this.syncNowDatas}
+              setPage={this.setPage}
+              page={page}
+              toggleFilterPopup={this.toggleFilterPopup}
+            />
+          {this.getRightPanel()}
+          </>
+        )}
       </Box>
-      
     );
   }
 }
 
 
-const mapStateToProps = (state)=>{
+const mapStateToProps = (state,props)=>{
   const { 
     data, 
     dataIds,
@@ -373,8 +493,9 @@ const mapStateToProps = (state)=>{
     user, 
     appConfig, 
     testObj:testArr,
-    appointmentObj
+    appointmentObj,
   } = state;
+  const { isMobile } = props;
   const { isAdmin, id } = user;
   return {
     data,
@@ -387,7 +508,8 @@ const mapStateToProps = (state)=>{
     drNamesList: getDrNameList(data,dataIds),
     testArr: Object.values(testArr),
     testObj: getAsObj(Object.values(testArr),'testName').obj,
-    appointmentObj
+    appointmentObj,
+    isMobile
   }
 }
 

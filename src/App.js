@@ -1,51 +1,36 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import PrivateRoute from './components/PrivateRoute';
-import { changePathName } from './utils/utils';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import AppointmentForm from './components/AppoinmentPage';
-class App extends Component {
-  constructor(props){
-    super(props);
-    this.state={
-      currentPath:'login',
-      isNavigateNeed: false
-    }
-    this.handleNavigate = this.handleNavigate.bind(this)
+import { useMediaQuery } from '@mui/material';
+const App =(props)=>{
+  const [currentPath, setCurrentPath] = useState('login')
+  const [isNavigateNeed, setIsNavigateNeed] = useState(false)
+  const handleNavigate = (path)=>{
+    setCurrentPath(path)
+    setIsNavigateNeed(true)
   }
-  componentDidUpdate(prevProps, prevState){
-    if(!prevState.isNavigateNeed && this.state.isNavigateNeed){
-      this.setState({
-        isNavigateNeed: false
-      })
-    }
-  }
-  handleNavigate(path){
-    this.setState({
-      currentPath: path,
-      isNavigateNeed: true
-    })
-    // changePathName(path)
-  }
-  render() {
-    const { currentPath, isNavigateNeed} = this.state;
-    return (
-      <Provider store={store} dispatch={store.dispatch}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage isNavigateNeed={isNavigateNeed} currentPath={currentPath} handleNavigate={this.handleNavigate}/>} />
-            <Route path="/" element={<PrivateRoute />}>
-              <Route path="/dashboard" element={<DashboardLayout />} /> 
-            </Route>
-            <Route path="/appointments" element={<AppointmentForm/>} />
-          </Routes>
-        </BrowserRouter>
-      </Provider>
-    );
-  }
+  useEffect(()=>{
+    setIsNavigateNeed(false)
+  },[isNavigateNeed])
+  const isMobile = useMediaQuery('(max-width: 600px)');
+  return (
+    <Provider store={store} dispatch={store.dispatch}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage isNavigateNeed={isNavigateNeed} currentPath={currentPath} handleNavigate={handleNavigate}/>} />
+          <Route path="/" element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<DashboardLayout isMobile={isMobile}/>} /> 
+          </Route>
+          <Route path="/appointments" element={<AppointmentForm/>} />
+        </Routes>
+      </BrowserRouter>
+    </Provider>
+  );
 }
 
 export default App;

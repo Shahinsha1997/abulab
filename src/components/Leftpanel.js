@@ -70,7 +70,8 @@ const LeftPanel = ({
   };
   const theme = useTheme();
   return (
-    <Box
+      <Box sx={{width: { xs: '50px', sm: '100px', md: '200px' }, flexShrink: 0 }}>
+      <Box
       sx={{
         width: { xs: '100%' },
         maxWidth: '200px',
@@ -193,7 +194,7 @@ const LeftPanel = ({
             {isAdmin && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="clear-cache-btn" onClick={toggleAdminSection}>
               <Tooltip
-                  title={'Clear Cache'}
+                  title={'Admin Panel'}
                   placement="top"
                   disableInteractive={theme.breakpoints.down('sm')}
                 >
@@ -276,7 +277,7 @@ const LeftPanel = ({
         </Box>
     </Box>
   </Box>
-);
-};
+  </Box>
+)}
 
 export default LeftPanel;

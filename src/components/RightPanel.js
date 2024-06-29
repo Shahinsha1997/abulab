@@ -105,13 +105,12 @@ const RightPanel = ({
         }
       };
     return (
+      <Box sx={{flexGrow:1, overflow: 'hidden' }}>
         <Box
           sx={{
             display: 'grid',
             gridTemplateColumns: '1fr 3fr',
-            minHeight: '100vh',
-            width: { xs: '100%'},
-            height: '100vh',
+            minHeight: isMobile ? '85vh' : '100vh',
             backgroundColor: 'lightblue',
             display: 'flex',
             flexDirection: 'column',
@@ -331,6 +330,7 @@ const RightPanel = ({
             )}
               
           </Box>
+        </Box>
         </Box>
       );
 };
