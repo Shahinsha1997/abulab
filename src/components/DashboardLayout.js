@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
@@ -19,6 +19,8 @@ import { CloseOutlined } from '@mui/icons-material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import SyncIcon from '@mui/icons-material/Sync';
+import TableViewIcon from '@mui/icons-material/TableView';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -44,7 +46,8 @@ class DashboardLayout extends Component {
       isListHide: false,
       filterPopup: false,
       addPopup: null,
-      popupType: ''
+      popupType: '',
+      viewType: LIST_VIEW
     }
     this.dueWithMobile = {};
     this.previousID = '';
@@ -65,7 +68,8 @@ class DashboardLayout extends Component {
       'setListHide',
       'toggleFilterPopup',
       'getRightPanel',
-      'getBottomPanel'
+      'getBottomPanel',
+      'toggleViewType'
     ]
     bind.apply(this, methods);
   }
@@ -85,6 +89,10 @@ class DashboardLayout extends Component {
   }
   setListHide(value){
     this.setState({isListHide:value})
+  }
+  toggleViewType(){
+    const { viewType } = this.state;
+    this.setState({viewType: viewType == LIST_VIEW ? TABLE_VIEW : LIST_VIEW})
   }
   setPage(page){
     const { adminSection} = this.state
@@ -297,7 +305,8 @@ class DashboardLayout extends Component {
       adminSection,
       page,
       addPopup,
-      popupType
+      popupType,
+      viewType
     } = this.state;
 
   const handleClick = (event,type) => {
@@ -324,6 +333,7 @@ class DashboardLayout extends Component {
     let moreOptions = [
       { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
       { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
+      { label: `Switch to ${viewType == LIST_VIEW ? 'Table View' : 'List View'}`, icon: viewType == LIST_VIEW ? <TableViewIcon /> : <ListAltIcon />, handleClick: ()=>{handleClose();this.toggleViewType()} },
       { label: 'Logout', icon: <LogoutIcon disabled={isLogoutDisabled} sx={{color:'red'}} />, sx:{color:'red'}, handleClick: logoutUser },
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
     ];
@@ -392,7 +402,8 @@ class DashboardLayout extends Component {
       page,
       isFetching,
       isListHide,
-      filterPopup
+      filterPopup,
+      viewType
     } = this.state;
     return (
       <RightPanel 
@@ -423,6 +434,7 @@ class DashboardLayout extends Component {
         setListHide={this.setListHide}
         toggleFilterPopup={this.toggleFilterPopup}
         filterPopup={filterPopup}
+        viewType={viewType}
       />
     )
   }

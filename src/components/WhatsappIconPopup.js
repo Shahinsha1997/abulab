@@ -6,6 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import { sendWhatsappMessage } from '../utils/utils';
 
 const WhatsAppIconPopup = ({
     hoveredCellId,
@@ -22,19 +23,7 @@ const WhatsAppIconPopup = ({
   }
   const handleClickList = (type)=>{
     setAnchorEl(null);
-    const { mobileNumber, name, dueAmount } = rowDetails
-    let message = 'Hi Sir/Madam,\n\n';
-    if(type === 'sendReport'){
-        message += `${name} அவர்களது பரிசோதனை முடிவுகள் தயாராக உள்ளது.தாங்கள் அதனை எங்கள் ABU lab இல் வந்து பெற்றுக் கொள்ளவும்.\n`;
-        message += `${dueAmount > 0 ? '\nதாங்கள் செலுத்த வேண்டிய மீதித் தொகை ₹ '+dueAmount: ''}`
-        message += `\n\nவிரைவில் நலம் பெற வேண்டுகிறோம்`
-    }else if(type == 'delayReport'){
-      message += `${name}-ன் பரிசோதனை முடிவுகள் ஓரிரு நாட்கள் தாமதமாக கிடைக்கும். தாமதத்திற்கு மன்னிக்கவும்.\n`
-    }else{
-        return setAnchorEl(null)
-    }
-    message += `\n\nமிக்க நன்றி.,\n\n*அபு லேப்,*\nமேலப்பாளையம்.`
-    window.open(`https://wa.me/+91${mobileNumber}?text=`+encodeURIComponent(message), '_blank');
+    sendWhatsappMessage(type, rowDetails)
   }
 
   const options = [

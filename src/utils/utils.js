@@ -7,6 +7,8 @@ export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss.','Mast.'];
 export const ONE_DAY_IN_MS = 24*60*60*1000
 export const APPOINTMENTS_VIEW = 'Appointments_View';
 export const LAB_VIEW = 'Lab_View'
+export const TABLE_VIEW = 'TABLE_VIEW';
+export const LIST_VIEW = 'LIST_VIEW'
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
@@ -630,3 +632,18 @@ export const isFormErrorFound = (fieldKey, statusType,state)=>{
     }
     return {isError, errObj};
 }
+export const sendWhatsappMessage = (type,rowDetails)=>{
+    const { mobileNumber, name, dueAmount } = rowDetails
+    let message = 'Hi Sir/Madam,\n\n';
+    if(type === 'sendReport'){
+        message += `${name} அவர்களது பரிசோதனை முடிவுகள் தயாராக உள்ளது.தாங்கள் அதனை எங்கள் ABU lab இல் வந்து பெற்றுக் கொள்ளவும்.\n`;
+        message += `${dueAmount > 0 ? '\nதாங்கள் செலுத்த வேண்டிய மீதித் தொகை ₹ '+dueAmount: ''}`
+        message += `\n\nவிரைவில் நலம் பெற வேண்டுகிறோம்`
+    }else if(type == 'delayReport'){
+      message += `${name}-ன் பரிசோதனை முடிவுகள் ஓரிரு நாட்கள் தாமதமாக கிடைக்கும். தாமதத்திற்கு மன்னிக்கவும்.\n`
+    }else{
+        return ''
+    }
+    message += `\n\nமிக்க நன்றி.,\n\n*அபு லேப்,*\nமேலப்பாளையம்.`
+    window.open(`https://wa.me/+91${mobileNumber}?text=`+encodeURIComponent(message), '_blank');
+  }

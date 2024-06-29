@@ -4,7 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { EXPENSE_LABEL, getCurrentMonth, getDatasByProfit, getFormFields, getTimeFilter } from '../utils/utils';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LIST_VIEW, getCurrentMonth, getDatasByProfit, getFormFields, getTimeFilter } from '../utils/utils';
 import PrintableList from './PrintableList';
 import AddIcon from '@mui/icons-material/Add';
 import Backdrop from '@mui/material/Backdrop';
@@ -16,6 +16,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 import { useTheme } from '@mui/material/styles'; 
 import FilterPopup from './FilterPopup';
+import PrintableCard from './PrintableCard';
 const RightPanel = ({ 
   isFormVisible=true, 
   addData, 
@@ -44,7 +45,8 @@ const RightPanel = ({
   isListHide,
   setListHide,
   toggleFilterPopup,
-  filterPopup
+  filterPopup,
+  viewType
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -300,7 +302,12 @@ const RightPanel = ({
                   />
                 </Box>
               ): (
-                <PrintableList isFetching={isFetching} tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+                (isMobile && viewType == LIST_VIEW && page != APPOINTMENTS_VIEW) ? (
+                  <PrintableCard isFetching={isFetching} tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+                ) : (
+                  <PrintableList isFetching={isFetching} tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+                )
+                
               )}
               
             </Box>
