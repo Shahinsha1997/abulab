@@ -644,6 +644,6 @@ export const sendWhatsappMessage = (type,rowDetails)=>{
     }else{
         return ''
     }
-    message += `\n\nமிக்க நன்றி.,\n\n*அபு லேப்,*\nமேலப்பாளையம்.`
+    message += `\n\nமிக்க நன்றி.,\n\n*அபு லேப்,*\nமேலப்பாளையம்.\n\n*Online Booking For Home Collection :*\nhttps://tinyurl.com/abulabappointments,\nhttps://abulab-79efc.web.app/appointments`
     window.open(`https://wa.me/+91${mobileNumber}?text=`+encodeURIComponent(message), '_blank');
   }
