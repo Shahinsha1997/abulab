@@ -218,7 +218,6 @@ const LeftPanel = ({
             <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest}>
                 Add/Edit Test
             </Button>
-            {isAdmin && (
             <>
               <Button variant="contained" startIcon={<AddIcon />} id="add-appoinment-btn" onClick={()=>window.open('/appointments','_self')}>
                   Add Appointment
@@ -227,7 +226,6 @@ const LeftPanel = ({
                   {`${page == APPOINTMENTS_VIEW ? 'Hide ' : 'Show ' } Appointments`}
               </Button>
             </>
-            )}
             {syncNow ? (
             <Button variant="contained" startIcon={<SyncIcon />} id="sync-now-btn" onClick={syncNow} sx={{ padding: '8px 16px',  }}>
               Sync Now
