@@ -27,8 +27,17 @@ async function foundDuplicates(datas){
             duplicateIds.push(time);
         }
     });
-    console.log(duplicateIds);
-    console.log(duplicateObj);
+    // console.log(duplicateIds);
+    // console.log(duplicateObj);
+    const duplicateAllObj = []
+    values.map(record=>{
+        const { patientId, time } = record;
+        if(duplicateIds.includes(time) || duplicateIds.includes(patientId)){
+            duplicateAllObj.push(record)
+        }
+    })
+    duplicateAllObj.sort((a,b)=>a.patientId - b.patientId)
+    console.log("Duplicates",duplicateAllObj)
 }
 export const getDataIds = createSelector(
     getDatas,

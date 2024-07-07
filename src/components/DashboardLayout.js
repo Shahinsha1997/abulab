@@ -498,7 +498,7 @@ class DashboardLayout extends Component {
         ): null}
         <Box
           sx={{
-            display: 'flex',
+            display: isMobile ? 'block': 'flex',
             height: '100vh',
             alignItems: 'stretch'
           }}
