@@ -105,8 +105,8 @@ const AdminDashBoard=({
     }
     const containerRef = React.createRef();
     const { timeFilter, timeInput, typeFilter } = filterObj
-    const dataIds = getTimeFilter(allDataIds, timeFilter, timeInput);
-    const previousDataIds = getTimeFilter(allDataIds, timeFilter, timeInput, true);
+    const dataIds = getTimeFilter({dataIds:allDataIds, timeFilter, timeInput,data});
+    const previousDataIds = getTimeFilter({dataIds:allDataIds, timeFilter, timeInput, isPrevious:true, data});
     let {
         totalIncome, 
         totalExpense,

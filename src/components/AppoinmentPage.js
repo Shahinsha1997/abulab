@@ -17,6 +17,7 @@ import {
     FormControlLabel,
     Checkbox
 } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
 import { PREFIX_NAMES_LIST, getLocalStorageData, setLocalStorageData } from '../utils/utils';
 import '../css/appoinmentpage.css'
 import { MAX_DAYS_FOR_APPOINTMENT, MAX_TIME, getMessage } from '../utils/appoinmentutil';
@@ -130,6 +131,7 @@ function AppointmentForm() {
     setLocalStorageData("previousData",getPreviousData(formData));
     setIsInprogress(true)
     addAppointmentAPI({
+      uuid:uuidv4(),
       name: gender+name,
       age,
       drName: drName && !drName.includes('Dr') ? 'Dr.'+drName : drName,

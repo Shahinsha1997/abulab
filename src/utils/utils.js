@@ -260,7 +260,8 @@ export const getCellFormattedVal = (cellName, value='', statusType, filterType)=
 }
 export const ADD_DATA = 'ADD_DATA';
 export const MODIFY_DATA = 'MODIFY_DATA';
-export const MULTI_ADD = 'MULTI_ADD'
+export const MULTI_ADD = 'MULTI_ADD';
+export const DATA_DELETE = 'DELETE_DATA';
 export const GET_DATA = 'GET_DATA'
 export const MULTI_TEST_ADD = 'MULTI_TEST_ADD'
 export const MULTI_APPOINTMENT_ADD = 'MULTI_APPOINTMENT_ADD'
@@ -271,7 +272,7 @@ export function bind(...handlers) {
     });
 }
 
-export const getAsObj = (arr, key='time', isScheduled)=>{
+export const getAsObj = (arr, key='uuid', isScheduled)=>{
     const outputObj = {}
     const ids = []
     arr.map(obj=>{
@@ -283,6 +284,18 @@ export const getAsObj = (arr, key='time', isScheduled)=>{
     })
     return {obj: outputObj, ids}
 }
+export const selectn = (key,obj={}) =>{
+    var keyArr = key.split(".");
+    var returnVal = obj
+    for(let i=0;i<keyArr.length;i++){
+      returnVal = returnVal[keyArr[i]]
+      if(typeof returnVal == 'undefined'){
+        break;
+      }
+    }
+    return returnVal;
+}
+export const sortIds = (ids,obj,key)=>ids.sort(function(a, b){return obj[b][key]-obj[a][key]})
 
 export const fieldFilterArr = (ids, obj, field)=>{
     const categorizedIds = {}
@@ -335,15 +348,16 @@ function parseDate(dateString, isPrevious) {
         throw new Error(`Invalid date format: ${dateString}`);
     }
 }
-export const getTimeFilter = (idsWithTime, timeFilter, givenDate, isPrevious)=>{
+export const getTimeFilter = ({dataIds, timeFilter, timeInput, isPrevious, data})=>{
     if(timeFilter == 'All'){
-        return idsWithTime;
+        return dataIds;
     }
     
     const filteredIds = [];
-    const { startDate, endDate } = parseDate(givenDate,isPrevious)
-    for (const id of idsWithTime) {
-        if (id >= startDate && id <= endDate) {
+    const { startDate, endDate } = parseDate(timeInput,isPrevious)
+    for (const id of dataIds) {
+        const { time } = data[id];
+        if (time >= startDate && time <= endDate) {
             filteredIds.push(id);
         }
     }
@@ -452,11 +466,15 @@ export const getDrNameList = (data,ids=[])=>{
     return drNameList
 }
 
-export const setCacheDatas = ({ids=[], obj={}}) =>{
+export const setCacheDatas = ({ids=[], obj={}, type}) =>{
     let datas = getLocalStorageData('datas','{}');
     let dataIds = getLocalStorageData('dataIds','[]');
-    datas = {...datas, ...obj}
-    dataIds = [...dataIds,...(ids.filter(id=>!dataIds.includes(id)))].sort(function(a, b){return b-a});
+    if(type == 'DELETE'){
+        delete datas[obj];
+    }else{
+        datas = {...datas, ...obj}
+        dataIds = [...dataIds,...(ids.filter(id=>!dataIds.includes(id)))].sort(function(a, b){return b-a});
+    }
     setLocalStorageData('datas',datas);
     setLocalStorageData('dataIds',dataIds);
     return { ids: dataIds, obj: datas}
@@ -620,7 +638,7 @@ export const isFormErrorFound = (fieldKey, statusType,state)=>{
         errObj[key] = `${labelObj[key]} can't be Empty`;
         isError = true;
         }
-        if(amountFields.includes(key) && parseInt(state[key])<0){
+        if(amountFields.includes(key) && (isNaN(state[key]) || parseInt(state[key])<0)){
         errObj[key] = `${labelObj[key]} can't be less then 0`;
         isError = true;
         }
@@ -647,3 +665,36 @@ export const sendWhatsappMessage = (type,rowDetails)=>{
     message += `\n\nமிக்க நன்றி.,\n\n*அபு லேப்,*\nமேலப்பாளையம்.\n\n*Online Booking For Home Collection :*\nhttps://tinyurl.com/abulabappointments,\nhttps://abulab-79efc.web.app/appointments`
     window.open(`https://wa.me/+91${mobileNumber}?text=`+encodeURIComponent(message), '_blank');
   }
+
+  export const getFormTitle = ({formType, isIncomeForm, isAddForm})=>{
+    let title = isIncomeForm ? 'Income Form' : 'Expenses';
+    if(isAddForm){
+        title = `Add ${title}`
+    }else{
+        title = `Edit ${title}`
+    }
+    if(formType == 'addTests'){
+        title = 'Add Test Form'
+    }
+    return title;
+  }
+
+ export const getDetailViewIds = ({id,dataIds, type})=>{
+    let newId = ''
+    if(type == 'next'){
+        for(let i=id+1;i<dataIds.length;i++){
+            if(dataIds[i].status != EXPENSE_LABEL){
+                newId = i;
+                break;
+            }
+        }
+    }else{
+        for(let i=id-1;i>=0;i--){
+            if(dataIds[i].status != EXPENSE_LABEL){
+                newId = i;
+                break;
+            }
+        }
+    }
+    return newId  
+}

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, IconButton, Link, useMediaQuery } from '@mui/material';
-import { OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
+import { EXPENSE_LABEL, OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles'; 
+import DeleteIcon from '@mui/icons-material/Delete';
 import WhatsAppIconPopup from './WhatsappIconPopup';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 const MyDataGrid = styled(DataGrid)(({ theme }) => {
@@ -17,6 +18,10 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       color:'#a7b0bd',
       border: '1px dotted #2d3748'
       
+    },
+    '& .MuiDataGrid-Scheduled':{
+      backgroundColor:'#ffa726ab',
+      color: 'white'
     },
     '& .MuiDataGrid-cell':{
       border: 'none'
@@ -54,7 +59,9 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
     filterObj, 
     toggleForm,
     isAdmin,
-    isFetching
+    isFetching,
+    setDetailViewId,
+    deleteData
   }) =>{
     const [hoveredCellId, setIsCellHovered] = useState(false);
     const handleRowEnter = (params) => {
@@ -72,32 +79,36 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
       width: 250 || parseInt(column.maxWidth.replace('px','')),
       ...(column.id === 'isScheduled' ? {
         renderCell: (params) => {
-          const { isScheduled, id, timeInMs, status } = params.row
+          const { isScheduled, id, uuid, status } = params.row
           return (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'row' }}>
             <Box sx={{width:"20px"}}>
+                <WhatsAppIconPopup rowDetails={params.row} hoveredCellId={hoveredCellId}/>
+            </Box>
+            <Box sx={{width:"20px" , paddingLeft:'20px'}}>
             { (status == OUTSTANDING_LABEL || isAdmin) && (
-              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Edit"  onClick={() => toggleForm((timeInMs || '').toString())}>
+              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Edit"  onClick={() => toggleForm((uuid || '').toString())}>
               <EditIcon style={{backgroundColor: 'transparent',color:'#1876d2'}}/>
             </IconButton>
             )}
             </Box>
-            <Box sx={{width:"20px", paddingLeft:'20px'}}>
-                <WhatsAppIconPopup rowDetails={params.row} hoveredCellId={hoveredCellId}/>
-            </Box>
-            <Box sx={{width:"20px", paddingLeft:'20px', marginTop:'7px'}}>
-              <ScheduleIcon style={{ visibility: isScheduled ? 'visible' : 'hidden' ,color: '#ffa726',paddingTop: '8px', backgroundColor: 'transparent' }} />
+            <Box sx={{width:"20px" , paddingLeft:'20px'}}>
+            { isAdmin && (
+              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Delete"  onClick={() => deleteData((uuid || '').toString())}>
+              <DeleteIcon style={{backgroundColor: 'transparent',color:'#ff000087'}}/>
+            </IconButton>
+            )}
             </Box>
           </Box>
           )
           }
       } : column.id =='otherOptions' ? {
         renderCell: (params) =>{
-          const { id } = params.row
+          const { id, uuid } = params.row
           return (
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'row' }}>
               <Box sx={{width:"20px"}}>
-              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Add as Income"  onClick={() => toggleForm((id || '').toString())}>
+              <IconButton color="white" sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden',  backgroundColor: 'transparent'}} aria-label="Add as Income"  onClick={() => toggleForm((uuid || '').toString())}>
                 <NoteAddIcon style={{backgroundColor: 'transparent',color:'#1876d2'}}/>
               </IconButton>
               </Box>
@@ -106,17 +117,25 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
         }
       } : column.id =='address' ? {
         renderCell: (params) =>{
-          const { address } = params.row
+          const { address='' } = params.row
           if(address.includes(' || ')){
             const [latitude,longitude] = address.split(' || ');
             return <Link target="_blank" href={`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=bicycling`}>Open Map</Link>  
           }
           return address;
          }
+      }: column.id =='name' ? {
+        renderCell: (params) =>{
+          const { id, status } = params.row
+          if(status == EXPENSE_LABEL){
+            return params.value;
+          }
+          return <span onClick={()=>setDetailViewId(id.split('_')[1])}>{params.value}</span>
+         }
       }: {}),
     }));
     const rows = tableData.map((row, index) => {
-      const resp = {id: `${(row.time || row.drName || row.id)}_${index}`, timeInMs: row.time}
+      const resp = {id: `${(row.uuid || row.drName || row.id)}_${index}`, uuid:row.uuid}
       for(let i=0;i<tableColumns.length;i++){
         resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
       }
@@ -137,6 +156,10 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
           disableExtendRowFullWidth={true}
           columns={columns}
           pageSize={Infinity}
+          getRowClassName={(params)=>{
+            console.log(params.row.isScheduled)
+            return params.row.isScheduled ? 'MuiDataGrid-Scheduled' : ''
+          }}
           paginationMode={'server'}
           hideFooterPagination
           hideFooterSelectedRowCount

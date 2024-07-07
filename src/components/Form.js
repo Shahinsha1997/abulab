@@ -28,7 +28,9 @@ const Form = ({
   testArr,
   multiTestAdd,
   page,
-  dueWithMobile
+  dueWithMobile,
+  patientIdObj,
+  setDetailViewId
 }) => {
   const isAddForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('add') != -1
   const isIncomeForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
@@ -70,6 +72,7 @@ const Form = ({
                 testArr={testArr}
                 testObj={testObj}
                 dueWithMobile={dueWithMobile}
+                patientIdObj={patientIdObj}
                 page={page}
                 previousID={previousID}
                 setPreviousId={setPreviousId}
@@ -79,6 +82,7 @@ const Form = ({
                 addData={addData}
                 setSyncStatus={setSyncStatus}
                 toggleForm={toggleForm}
+                setDetailViewId={setDetailViewId}
 
             />
             ) : formType == 'addTests' ? (

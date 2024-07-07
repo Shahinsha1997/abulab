@@ -7,6 +7,7 @@ import BiotechSharpIcon from '@mui/icons-material/BiotechSharp';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {  Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import DeleteIcon from '@mui/icons-material/Delete';
 const styles = {
     root: {
       overflow: 'hidden',
@@ -14,10 +15,10 @@ const styles = {
       whiteSpace: 'nowrap',
     }
   };
-const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType, popupOptions }) => {
-    const { time, name, description,patientId, drName, totalAmount, paidAmount, dueAmount, isScheduled} = data[index];
+const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType, popupOptions, openDv }) => {
+    const { time, name, description,patientId, drName, totalAmount, paidAmount, dueAmount, isScheduled, uuid} = data[index];
     return (
-            <Card style={{ background:isScheduled ? '#ffa50094' : '#252b38', color:'white',border:'2px solid white', borderRadius:'10px'}}>
+            <Card onClick={()=>popupRef === '' && openDv(uuid,false)} style={{ background:isScheduled ? '#ffa726ab' : '#252b38', color:'white',border:'2px solid white', borderRadius:'10px'}}>
                 <CardContent>
                 <Grid container sx={{display:'flex', flexDirection:'column'}}>
                     <Grid container sx={{display:'flex', flexDirection:'row',padding:0.2}} spacing={1}>
@@ -66,7 +67,8 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
                     <DialogContent>
                         <List>
                             {popupOptions.map((option, index) => (
-                                <ListItem onClick={option.handleClick}>
+                                (option.isAllowed || popupType == 'testList') ? (
+                                    <ListItem onClick={ option.handleClick && option.handleClick}>
                                     {option.icon && (
                                         <ListItemIcon>
                                             {option.icon}
@@ -74,6 +76,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
                                     )}
                                     <ListItemText>{option.label || option}</ListItemText>
                                 </ListItem>
+                                ) : null
                             ))}
                         </List>
                     </DialogContent>
@@ -87,22 +90,28 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
     )
 }
 
-  const VirtualizedCardList = ({ items, toggleForm, isAdmin }) => {
+  const VirtualizedCardList = ({ items, toggleForm, isAdmin, deleteData, setDetailViewId }) => {
     const [popupRef, setPopupRef] = useState('');
     const [popupType, setPopupType] = useState('');
     const [popupOptions, setPopupOptions] = useState([])
-    const handleClose = ()=>{
+    const handleClose = (e)=>{
+        e && e.preventDefault();
+        e && e.stopPropagation()
         setPopupRef('')
     }
-    const handleMoreOption = (index,type)=>{
+    const handleMoreOption = (e,index,type)=>{
         if(type == 'edit'){
-            toggleForm((items[index].timeInMs).toString());
+            toggleForm((items[index].uuid).toString());
+        }else if(type == 'delete'){
+            deleteData((items[index].uuid).toString());
         }else{
             sendWhatsappMessage(type,items[index])
         }
-        handleClose();
+        handleClose(e);
     }
     const handlePopup = (e,type, options)=>{
+        e.preventDefault();
+        e.stopPropagation()
         setPopupRef(e.currentTarget);
         setPopupType(type)
         if(type == 'testList'){
@@ -111,11 +120,11 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
         }else{
             const index = options;
             const moreOption= [
-                {label:'Edit', icon:<EditIcon />, handleClick:()=>handleMoreOption(index,'edit')},
-                {label:'Send Report Progress', icon:<WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />, handleClick:()=>handleMoreOption(index,'sendReport')},
-                {label:'Delay In Report', icon:<WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />, handleClick:()=>handleMoreOption(index,'delayReport')}
+                {label:'Edit', isAllowed:(items[index].status == OUTSTANDING_LABEL || isAdmin), icon:<EditIcon />, handleClick:(e)=>handleMoreOption(e,index,'edit')},
+                {label:'Delete', isAllowed:isAdmin, icon:<DeleteIcon sx={{color:'#ff000087'}}/>, handleClick:(e)=>handleMoreOption(e,index,'delete')},
+                {label:'Send Report Progress', isAllowed:true, icon:<WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />, handleClick:(e)=>handleMoreOption(e,index,'sendReport')},
+                {label:'Delay In Report', isAllowed:true, icon:<WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />, handleClick:(e)=>handleMoreOption(e,index,'delayReport')}
             ]
-            !(items[index].status == OUTSTANDING_LABEL || isAdmin) && moreOption.splice(0,1)
             options = moreOption;
         }
         setPopupOptions(options)
@@ -131,7 +140,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
         >
         {({ index, style }) => (
             <Box style={{ ...style}}>
-                <CustomCard index={index} data={items} handleClose={handleClose} handlePopup={handlePopup} popupRef={popupRef} popupType={popupType} popupOptions={popupOptions}/>
+                <CustomCard index={index} openDv={setDetailViewId} data={items} handleClose={handleClose} handlePopup={handlePopup} popupRef={popupRef} popupType={popupType} popupOptions={popupOptions}/>
             </Box>
         )}
         </FixedSizeList>
@@ -144,13 +153,15 @@ const printableCard = ({
     filterObj, 
     toggleForm,
     isAdmin,
-    isFetching
+    isFetching,
+    deleteData,
+    setDetailViewId
 })=>{
 
     const { typeFilter, timeFilter } = filterObj;
     const filterType = timeFilter != 'All' ? typeFilter : ''
     const rows = tableData.map((row, index) => {
-        const resp = {id: `${(row.time || row.drName || row.id)}_${index}`, timeInMs: row.time}
+        const resp = {id: `${(row.uuid || row.drName || row.id)}_${index}`,uuid:row.uuid}
         for(let i=0;i<tableColumns.length;i++){
           resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
         }
@@ -160,7 +171,7 @@ const printableCard = ({
     return (
         <Grid container justifyContent="center" spacing={2}>
             <Grid item xs={12} md={8}>
-                <VirtualizedCardList items={rows} toggleForm={toggleForm} isAdmin={isAdmin}/>
+                <VirtualizedCardList items={rows} setDetailViewId={setDetailViewId} toggleForm={toggleForm} isAdmin={isAdmin} deleteData={deleteData}/>
             </Grid>
         </Grid>
         );

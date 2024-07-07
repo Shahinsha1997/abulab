@@ -41,7 +41,7 @@ const WhatsAppIconPopup = ({
     <>
       <IconButton
         aria-describedby={'whatsappPopup'}
-        onMouseEnter={togglePopup}
+        onClick={togglePopup}
         sx={{visibility:hoveredCellId == id ? 'visible' : 'hidden'}}
       >
         <WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />

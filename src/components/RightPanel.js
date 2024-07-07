@@ -4,7 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LIST_VIEW, getCurrentMonth, getDatasByProfit, getFormFields, getTimeFilter } from '../utils/utils';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LIST_VIEW, getCurrentMonth, getDatasByProfit, getDetailViewIds, getFormFields, getIdPrefix, getTimeFilter, selectn } from '../utils/utils';
 import PrintableList from './PrintableList';
 import AddIcon from '@mui/icons-material/Add';
 import Backdrop from '@mui/material/Backdrop';
@@ -17,6 +17,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { useTheme } from '@mui/material/styles'; 
 import FilterPopup from './FilterPopup';
 import PrintableCard from './PrintableCard';
+import DetailView from './DetailView';
 const RightPanel = ({ 
   isFormVisible=true, 
   addData, 
@@ -46,7 +47,9 @@ const RightPanel = ({
   setListHide,
   toggleFilterPopup,
   filterPopup,
-  viewType
+  viewType,
+  patientIdObj,
+  deleteData
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -66,7 +69,17 @@ const RightPanel = ({
     const [showDoctorInput, setShowDoctorInput] = useState(false);
     const [timeInput, setTimeInput] = useState(getCurrentMonth())
     const [docInput, setDocInput] = useState('')
-    
+    const [detailViewId, setDetailViewId] = useState('')
+    const handleDetailViewId = (id, isIndex=true)=>{
+      if(isIndex){
+        return setDetailViewId(id === '' ? '' : parseInt(id));
+      }
+      for(let i=0;i<dataIds.length;i++){
+        if(dataIds[i].uuid == id){
+          return setDetailViewId(i);
+        }
+      }
+    }
     const handleTimeFilter = (e)=>{
         setTimeFilter(e.target.value)
         setTimeInput('')
@@ -137,6 +150,8 @@ const RightPanel = ({
             testArr={testArr}
             page={page}
             dueWithMobile={dueWithMobile}
+            patientIdObj={patientIdObj}
+            setDetailViewId={handleDetailViewId}
           />
         ): null}
         {filterPopup ? (
@@ -157,6 +172,23 @@ const RightPanel = ({
               isAdmin={isAdmin}
               handleFilterSubmit={handleFilterSubmit}
           />
+        ): null}
+        {detailViewId !== '' ? (
+          <DetailView
+           id={detailViewId}
+           toggleForm={toggleForm}
+           drNamesList={drNamesList}
+           testObj={testObj}
+           testArr={testArr}
+           nextRecord={()=>handleDetailViewId(getDetailViewIds({type:'next',dataIds,id:detailViewId}))}
+           prevRecord={()=>handleDetailViewId(getDetailViewIds({type:'prev',dataIds,id:detailViewId}))}
+           title={getIdPrefix()+selectn(`${detailViewId}.patientId`,dataIds)}
+           formWidth= {isMobile ? '100wh' : '600px'}
+           setDetailViewId={handleDetailViewId}
+           closePopup={handleDetailViewId}
+           dataIds={dataIds}
+           isAdmin={isAdmin}
+           />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'200px' }}>
               {!isMobile ? (
@@ -303,9 +335,27 @@ const RightPanel = ({
                 </Box>
               ): (
                 (isMobile && viewType == LIST_VIEW && page != APPOINTMENTS_VIEW) ? (
-                  <PrintableCard isFetching={isFetching} tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+                  <PrintableCard 
+                    isFetching={isFetching} 
+                    setDetailViewId={handleDetailViewId} 
+                    tableColumns={tableColumns} 
+                    isAdmin={isAdmin} 
+                    tableData={dataIds} 
+                    filterObj={filterObj} 
+                    toggleForm={toggleForm}
+                    deleteData={deleteData} 
+                  />
                 ) : (
-                  <PrintableList isFetching={isFetching} tableColumns={tableColumns} isAdmin={isAdmin} tableData={dataIds} filterObj={filterObj} toggleForm={toggleForm}/>
+                  <PrintableList 
+                    deleteData={deleteData} 
+                    isFetching={isFetching} 
+                    setDetailViewId={handleDetailViewId} 
+                    tableColumns={tableColumns} 
+                    isAdmin={isAdmin} 
+                    tableData={dataIds} 
+                    filterObj={filterObj} 
+                    toggleForm={toggleForm}
+                  />
                 )
                 
               )}

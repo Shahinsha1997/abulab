@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import LeftPanel from './Leftpanel';
 import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
-import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button } from '@mui/material';
+import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
-import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd } from '../dispatcher/action';
+import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
 import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
-import { addDataAPI, addTestDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
+import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
 import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
@@ -21,6 +21,7 @@ import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import SyncIcon from '@mui/icons-material/Sync';
 import TableViewIcon from '@mui/icons-material/TableView';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import { getDataIds } from '../selectors/incomeselectors';
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -31,6 +32,7 @@ class DashboardLayout extends Component {
       previousId: '',
       filteredDataIds:[],
       isFetching: false,
+      isLoading:false,
       filterObj:{
         timeFilter:'MonthWise', 
         typeFilter:'All',
@@ -50,6 +52,7 @@ class DashboardLayout extends Component {
       viewType: LIST_VIEW
     }
     this.dueWithMobile = {};
+    this.patientIdObj = {}
     this.previousID = '';
     this.isSyncInProgress = false;
     const methods = [
@@ -69,9 +72,30 @@ class DashboardLayout extends Component {
       'toggleFilterPopup',
       'getRightPanel',
       'getBottomPanel',
-      'toggleViewType'
+      'toggleViewType',
+      'deleteData'
     ]
     bind.apply(this, methods);
+  }
+  deleteData(id){
+    const { showAlert, deleteData } = this.props;
+    this.setState({isLoading:true})
+    deleteDataAPI(id).then(res=>{
+      this.setState({isLoading:false})
+      deleteData({'data':{'obj':id}})
+      showAlert({type: 'success', message:"Data deleted Successfully."})
+    }).catch(err=>{
+      this.setState({isLoading:false})
+      let message = 'Unable to Process Your request.'
+      if(err == '401'){
+        message = "You're not authorized to do this action"
+      }else if(err == '500'){
+        message = 'Internal Server Error'
+      }else if(err == '404'){
+        message = 'Requested Data was not found'
+      }
+      showAlert({type: 'error', message})
+    })
   }
   toggleFilterPopup(){
     const { filterPopup } = this.state;
@@ -201,15 +225,19 @@ class DashboardLayout extends Component {
   }
   componentDidUpdate(prevProps, prevState){
     const { dataIds } = this.props;
-    const { filteredDataIds, filterObj, syncStatus, page, isFetching } = this.state;
+    const { filteredDataIds, filterObj, syncStatus, page, isFetching, previousId } = this.state;
     const {
       timeFilter, 
       typeFilter
     } = filterObj
     const isIntialLoad =  dataIds.length != filteredDataIds.length && timeFilter == 'All' && typeFilter == 'All'
-    if(prevState.page != page || isFetching != prevState.isFetching || prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != syncStatus ){
-      this.getFilteredDataIds();
+    if(prevProps.dataIds.length != dataIds.length){
+      this.setState({previousId:''})
+      this.previousID = ''
     }
+    if(prevState.page != page || previousId != prevState.previousId  || isFetching != prevState.isFetching || prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != syncStatus ){
+      this.getFilteredDataIds();
+    };
   }
   getFilteredDataIds(){
     let { previousId, filterObj, tableColumns, page } = this.state;
@@ -222,22 +250,25 @@ class DashboardLayout extends Component {
     const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
     let { 
       dataIds, 
-      filteredIds, 
+      filteredByStatus, 
       filteredByDrName, 
       data, 
       showAlert, 
       appointmentObj 
     } = this.props;
     const dueWithMobile = {};
+    const patientIdObj = {};
     dataIds.map(dataId=>{
-      const { mobileNumber, dueAmount=0 } = data[dataId];
+      const { mobileNumber, dueAmount=0, patientId } = data[dataId];
       if(dueAmount > 0 && mobileNumber.toString().length == 10){
         dueWithMobile[mobileNumber] = (dueWithMobile[mobileNumber] || 0) + dueAmount;
        }
+       patientIdObj[patientId] = dataId;
     })
     this.dueWithMobile = dueWithMobile;
-    dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredIds[typeFilter.toLowerCase()] || dataIds) || [];
-    dataIds = getTimeFilter(dataIds, timeFilter, timeInput);
+    this.patientIdObj = patientIdObj
+    dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredByStatus[typeFilter.toLowerCase()] || dataIds) || [];
+    dataIds = getTimeFilter({dataIds, timeFilter, timeInput, data});
     if(isProfitFilter && timeFilter == 'All'){
       showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Frame'})
     }
@@ -271,13 +302,16 @@ class DashboardLayout extends Component {
     const { from , limit } = this.state;
     const { getDatas, showAlert, logoutUser, multiTestAdd } = this.props;
     const promises = [getDataAPI(),getTestDataAPI()]
+    this.setState({isLoading:true})
     Promise.all(promises).then(res=>{
+    this.setState({isLoading:false})
       const datas = res[0];
       const testDatas = res[1];
       getDatas({data: datas, from})
       multiTestAdd({data:testDatas})
       callbk && callbk();
     }).catch(err=>{
+      this.setState({isLoading:false})
       console.log(err)
       if(err == 404){
         return logoutUser();
@@ -430,11 +464,13 @@ class DashboardLayout extends Component {
         page={page}
         isFetching={isFetching}
         dueWithMobile={this.dueWithMobile}
+        patientIdObj={this.patientIdObj}
         isListHide={isListHide}
         setListHide={this.setListHide}
         toggleFilterPopup={this.toggleFilterPopup}
         filterPopup={filterPopup}
         viewType={viewType}
+        deleteData={this.deleteData}
       />
     )
   }
@@ -450,9 +486,16 @@ class DashboardLayout extends Component {
       filteredDataIds, 
       adminSection,
       page,
+      isLoading
     } = this.state;
     const { alertOptions={} } = appConfig
     return (
+      <Box sx={{display:'flex',flexDirection:'column'}}>
+        {isLoading ? (
+          <Box sx={{ width: '100%' }}>
+            <LinearProgress />
+          </Box>
+        ): null}
         <Box
           sx={{
             display: 'flex',
@@ -460,6 +503,7 @@ class DashboardLayout extends Component {
             alignItems: 'stretch'
           }}
       >
+        
         { alertOptions.type ? (
           this.getAlertContent()
         ) : null }
@@ -491,6 +535,7 @@ class DashboardLayout extends Component {
           </>
         )}
       </Box>
+      </Box>
     );
   }
 }
@@ -498,10 +543,6 @@ class DashboardLayout extends Component {
 
 const mapStateToProps = (state,props)=>{
   const { 
-    data, 
-    dataIds,
-    filteredIds, 
-    filteredByDrName, 
     user, 
     appConfig, 
     testObj:testArr,
@@ -509,15 +550,22 @@ const mapStateToProps = (state,props)=>{
   } = state;
   const { isMobile } = props;
   const { isAdmin, id } = user;
+  const { 
+    dataIds, 
+    filteredByDrName, 
+    filteredByStatus, 
+    datas:data, 
+    drNamesList 
+  } = getDataIds(state);
   return {
     data,
     dataIds,
-    filteredIds,
+    filteredByStatus,
     filteredByDrName, 
     isAdmin,
     appConfig,
     isLogoutDisabled: id  == '1714472861155',
-    drNamesList: getDrNameList(data,dataIds),
+    drNamesList,
     testArr: Object.values(testArr),
     testObj: getAsObj(Object.values(testArr),'testName').obj,
     appointmentObj,
@@ -533,6 +581,7 @@ export default connect(mapStateToProps,{
   closeAlert,
   showAlert,
   multiTestAdd,
-  multiAppointmentAdd
+  multiAppointmentAdd,
+  deleteData
 })(DashboardLayout);
 

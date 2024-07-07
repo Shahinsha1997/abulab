@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import { Alert, Container, Grid, InputAdornment } from '@mui/material';
 import { FormControlLabel, Checkbox } from '@mui/material';
 import { EXPENSE_LABEL, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, isFormErrorFound, setLocalStorageData } from '../utils/utils';
+import { v4 as uuidv4 } from 'uuid';
 
 const ExpenseForm = ({
     toggleDrawer,
@@ -21,7 +22,9 @@ const ExpenseForm = ({
         description:'',
         totalAmount: '0',
         adminVisibilty: false,
-        isExternalLab: false
+        isExternalLab: false,
+        time: Date.now(),
+        uuid: uuidv4(),
       }, ...(getEditedFormProperties(data[formType]))})
       const [state, setState] = React.useState(initialState);
       const [errState, setErrorState] = React.useState({});
@@ -42,7 +45,9 @@ const handleExpenseSubmit = (event)=>{
         name, 
         totalAmount, 
         description, 
-        adminVisibilty
+        adminVisibilty,
+        time,
+        uuid
     } = state;
     const { isError, errObj } = isFormErrorFound('',EXPENSE_LABEL,state)
     if(isError){
@@ -57,7 +62,8 @@ const handleExpenseSubmit = (event)=>{
         return fullName
     }
     const payload = Object.assign({
-        time: isAddForm ? Date.now() : parseInt(formType),
+        uuid: uuid,
+        time: isAddForm ? Date.now() : time,
         patientId: '', 
         name: getFullName(),
         mobileNumber: '', 

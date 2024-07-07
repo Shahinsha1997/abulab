@@ -1,63 +1,63 @@
-import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD } from "../utils/utils";
+import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
 };
 
-const filteredByDrName = (state=[],action={})=>{
-  const { from, data={} } = action.payload || {};
-  const { ids=[], obj } = data;
-  switch (action.type) {
-    case GET_DATA:
-      return fieldFilterArr(ids,obj,'drName')
-    case ADD_DATA:
-    case MULTI_ADD:
-      const newValue = fieldFilterArr(ids,obj,'drName');
-      const newState = {...state};
-      Object.keys(newValue).map(status=>{
-        newState[status] = getUniQueIds([...(state[status] || []),...(newValue[status] || [])]).sort(function(a, b){return b-a});
-      })
-      return newState;
-    default:
-      return state;
-    }
-}
+// const filteredByDrName = (state=[],action={})=>{
+//   const { from, data={} } = action.payload || {};
+//   const { ids=[], obj } = data;
+//   switch (action.type) {
+//     case GET_DATA:
+//       return fieldFilterArr(ids,obj,'drName')
+//     case ADD_DATA:
+//     case MULTI_ADD:
+//       const newValue = fieldFilterArr(ids,obj,'drName');
+//       const newState = {...state};
+//       Object.keys(newValue).map(status=>{
+//         newState[status] = getUniQueIds([...(state[status] || []),...(newValue[status] || [])]).sort(function(a, b){return b-a});
+//       })
+//       return newState;
+//     default:
+//       return state;
+//     }
+// }
 
 
-const filteredDataIdReducers = (state=[],action={})=>{
-  const { from, data={} } = action.payload || {};
-  const { ids=[], obj } = data;
-  switch (action.type) {
-    case GET_DATA:
-      return fieldFilterArr(ids,obj,'status')
-    case ADD_DATA:
-    case MULTI_ADD:
-      const newValue = fieldFilterArr(ids,obj,'status');
-      const newState = {...state};
-      Object.keys(newValue).map(status=>{
-        newState[status] = getUniQueIds([...(state[status] || []),...(newValue[status] || [])]).sort(function(a, b){return b-a});
-      })
-      return newState;
-    default:
-      return state;
-    }
-}
-const dataIdsReducers = (state=[], action={}) =>{
-  const { from, data={} } = action.payload || {};
-  const { ids=[] } = data;
-  switch (action.type) {
-    case GET_DATA:
-      return [...ids.filter(id=>!state.includes(id)), ...state ].sort(function(a, b){return b-a});
-    case ADD_DATA:
-    case MULTI_ADD:
-      return getUniQueIds([
-        ...ids,
-        ...state,
-      ]).sort(function(a, b){return b-a});
-    default:
-      return state;
-    }
-}
+// const filteredDataIdReducers = (state=[],action={})=>{
+//   const { from, data={} } = action.payload || {};
+//   const { ids=[], obj } = data;
+//   switch (action.type) {
+//     case GET_DATA:
+//       return fieldFilterArr(ids,obj,'status')
+//     case ADD_DATA:
+//     case MULTI_ADD:
+//       const newValue = fieldFilterArr(ids,obj,'status');
+//       const newState = {...state};
+//       Object.keys(newValue).map(status=>{
+//         newState[status] = getUniQueIds([...(state[status] || []),...(newValue[status] || [])]).sort(function(a, b){return b-a});
+//       })
+//       return newState;
+//     default:
+//       return state;
+//     }
+// }
+// const dataIdsReducers = (state=[], action={}) =>{
+//   const { from, data={} } = action.payload || {};
+//   const { ids=[] } = data;
+//   switch (action.type) {
+//     case GET_DATA:
+//       return [...ids.filter(id=>!state.includes(id)), ...state ];
+//     case ADD_DATA:
+//     case MULTI_ADD:
+//       return getUniQueIds([
+//         ...ids,
+//         ...state,
+//       ]);
+//     default:
+//       return state;
+//     }
+// }
 
 const testDataReducer = (state = {}, action={}) => {
   const { data={} } = action.payload || {}
@@ -105,6 +105,10 @@ const dataReducer = (state = {}, action={}) => {
           : state;
       case MULTI_ADD:
         return {...state, ...obj}
+      case DATA_DELETE:
+        const newState = {...state};
+        delete newState[obj];
+        return {...newState};
       default:
         return state;
     }
@@ -148,9 +152,9 @@ export const getAllReducers = () =>{
     return {
         user: userReducer,
         data: dataReducer,
-        dataIds: dataIdsReducers,
-        filteredIds: filteredDataIdReducers,
-        filteredByDrName: filteredByDrName,
+        // dataIds: dataIdsReducers,
+        // filteredIds: filteredDataIdReducers,
+        // filteredByDrName: filteredByDrName,
         appConfig: appReducer,
         testObj: testDataReducer,
         appointmentObj: appointmentReducer

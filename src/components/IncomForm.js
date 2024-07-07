@@ -4,8 +4,9 @@ import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
 import Select from '@mui/material/Select';
-import { APPOINTMENTS_VIEW, PREFIX_NAMES_LIST, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, getProperId, getStatus, isFormErrorFound, setLocalStorageData } from '../utils/utils';
-import { Autocomplete, TextField, Chip, Container, Grid, InputAdornment } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
+import { APPOINTMENTS_VIEW, OUTSTANDING_LABEL, PREFIX_NAMES_LIST, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, getProperId, getStatus, isFormErrorFound, setLocalStorageData } from '../utils/utils';
+import { Autocomplete, TextField, Chip, Container, Grid, InputAdornment, Link } from '@mui/material';
 const IncomeForm = ({ 
     getIdPrefix, 
     toggleDrawer,
@@ -23,10 +24,14 @@ const IncomeForm = ({
     setSyncStatus,
     showAlert,
     page,
-    toggleForm
+    toggleForm,
+    patientIdObj,
+    setDetailViewId
 }) => {
     const initialState = ({...{
         open: false,
+        time: Date.now(),
+        uuid: uuidv4(),
         patientId: getProperId(previousID+1),
         name: '',
         mobileNumber: '',
@@ -61,7 +66,10 @@ const IncomeForm = ({
     setState((prevState) => ({ ...prevState, [name]: val || value }));
     setErrorState({})
   };
-
+  const openExist = ()=>{
+    const id = patientIdObj[state.patientId];
+    setDetailViewId(id, false);
+  }
   const handleSubmit = (event) => {
     event.preventDefault();
     const { 
@@ -74,7 +82,9 @@ const IncomeForm = ({
       drName, 
       comments, 
       namePrefix, 
-      discount
+      discount,
+      uuid,
+      time
     } = state;
     const dueAmount = totalAmount- parseInt(discount) - paidAmount
     const status = getStatus(true, dueAmount)
@@ -86,7 +96,8 @@ const IncomeForm = ({
     const addPending = getLocalStorageData(localStorageKey,'[]');
     
     const data = Object.assign({
-      time: isAddForm ? Date.now() : parseInt(formType),
+      uuid: uuid,
+      time: isAddForm ? Date.now() : time,
       patientId: patientId, 
       name: namePrefix+name,
       mobileNumber, 
@@ -117,22 +128,27 @@ const IncomeForm = ({
     const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix } = state;
     const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
     const isFieldDisabled = !(isAddForm || isAdmin)
-    const dueAmount = (totalAmount-discount-paidAmount)
+    const dueAmount = (totalAmount-discount-paidAmount);
     return(
         <Container maxWidth="sm">
             <Grid container spacing={2} sx={{display:'flex', flexDirection:'column'}}>
-                <Grid item sx={{ display: 'flex', alignItems: 'center' }}>
-                    <TextField
-                        label="Patient ID"
-                        name="patientId"
-                        value={patientId}
-                        onChange={handleInputChange}
-                        required
-                        fullWidth
-                        InputProps={{
-                            startAdornment: <InputAdornment position="start">{getIdPrefix()}</InputAdornment>,
-                        }}
-                    />
+                <Grid item sx={{ display: 'flex', flexDirection:'column' }}>
+                    <Grid item>
+                        <TextField
+                            label="Patient ID"
+                            name="patientId"
+                            value={patientId}
+                            onChange={handleInputChange}
+                            required
+                            fullWidth
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">{getIdPrefix()}</InputAdornment>,
+                            }}
+                        />
+                    </Grid>
+                        {(patientIdObj[patientId] && isAddForm) && 
+                    <Grid item><Alert severity="info">{`Already Exist. `}<Link sx={{cursor:'pointer'}} onClick={openExist}>Click Here to Open</Link></Alert></Grid>}
+                    
                 </Grid>
                 <Grid item>
                     <Box sx={{display:'flex'}}>
@@ -165,7 +181,7 @@ const IncomeForm = ({
                         }}
                         fullWidth 
                     />
-                    {dueWithMobile[mobileNumber] && <Alert severity="info">{`Exist Due Amount ₹ ${dueWithMobile[mobileNumber]}`}</Alert>}
+                    {(dueWithMobile[mobileNumber] && isAddForm) && <Alert severity="info">{`Exist Due Amount ₹ ${dueWithMobile[mobileNumber]}`}</Alert>}
                     {mobileNumberErr && <Alert severity="error">{mobileNumberErr}</Alert>}
                 </Grid>
                 <Grid item>
