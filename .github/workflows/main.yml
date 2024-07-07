@@ -21,11 +21,6 @@ jobs:
         with:
           name: build
           path: build
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: google-github-actions/auth@v0.4.0
-        with:
-          credentials_json: '${{ secrets.SS_GOOGLE_SERVICE }}'
   deploy:
     name: Deploy
     needs: build
@@ -43,4 +38,4 @@ jobs:
         with:
           args: deploy --only hosting
         env:
-          FIREBASE_TOKEN: ${{ secrets.SS_GOOGLE_SERVICE }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
