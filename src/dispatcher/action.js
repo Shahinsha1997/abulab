@@ -1,4 +1,4 @@
-import { ADD_DATA, MODIFY_DATA, MULTI_ADD, GET_DATA, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE } from "../utils/utils";
+import { ADD_DATA, MODIFY_DATA, MULTI_ADD, GET_DATA, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE, clearLocalStorage } from "../utils/utils";
 
 export const setUser = (datas={}) => {
     return {
@@ -8,7 +8,7 @@ export const setUser = (datas={}) => {
 };
 
 export const logoutUser = ()=>{
-    delete localStorage['userObj']
+    clearLocalStorage();
     return {
         type: 'LOGOUT'
     }

@@ -22,7 +22,7 @@ class LoginPage extends Component {
   componentDidMount(){
     const userObj = getLocalStorageData('userObj');
     const { setUser, handleNavigate } = this.props;
-    if(userObj.userName){
+    if(userObj.name){
       setUser(userObj)
       handleNavigate('/dashboard')
     }
@@ -38,11 +38,13 @@ class LoginPage extends Component {
     const { username, password } = this.state;
     const { setUser, handleNavigate } = this.props;
       authenticate(username, password).then(res=>{
-        if(res.status == 404){
-          return this.setState({ error: "Please check the user name or password" });
+        console.log(res);
+        if(res.status != 200){
+          const { message } = res;
+          return this.setState({ error: message || "Please check the user name or password" });
         }
-        setUser(res.userObj)
-        setLocalStorageData('userObj', res.userObj)
+        setUser(res.response)
+        setLocalStorageData('userObj', res.response)
         handleNavigate('/dashboard')
       }).catch(err=>{
         this.setState({ error: "Please check the user name or password" });

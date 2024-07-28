@@ -1,494 +1,92 @@
 import React, { Component } from 'react';
 import LeftPanel from './Leftpanel';
-import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
-import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
+import { Box, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
-import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
-import { Alert, Snackbar } from '@mui/material';
-import EventSharpIcon from '@mui/icons-material/EventSharp';
-import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone';
-import AddIcon from '@mui/icons-material/Add';
-import LogoutIcon from '@mui/icons-material/Logout';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { CloseOutlined } from '@mui/icons-material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import SyncIcon from '@mui/icons-material/Sync';
-import TableViewIcon from '@mui/icons-material/TableView';
-import ListAltIcon from '@mui/icons-material/ListAlt';
 import { getDataIds } from '../selectors/incomeselectors';
+import { bind, getCurrentMonth, getErrorMessage } from '../utils/utils';
+import FormContainer from './FormContainer';
+import { getDepartmentsAPI, getOrgAPI, getProfilesAPI, getUsersAPI, logout } from '../actions/APIActions';
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
     this.state={
-      formType: '',
-      from: 1,
-      limit: 50,
-      previousId: '',
-      filteredDataIds:[],
-      isFetching: false,
       isLoading:false,
-      filterObj:{
-        timeFilter:'MonthWise', 
-        typeFilter:'All',
-        timeInput: getCurrentMonth(), 
-        docInput:''
+      formObj: {
+        type:'',
+        id:''
       },
-      page:LAB_VIEW,
-      tableColumns: Object.values(getFormFields('allFields')),
-      syncStatus: true,
-      addTry: 0,
-      updateTry: 0,
-      adminSection: false,
-      isListHide: false,
-      filterPopup: false,
-      addPopup: null,
-      popupType: '',
-      viewType: LIST_VIEW
+      isFormLoading: false
     }
     this.dueWithMobile = {};
     this.patientIdObj = {}
     this.previousID = '';
     this.isSyncInProgress = false;
     const methods = [
-      'toggleForm',
-      'getAllDatas',
-      'setPreviousId',
-      'applyFilters',
-      'getFilteredDataIds',
-      'getAlertContent',
-      'setSyncStatus',
-      'syncNowDatas',
-      'toggleAdminSection',
-      'setPage',
-      'getAppoinmentDatas',
-      'setIsFetching',
-      'setListHide',
-      'toggleFilterPopup',
-      'getRightPanel',
-      'getBottomPanel',
-      'toggleViewType',
-      'deleteData'
+      'logout',
+      'handleFormType'
     ]
     bind.apply(this, methods);
   }
-  deleteData(id){
-    const { showAlert, deleteData } = this.props;
-    this.setState({isLoading:true})
-    deleteDataAPI(id).then(res=>{
-      this.setState({isLoading:false})
-      deleteData({'data':{'obj':id}})
-      showAlert({type: 'success', message:"Data deleted Successfully."})
-    }).catch(err=>{
-      this.setState({isLoading:false})
-      let message = 'Unable to Process Your request.'
-      if(err == '401'){
-        message = "You're not authorized to do this action"
-      }else if(err == '500'){
-        message = 'Internal Server Error'
-      }else if(err == '404'){
-        message = 'Requested Data was not found'
-      }
-      showAlert({type: 'error', message})
-    })
-  }
-  toggleFilterPopup(){
-    const { filterPopup } = this.state;
+  handleFormType(type, id){
     this.setState({
-      filterPopup: !filterPopup
-    }) 
-  }
-  setIsFetching(status){
-    this.setState({
-      isFetching: status
-    })
-  }
-  setPreviousId(id){
-    this.setState({previousId: id})
-  }
-  setListHide(value){
-    this.setState({isListHide:value})
-  }
-  toggleViewType(){
-    const { viewType } = this.state;
-    this.setState({viewType: viewType == LIST_VIEW ? TABLE_VIEW : LIST_VIEW})
-  }
-  setPage(page){
-    const { adminSection} = this.state
-    this.setState({
-      page,
-      adminSection: page == APPOINTMENTS_VIEW ? false : adminSection
-    })
-    if(page == APPOINTMENTS_VIEW){
-      this.getAppoinmentDatas();
+      formObj:{
+        type,
+        id
     }
-  }
-  toggleAdminSection(){
-    const { adminSection, page } = this.state;
-    this.setState({
-      adminSection : !adminSection,
-      page: !adminSection ? LAB_VIEW : page
-    })
-  }
-  setSyncStatus(status){
-    this.setState({
-      syncStatus: status
-    })
-  }
-  getAppoinmentDatas(){
-    const { showAlert, multiAppointmentAdd } = this.props;
-    this.setIsFetching(true)
-    getAppointmentDatasAPI().then(res=>{
-      this.setIsFetching(false)
-      multiAppointmentAdd({data:res})
-    }).catch(err=>{
-      if(err == 404){
-        return logoutUser();
-      }
-      this.setIsFetching(false)
-      showAlert({type: 'error', 'message': "Internal Server Error"})
-    })
-  }
-  getAlertContent(){
-    const { appConfig, closeAlert } = this.props;
-    const { alertOptions } = appConfig
-    const { type, message } = alertOptions;
-    return (
-      <Snackbar
-        open={true}
-        autoHideDuration={type == 'success' ? 5000 : undefined} // Duration in milliseconds (here, 6 seconds)
-        onClose={() => type == 'success' && closeAlert()} // Function to handle closing
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position
-      >
-        <Alert severity={type} onClose={closeAlert}>{message}</Alert>
-      </Snackbar>
-    )
-  }
-  syncNowDatas(){
-    const { multiAdd, showAlert, multiTestAdd } = this.props;
-    const { addTry=0, updateTry=0, addTestTry=0 } = this.state;
-    const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
-    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
-    const addTestDatas = getLocalStorageData('addTestDatas','[]');
-    const type = addPendingDatas.length > 0 ? 'add' : updatePendingDatas.length > 0 ? 'update' : 'addTest'
-    const apiMethod = type == 'addTest' ? addTestDataAPI : addDataAPI 
-    const reducerMethod = type == 'addTest' ? multiTestAdd : multiAdd
-    setLocalStorageData('lastSyncTime', Date.now());
-    if((addPendingDatas.length > 0 || updatePendingDatas.length > 0  || addTestDatas.length > 0) && !this.isSyncInProgress){
-      this.isSyncInProgress = true;
-      this.setSyncStatus(false)
-      return apiMethod(type).then((res)=>{
-        reducerMethod({data:res})
-        showAlert({type: 'success', message: getMessages(type).success})
-        this.setSyncStatus(true)
-        this.isSyncInProgress = false;
-        scheduleSync(this.syncNowDatas, showAlert)
-        this.setState({
-          addTry: 0,
-          updateTry : 0,
-          addTestTry: 0
-        }, ()=>this.syncNowDatas())
-      }).catch(err=>{
-        this.setSyncStatus(false)
-        this.isSyncInProgress = false;
-        if(addTry > 5 || updateTry > 5 || addTestTry > 5){
-          return showAlert({type: 'error', message:'Please Contact Shahinsha...'})
-        }
-        this.setState({
-          addTry: type == 'add' ? addTry + 1 : addTry,
-          updateTry : type == 'update' ? updateTry + 1 : updateTry,
-          addTestTry: type == 'addTest' ? addTestTry + 1 : addTestTry
-        },()=>this.syncNowDatas(type))
-        showAlert({type: 'error', message:getMessages(type).fail})
-      })
-    }
-  }
-
-  toggleForm(formType=''){
-    this.setState({
-      formType
     })
   }
   componentDidMount(){
-    const { multiAdd, showAlert, getDatas } = this.props;
-    scheduleSync(this.syncNowDatas, showAlert)
-    const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
-    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
-    getDatas({data: setCacheDatas({})})
-    this.getAllDatas(()=>multiAdd({data:getAsObj([...pendingDatas, ...updatePendingDatas])}));
-    
+    const { userObj, getDatas } = this.props;
+    const { orgId } = userObj;
+    getOrgAPI(orgId).then(res=>{
+      console.log(res);
+      this.setState({isFormLoading:false})
+      getDatas({module:'org', res})
+    }).catch(err=>{
+      this.setState({isFormLoading:false})
+      showAlert({type:'error','message':getErrorMessage(err)})
+    }) 
   }
   componentDidUpdate(prevProps, prevState){
-    const { dataIds } = this.props;
-    const { filteredDataIds, filterObj, syncStatus, page, isFetching, previousId } = this.state;
-    const {
-      timeFilter, 
-      typeFilter
-    } = filterObj
-    const isIntialLoad =  dataIds.length != filteredDataIds.length && timeFilter == 'All' && typeFilter == 'All'
-    if(prevProps.dataIds.length != dataIds.length){
-      this.setState({previousId:''})
-      this.previousID = ''
-    }
-    if(prevState.page != page || previousId != prevState.previousId  || isFetching != prevState.isFetching || prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != syncStatus ){
-      this.getFilteredDataIds();
-    };
-  }
-  getFilteredDataIds(){
-    let { previousId, filterObj, tableColumns, page } = this.state;
-    const {
-      timeFilter='All', 
-      typeFilter='', 
-      timeInput, 
-      docInput=''
-    } = filterObj
-    const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
-    let { 
-      dataIds, 
-      filteredByStatus, 
-      filteredByDrName, 
-      data, 
-      showAlert, 
-      appointmentObj 
-    } = this.props;
-    const dueWithMobile = {};
-    const patientIdObj = {};
-    dataIds.map(dataId=>{
-      const { mobileNumber, dueAmount=0, patientId } = data[dataId];
-      if(dueAmount > 0 && mobileNumber.toString().length == 10){
-        dueWithMobile[mobileNumber] = (dueWithMobile[mobileNumber] || 0) + dueAmount;
-       }
-       patientIdObj[patientId] = dataId;
-    })
-    this.dueWithMobile = dueWithMobile;
-    this.patientIdObj = patientIdObj
-    dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredByStatus[typeFilter.toLowerCase()] || dataIds) || [];
-    dataIds = getTimeFilter({dataIds, timeFilter, timeInput, data});
-    if(isProfitFilter && timeFilter == 'All'){
-      showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Frame'})
-    }
-    if(page == APPOINTMENTS_VIEW){
-      tableColumns = Object.values(getFormFields(APPOINTMENTS_VIEW));
-      dataIds = getAppoinmentsData(Object.values(appointmentObj))
-    }
-    else if(isProfitFilter && timeFilter != 'All'){
-      let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
-      dataIds = profitObj['dataIds']
-      tableColumns = Object.values(getFormFields(typeFilter));
-   }else{
-    dataIds = dataIds.map(dataId=>{
-      const { status } = data[dataId];
-       if(status != EXPENSE_LABEL && !previousId && !this.previousID){
-        this.previousID = data[dataId].patientId
-         this.setPreviousId(this.previousID)
-       }
-       
-       return data[dataId]
-     })
-    tableColumns = Object.values(getFormFields('allFields'))
-   }
-    this.setState({
-      filteredDataIds: dataIds,
-      tableColumns,
-      isListHide: false
-    })
-  }
-  getAllDatas(callbk){
-    const { from , limit } = this.state;
-    const { getDatas, showAlert, logoutUser, multiTestAdd } = this.props;
-    const promises = [getDataAPI(),getTestDataAPI()]
-    this.setState({isLoading:true})
-    Promise.all(promises).then(res=>{
-    this.setState({isLoading:false})
-      const datas = res[0];
-      const testDatas = res[1];
-      getDatas({data: datas, from})
-      multiTestAdd({data:testDatas})
-      callbk && callbk();
-    }).catch(err=>{
-      this.setState({isLoading:false})
-      console.log(err)
-      if(err == 404){
-        return logoutUser();
+    const { getDatas } = this.props;
+    const { formObj:prevFormObj } = prevState;
+    const { formObj } = this.state;
+    const { type:formType } = formObj;
+    if(prevFormObj.type != formObj.type && formObj.type){
+      this.setState({isFormLoading: true});
+      let getModuleAPI = '';
+      if(formType == 'departments'){
+        getModuleAPI = getDepartmentsAPI
+      }else if(formType == 'users'){
+        getModuleAPI = getUsersAPI;
+      }else if(formType == 'profiles'){
+        getModuleAPI = getProfilesAPI;
       }
-      showAlert({type: 'error', 'message': "Internal Server Error"})
-    })
+      getModuleAPI && getModuleAPI(1).then(res=>{
+        console.log(res);
+        this.setState({isFormLoading:false})
+        getDatas({module:formObj.type, res})
+      }).catch(err=>{
+        this.setState({isFormLoading:false})
+        showAlert({type:'error','message':getErrorMessage(err)})
+      })
+    }
   }
-  applyFilters(filters){
-    this.setState({
-      filterObj : filters,
-      page: LAB_VIEW,
-      filterPopup: false
-    }, this.getFilteredDataIds)
-  }
-  getBottomPanel = ()=>{
-    const { 
-      logoutUser, 
-      isAdmin, 
-      appConfig, 
-      isLogoutDisabled, 
-      isMobile
-    } = this.props
-    const { 
-      filteredDataIds, 
-      adminSection,
-      page,
-      addPopup,
-      popupType,
-      viewType
-    } = this.state;
-
-  const handleClick = (event,type) => {
-    this.setState({addPopup: event.currentTarget, popupType: type});
-  };
-  const handleClose = () => {
-    this.setState({addPopup: null});
-  };
-    let options = [
-      { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
-      { label: 'Admin Panel', icon: adminSection ? <AdminPanelSettingsTwoToneIcon/> : <AdminPanelSettingsIcon />, handleClick:this.toggleAdminSection },
-      { label: 'Add', icon: <AddIcon />, handleClick:(e)=>handleClick(e,'addPopup')},
-      { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page == LAB_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},
-      { label: 'More', icon: <MoreVertIcon/>, handleClick: (e)=>handleClick(e,'morePopup') },
-    ];
-    !isAdmin && options.splice(1,1)
-    const addOptions = [
-      { label: 'Add Income', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addIncome')}},
-      { label: 'Add Expense', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addExpenses')} },
-      { label: 'Add/Update Test', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addTests')} },
-      { label: 'Add Appointment', icon: <AddIcon />, handleClick:()=>window.open('/appointments','_self') },
-      { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
-    ];
-    let moreOptions = [
-      { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
-      { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
-      { label: `Switch to ${viewType == LIST_VIEW ? 'Table View' : 'List View'}`, icon: viewType == LIST_VIEW ? <TableViewIcon /> : <ListAltIcon />, handleClick: ()=>{handleClose();this.toggleViewType()} },
-      { label: 'Logout', icon: <LogoutIcon disabled={isLogoutDisabled} sx={{color:'red'}} />, sx:{color:'red'}, handleClick: logoutUser },
-      { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
-    ];
-   !isSyncNowNeeded() && moreOptions.splice(0,1)
-    const poupOptions = popupType == 'addPopup' ? addOptions : moreOptions;
-      return ( 
-        <Box sx={{display:'flex', flexDirection:'row'}}>
-           <Grid container sx={{ display: 'flex', flexShrink:0 }} spacing={options.length == 5 ? 1.5 : 7}>
-        {options.map((option, index) => (
-          <Grid item key={option.label}>
-            <IconButton onClick={option.handleClick} sx={{color:'white', ...option.sx, fontSize:['0.7rem','1rem','1.3rem']}}> 
-              <Grid container direction="column" alignItems="center"> 
-                <Grid item>
-                  {option.icon}
-                </Grid>
-                <Grid item>
-                  <Typography variant="body2" noWrap component="div" sx={{ fontSize: ['0.7rem','1rem','1.3rem'] }}>
-                    {option.label}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </IconButton>
-          </Grid>
-        ))}
-      </Grid>
-      <Menu
-        id="menu-add-options"
-        anchorEl={addPopup}
-        open={addPopup}
-        onClose={handleClose}
-        MenuListProps={{ 'aria-labelledby': 'menu-add-options' }}
-      >
-        {poupOptions.map((option, index) => (
-        <MenuItem onClick={option.handleClick} sx={{...(option.sx || {})}}>
-          <ListItemIcon>
-            {option.icon}
-          </ListItemIcon>
-          <ListItemText>{option.label}</ListItemText>
-        </MenuItem>
-        ))}
-      </Menu>
-        </Box>
-      )
-  }
-  getRightPanel = ()=>{
-    const { 
-      data, 
-      addData, 
-      multiAdd, 
-      isAdmin, 
-      showAlert, 
-      drNamesList,
-      testObj,
-      multiTestAdd,
-      testArr,
-      dataIds,
-      appointmentObj
-    } = this.props
-    const { 
-      formType,
-      previousId, 
-      filteredDataIds, 
-      tableColumns, 
-      filterObj ,
-      adminSection,
-      page,
-      isFetching,
-      isListHide,
-      filterPopup,
-      viewType
-    } = this.state;
-    return (
-      <RightPanel 
-        addData={addData} 
-        toggleForm={this.toggleForm} 
-        formType={formType}
-        data={page == APPOINTMENTS_VIEW ? appointmentObj : data}
-        allDataIds={dataIds}
-        dataIds={filteredDataIds}
-        multiAdd={multiAdd}
-        previousId={previousId}
-        setPreviousId={this.setPreviousId}
-        applyFilters={this.applyFilters}
-        isAdmin={isAdmin}
-        tableColumns={tableColumns}
-        filterObj={filterObj}
-        showAlert={showAlert}
-        setSyncStatus={this.setSyncStatus}
-        drNamesList={drNamesList}
-        testArr={testArr}
-        testObj={testObj}
-        multiTestAdd={multiTestAdd}
-        adminSection={adminSection}
-        page={page}
-        isFetching={isFetching}
-        dueWithMobile={this.dueWithMobile}
-        patientIdObj={this.patientIdObj}
-        isListHide={isListHide}
-        setListHide={this.setListHide}
-        toggleFilterPopup={this.toggleFilterPopup}
-        filterPopup={filterPopup}
-        viewType={viewType}
-        deleteData={this.deleteData}
-      />
-    )
+  logout(){
+    const { logoutUser, showAlert } = this.props;
+    return logout(logoutUser).then(res=>{}).catch(err=>showAlert({type:'error','message':'Logout failed...'}))
   }
   render() {
     const { 
-      logoutUser, 
-      isAdmin, 
-      appConfig, 
-      isLogoutDisabled, 
       isMobile
     } = this.props
     const { 
-      filteredDataIds, 
-      adminSection,
-      page,
-      isLoading
+      isLoading,
+      formObj,
+      isFormLoading
     } = this.state;
-    const { alertOptions={} } = appConfig
     return (
       <Box sx={{display:'flex',flexDirection:'column'}}>
         {isLoading ? (
@@ -504,36 +102,30 @@ class DashboardLayout extends Component {
           }}
       >
         
-        { alertOptions.type ? (
+        { false ? (
           this.getAlertContent()
         ) : null }
         {isMobile ? (
           <Box sx={{display:'flex', flexDirection:'column', overflow:'hidden'}}>
-            <Box sx={{display:'flex'}}>
-              {this.getRightPanel()}
-            </Box>
-            <Box sx={{display:'flex',height:'10vh', background:'#252b38', color:'white', border:'1px solid white', borderRadius:'10px'}}>
-              {this.getBottomPanel()}
-            </Box>
-          </Box>
+          {/* //   <Box sx={{display:'flex'}}>
+          //     {this.getRightPanel()}
+          //   </Box>
+          //   <Box sx={{display:'flex',height:'10vh', background:'#252b38', color:'white', border:'1px solid white', borderRadius:'10px'}}>
+          //     {this.getBottomPanel()}
+          //   </Box> */}
+           </Box>
         ) : (
           <>
             <LeftPanel
-              isAdmin={isAdmin} 
-              isLogoutDisabled={isLogoutDisabled} 
-              toggleForm={this.toggleForm} 
-              logoutUser={logoutUser} 
-              patientCount={filteredDataIds.length}
-              toggleAdminSection={this.toggleAdminSection}
-              adminSection={adminSection}
-              syncNow={isSyncNowNeeded() && this.syncNowDatas}
-              setPage={this.setPage}
-              page={page}
-              toggleFilterPopup={this.toggleFilterPopup}
+              logoutUser={this.logout} 
+              handleFormType={this.handleFormType}
             />
-          {this.getRightPanel()}
+          {/* {this.getRightPanel()} */}
           </>
         )}
+        {formObj.type ? (
+          <FormContainer isFormLoading={isFormLoading} formObj={formObj} handleFormType={this.handleFormType}/>
+        ) : null}
       </Box>
       </Box>
     );
@@ -543,33 +135,13 @@ class DashboardLayout extends Component {
 
 const mapStateToProps = (state,props)=>{
   const { 
-    user, 
-    appConfig, 
-    testObj:testArr,
-    appointmentObj,
+    module,
+    user
   } = state;
   const { isMobile } = props;
-  const { isAdmin, id } = user;
-  const { 
-    dataIds, 
-    filteredByDrName, 
-    filteredByStatus, 
-    datas:data, 
-    drNamesList 
-  } = getDataIds(state);
   return {
-    data,
-    dataIds,
-    filteredByStatus,
-    filteredByDrName, 
-    isAdmin,
-    appConfig,
-    isLogoutDisabled: id  == '1714472861155',
-    drNamesList,
-    testArr: Object.values(testArr),
-    testObj: getAsObj(Object.values(testArr),'testName').obj,
-    appointmentObj,
-    isMobile
+    userObj:user,
+      isMobile
   }
 }
 

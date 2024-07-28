@@ -20,9 +20,11 @@ export const getLocalStorageData = (key, defaultValue='{}',isParseNeeded=true)=>
     return localStorage[key] || defaultValue
     
 }
-export const setLocalStorageData =(key,obj={})=>{
-    localStorage[key] = JSON.stringify(obj)
+export const setLocalStorageData =(key,obj={}, isParseNeeded=true)=>{
+    localStorage[key] = !isParseNeeded ? obj : JSON.stringify(obj)
 }
+
+export const clearLocalStorage = ()=> localStorage.clear();
 export const getProperId = (id) =>{
     id = parseInt(id);
     return id < 10 ? `00${id}` : id < 99 ? `0${id}` : id;
@@ -698,3 +700,66 @@ export const sendWhatsappMessage = (type,rowDetails)=>{
     }
     return newId  
 }
+export const getErrorMessage = (error)=>{
+       const errObj = {
+        '401' : "You're not authorized to access this",
+        '500' : "Internal server error",
+        '404' : "You're requested thing was not found"
+       };
+       return errObj[error] || errObj['500'];
+}
+
+export const getPermissionObj = (isValuesOnly=true)=>{
+    const commonPermissions = ['View','Add','Edit','Delete']
+    const permissionObj = {
+        'adminPanelPermissions' : {
+            id: 'adminPanelPermissions',
+            name: 'Admin Panel',
+            permissions:['viewAdminPanel'],
+            permissionNames:['View']
+        },
+        'orgPermissions' : {
+            id:'orgPermissions',
+            name: 'Organization',
+            permissions:['viewOrg','addOrg','editOrg','deleteOrg'],
+            permissionNames:commonPermissions
+        },
+        'profilePermissions' : {
+            id:'profilePermissions',
+            name: 'Profile',
+            permissions:['viewProfile','addProfile','editProfile','deleteProfile'],
+            permissionNames:commonPermissions
+        },
+        'deptPermissions' : {
+            id:'deptPermissions',
+            name: 'Department',
+            permissions:['viewDept','addDept','editDept','deleteDept'],
+            permissionNames:commonPermissions
+        },
+        'userPermissions' : {
+            id:'userPermissions',
+            name: 'Users',
+            permissions:['viewUser','addUser','editUser','deleteUser'],
+            permissionNames:commonPermissions
+        },
+        'stockPermissions' : {
+            id:'stockPermissions',
+            name: 'Stocks',
+            permissions:['viewStock','addStock','editStock','deleteStock'],
+            permissionNames:commonPermissions
+        },
+        'salePermissions' : {
+            id:'salePermissions',
+            name: 'Sales',
+            permissions:['viewSale','addSale','editSale','deleteSale'],
+            permissionNames:commonPermissions
+        }
+    }
+    return isValuesOnly ? Object.values(permissionObj) : permissionObj
+}
+
+export const getInitials = (name)=>{
+    if (!name) return '';
+    const names = name.split(' ');
+    return names.reduce((acc, curr) => acc + curr.charAt(0), '').toUpperCase();
+  }

@@ -79,12 +79,13 @@ const appointmentReducer = (state = {}, action={}) => {
         return state;
     }
   };
-const dataReducer = (state = {}, action={}) => {
-  const { data={} } = action.payload || {}
-  const { obj } = data;
+const moduleReducer = (state = {}, action={}) => {
+  const { res={}, module } = action.payload || {}
+  const { obj } = res;
+  const existObj = {...state[module]}
     switch (action.type) {
       case GET_DATA:
-        return {...state, ...obj}
+        return {...state, [module]:{...existObj, ...obj}}
       case ADD_DATA:
         return {
           ...state,
@@ -96,19 +97,21 @@ const dataReducer = (state = {}, action={}) => {
         // Check if the data with the given ID exists
         return state[id]
           ? {
-              ...state,
-              [id]: {
-                ...state[id],
-                ...newData,
-              },
+              ...state,[module] : {
+                ...state.module,
+                [id]: {
+                  ...existObj[id],
+                  ...newData,
+                },
+              }
+              
             }
           : state;
       case MULTI_ADD:
-        return {...state, ...obj}
+        return {...state, [module]: {...existObj, ...obj}}
       case DATA_DELETE:
-        const newState = {...state};
-        delete newState[obj];
-        return {...newState};
+        delete existObj[id];
+        return {...state, [module]: {...existObj}};
       default:
         return state;
     }
@@ -151,12 +154,10 @@ function appReducer(state=appReducerInitialState,action){
 export const getAllReducers = () =>{
     return {
         user: userReducer,
-        data: dataReducer,
+        modules: moduleReducer,
         // dataIds: dataIdsReducers,
         // filteredIds: filteredDataIdReducers,
         // filteredByDrName: filteredByDrName,
-        appConfig: appReducer,
-        testObj: testDataReducer,
-        appointmentObj: appointmentReducer
+        appConfig: appReducer
     }
 }

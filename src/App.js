@@ -2,11 +2,10 @@ import React, { Component, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
-import PrivateRoute from './components/PrivateRoute';
 import { Provider } from 'react-redux';
 import { store } from './store';
-import AppointmentForm from './components/AppoinmentPage';
 import { useMediaQuery } from '@mui/material';
+import PrivateRoute from './components/PrivateRoute';
 const App =(props)=>{
   const [currentPath, setCurrentPath] = useState('login')
   const [isNavigateNeed, setIsNavigateNeed] = useState(false)
@@ -26,7 +25,6 @@ const App =(props)=>{
           <Route path="/" element={<PrivateRoute />}>
             <Route path="/dashboard" element={<DashboardLayout isMobile={isMobile}/>} /> 
           </Route>
-          <Route path="/appointments" element={<AppointmentForm/>} />
         </Routes>
       </BrowserRouter>
     </Provider>
