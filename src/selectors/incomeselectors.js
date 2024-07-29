@@ -38,6 +38,7 @@ async function foundDuplicates(datas){
     })
     duplicateAllObj.sort((a,b)=>a.patientId - b.patientId)
     console.log("Duplicates",duplicateAllObj)
+    console.log("Duplicates",JSON.stringify(duplicateAllObj));
 }
 export const getDataIds = createSelector(
     getDatas,
