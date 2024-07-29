@@ -56,7 +56,11 @@ export const addDataAPI = (type) =>{
             throw response.status
             
         })
-        .catch(err=>reject(err))
+        .catch(err=>{
+            setLocalStorageData(pendingKey,[...inProgressData, ...data])
+            setLocalStorageData(inProgressKey,[]);
+            reject(err)
+        })
     })
 }
 export const deleteDataAPI = (uuid)=>{
@@ -159,7 +163,11 @@ export const addTestDataAPI = () =>{
             throw response.status
             
         })
-        .catch(err=>reject(err))
+        .catch(err=>{
+            setLocalStorageData(pendingKey,[...inProgressData, ...data])
+            setLocalStorageData(inProgressKey,[]);
+            reject(err)
+        })
     })
 }
 
