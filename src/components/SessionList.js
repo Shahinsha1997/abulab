@@ -4,16 +4,19 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, Button, Tex
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import { PersonOutlineOutlined, AccountTreeSharp, GroupAddOutlined } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
-import { getUsersArr } from '../selectors/moduleselectors';
+import { getDeptArr, getSessionsArr } from '../selectors/moduleselectors';
 import EditIcon from '@mui/icons-material/Edit';
+import DesktopMacRoundedIcon from '@mui/icons-material/DesktopMacRounded';
+import LaptopWindowsRoundedIcon from '@mui/icons-material/LaptopWindowsRounded';
+import PhoneAndroidRoundedIcon from '@mui/icons-material/PhoneAndroidRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getInitials } from '../utils/utils';
-const UsersList = ({
+import { getAccessSystemType } from '../utils/utils';
+const SessionList = ({
     setFormObj,
     isFormLoading,
-    deleteBtn
+    deleteBtn 
 }) => {
-const users = useSelector(getUsersArr);
+const sessions = useSelector(getSessionsArr);
 const styles = {
     padding:'20px',
     cursor:'pointer',
@@ -21,9 +24,18 @@ const styles = {
         backgroundColor: '#f0f0f0', // Adjust background color on hover
     }
 }
-
-const deleteUser = ()=>{
-  deleteBtn({title:'Delete the User', message:'Are you sure, you want to delete the user?', confirmFn:()=>{}})
+const avatar = {
+    'Mac OS' : DesktopMacRoundedIcon,
+    'Windows':LaptopWindowsRoundedIcon,
+    'Linux': LaptopWindowsRoundedIcon,
+    'Mobile': PhoneAndroidRoundedIcon
+}
+const getIconComp = (sysType)=>{
+    const Component = avatar[sysType];
+    return <Component />
+}
+const deleteSession = ()=>{
+  deleteBtn({title:'Revoke the Session', message:'Are you sure, you want to revoke the session?', confirmFn:()=>{}})
 }
 return (
     <Container maxWidth="sm">
@@ -35,23 +47,21 @@ return (
         <Grid container spacing={2} sx={{ display: 'flex', flexDirection: 'column' }}>
           <Grid item>
             <List>
-              {users.map(usersObj =>{
-                  const { name, id, userName, maxSessionTime, maxSessionLimit, isDisabled } = usersObj;
+              {sessions.map(sessionObj =>{
+                  const { name, id, userAgent } = sessionObj;
+                  const sysType = getAccessSystemType(userAgent);
                   return (
                       <ListItem sx={styles} key={id} secondaryAction={
                         <ListItemButton sx={{'&:hover' : {backgroundColor: 'transparent' }}}>
-                          <IconButton sx={{ mr: 1, color:'#1400ffa6' }} edge="end" aria-label="edit">
-                           <EditIcon onClick={() => setFormObj('users',id)} />
-                          </IconButton>
                           <IconButton sx={{ mr: 1, color:'#ff0000db' }} edge="end" aria-label="delete">
-                            <DeleteIcon onClick={()=>deleteUser(id)} />
+                            <DeleteIcon onClick={deleteSession} />
                           </IconButton>
                         </ListItemButton>
                         }>
-                          <ListItemAvatar>
-                            <Avatar>{getInitials(name)}</Avatar>
+                        <ListItemAvatar>
+                            <Avatar>{getIconComp(sysType)}</Avatar>
                           </ListItemAvatar>
-                        <ListItemText primary={name} secondary={userName} />
+                        <ListItemText primary={name} secondary={sysType} />
                       </ListItem>
                   )
               })}
@@ -63,4 +73,4 @@ return (
   );
 }
 
-export default formWrapper(UsersList);
+export default formWrapper(SessionList);

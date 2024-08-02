@@ -10,7 +10,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { Button, Grid } from '@mui/material';
 const formWrapper = (ChildComponent) => (props) => {
-    const { isMobile, toggleForm, title, formWidth='350px', submitBtn, backPage, closePopup, nextRecord, prevRecord } = props;
+    const { isMobile, toggleForm, title, formWidth='350px', backPage, closePopup, nextRecord, prevRecord } = props;
     return ( 
         <Drawer
             anchor="right"
@@ -46,13 +46,7 @@ const formWrapper = (ChildComponent) => (props) => {
                     <ChildComponent {...props} />
                 </Grid>
                 <Grid container sx={{display:'flex', flexDirection:'column', background:'lightblue'}}>
-                    {submitBtn ? (
-                        <Grid item>
-                        <Button variant="text" sx={{ color:'#0a2af2cf', padding:'10px', fontSize:'1rem', width: '100%', fontFamily:'bold' }} onClick={submitBtn}>
-                            Submit
-                        </Button>
-                    </Grid>
-                    ) : backPage ? (
+                    {backPage ? (
                         <Grid item>
                         <Button variant="text" sx={{ color:'#0a2af2cf', padding:'10px', fontSize:'1rem', width: '100%', fontFamily:'bold' }} onClick={backPage}>
                             Back

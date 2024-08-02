@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import LeftPanel from './Leftpanel';
 import '../css/dashboardstyles.css'
-import { Box, LinearProgress } from '@mui/material';
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, Snackbar, SnackbarContent } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
 import { getDataIds } from '../selectors/incomeselectors';
 import { bind, getCurrentMonth, getErrorMessage } from '../utils/utils';
 import FormContainer from './FormContainer';
-import { getDepartmentsAPI, getOrgAPI, getProfilesAPI, getUsersAPI, logout } from '../actions/APIActions';
+import { getDepartmentsAPI, getOrgAPI, getProfilesAPI, getSessionsAPI, getUsersAPI, logout } from '../actions/APIActions';
+
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -17,6 +18,7 @@ class DashboardLayout extends Component {
         type:'',
         id:''
       },
+      isConfirmationPopup:{title:''},
       isFormLoading: false
     }
     this.dueWithMobile = {};
@@ -25,7 +27,9 @@ class DashboardLayout extends Component {
     this.isSyncInProgress = false;
     const methods = [
       'logout',
-      'handleFormType'
+      'handleFormType',
+      'setConfirmPopupObj',
+      'getAlertContent'
     ]
     bind.apply(this, methods);
   }
@@ -36,6 +40,25 @@ class DashboardLayout extends Component {
         id
     }
     })
+  }
+  setConfirmPopupObj(obj){
+    this.setState({isConfirmationPopup:obj});
+  }
+
+  getAlertContent(){
+    const { appConfig, closeAlert } = this.props;
+    const { alertOptions } = appConfig
+    const { type, message } = alertOptions;
+    return (
+      <Snackbar
+        open={true}
+        autoHideDuration={type == 'success' ? 5000 : undefined} // Duration in milliseconds (here, 6 seconds)
+        onClose={() => type == 'success' && closeAlert()} // Function to handle closing
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Position
+      >
+        <Alert severity={type} onClose={closeAlert}>{message}</Alert>
+      </Snackbar>
+    )
   }
   componentDidMount(){
     const { userObj, getDatas } = this.props;
@@ -63,6 +86,8 @@ class DashboardLayout extends Component {
         getModuleAPI = getUsersAPI;
       }else if(formType == 'profiles'){
         getModuleAPI = getProfilesAPI;
+      }else if(formType == 'sessions'){
+        getModuleAPI = getSessionsAPI;
       }
       getModuleAPI && getModuleAPI(1).then(res=>{
         console.log(res);
@@ -80,13 +105,16 @@ class DashboardLayout extends Component {
   }
   render() {
     const { 
-      isMobile
+      isMobile,
+      appConfig
     } = this.props
     const { 
       isLoading,
       formObj,
-      isFormLoading
+      isFormLoading,
+      isConfirmationPopup
     } = this.state;
+    const { alertOptions } = appConfig;
     return (
       <Box sx={{display:'flex',flexDirection:'column'}}>
         {isLoading ? (
@@ -101,8 +129,23 @@ class DashboardLayout extends Component {
             alignItems: 'stretch'
           }}
       >
-        
-        { false ? (
+        {
+          isConfirmationPopup.title ? (
+            <Dialog open={true} onClose={()=>{}}>
+              <DialogTitle>{isConfirmationPopup.title}</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  {isConfirmationPopup.message}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={()=>this.setConfirmPopupObj({title:''})}>Cancel</Button>
+                <Button onClick={isConfirmationPopup.confirmFn()}>Ok</Button>
+              </DialogActions>
+            </Dialog>
+          ) :null
+        }
+        { alertOptions.type ? (
           this.getAlertContent()
         ) : null }
         {isMobile ? (
@@ -124,7 +167,7 @@ class DashboardLayout extends Component {
           </>
         )}
         {formObj.type ? (
-          <FormContainer isFormLoading={isFormLoading} formObj={formObj} handleFormType={this.handleFormType}/>
+          <FormContainer setConfirmPopupObj={this.setConfirmPopupObj} isFormLoading={isFormLoading} formObj={formObj} handleFormType={this.handleFormType}/>
         ) : null}
       </Box>
       </Box>
@@ -136,12 +179,14 @@ class DashboardLayout extends Component {
 const mapStateToProps = (state,props)=>{
   const { 
     module,
-    user
+    user,
+    appConfig
   } = state;
   const { isMobile } = props;
   return {
     userObj:user,
-      isMobile
+    isMobile,
+    appConfig
   }
 }
 

@@ -9,7 +9,8 @@ import { authenticate } from '../actions/APIActions';
 import { changePathName, getLocalStorageData, setLocalStorageData } from '../utils/utils';
 
 import { Navigate } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 class LoginPage extends Component {
   constructor(props) {
     super(props);
@@ -17,7 +18,13 @@ class LoginPage extends Component {
       username: '',
       password: '',
       error: '',
+      showPassword:false
     };
+    this.setShowPassword = this.setShowPassword.bind(this);
+  }
+  setShowPassword(){
+    const { showPassword } = this.state;
+    this.setState({showPassword:!showPassword})
   }
   componentDidMount(){
     const userObj = getLocalStorageData('userObj');
@@ -52,7 +59,7 @@ class LoginPage extends Component {
   };
 
   render() {
-    const { username, password, error } = this.state;
+    const { username, password, error, showPassword } = this.state;
     const { isNavigateNeed, currentPath } = this.props
     return (
       isNavigateNeed ? <Navigate to={currentPath} replace />  :
@@ -91,13 +98,26 @@ class LoginPage extends Component {
             <TextField
               label="Password"
               variant="outlined"
-              type="password"
+              type={showPassword ? "text" : 'password'}
               name="password"
               value={password}
               onChange={this.handleInputChange}
               margin="normal"
               fullWidth
               required
+              InputProps={{
+                endAdornment: (
+                <InputAdornment position="end">
+                    <IconButton
+                    aria-label="Toggle password visibility"
+                    onClick={()=>this.setShowPassword(!showPassword)}
+                    edge="end"
+                    >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                </InputAdornment>
+                )
+            }}
               style={{ borderColor: '#ccc', borderRadius: 4 }}
             />
             <Button variant="contained" type="submit" color="primary" style={{ marginTop: 15 }}>

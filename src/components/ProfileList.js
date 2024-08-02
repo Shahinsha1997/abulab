@@ -9,7 +9,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 const ProfilesList = ({
     setFormObj,
-    isFormLoading
+    isFormLoading,
+    deleteBtn
 }) => {
 const profiles = useSelector(getProfilesArr);
 const styles = {
@@ -18,6 +19,10 @@ const styles = {
     '&:hover': {
         backgroundColor: '#f0f0f0', // Adjust background color on hover
     }
+}
+
+const deleteProfile = (id)=>{
+  deleteBtn({title:'Delete the Profile', message:'Are you sure, you want to delete the profile?', confirmFn:()=>{}})
 }
 return (
     <Container maxWidth="sm">
@@ -38,7 +43,7 @@ return (
                            <EditIcon onClick={() => setFormObj('profiles',id)} />
                           </IconButton>
                           <IconButton sx={{ mr: 1, color:'#ff0000db' }} edge="end" aria-label="delete">
-                            <DeleteIcon onClick={() => {}} />
+                            <DeleteIcon onClick={() =>deleteProfile(id)} />
                           </IconButton>
                         </ListItemButton>
                         }>

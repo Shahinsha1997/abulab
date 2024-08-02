@@ -762,4 +762,20 @@ export const getInitials = (name)=>{
     if (!name) return '';
     const names = name.split(' ');
     return names.reduce((acc, curr) => acc + curr.charAt(0), '').toUpperCase();
-  }
+}
+
+export const getAccessSystemType = (userAgent)=>{
+    userAgent = userAgent.toLowerCase();
+    if (userAgent.indexOf('win') !== -1) {
+        return 'Windows';
+      } else if (userAgent.indexOf('mac') !== -1) {
+        return 'Mac OS';
+      } else if (userAgent.indexOf('linux') !== -1) {
+        return 'Linux';
+      } else if (userAgent.indexOf('android')   
+     !== -1 || userAgent.indexOf('iphone') !== -1 || userAgent.indexOf('ipad') !== -1) {
+        return 'Mobile';
+      } else {
+        return 'unknown';
+      }
+}

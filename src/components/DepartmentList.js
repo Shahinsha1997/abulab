@@ -6,10 +6,11 @@ import { PersonOutlineOutlined, AccountTreeSharp, GroupAddOutlined } from '@mui/
 import { useSelector } from 'react-redux';
 import { getDeptArr } from '../selectors/moduleselectors';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
 const DepartmentsList = ({
     setFormObj,
-    isFormLoading
+    isFormLoading,
+    deleteBtn
 
 }) => {
 const departments = useSelector(getDeptArr);
@@ -19,6 +20,9 @@ const styles = {
     '&:hover': {
         backgroundColor: '#f0f0f0', // Adjust background color on hover
     }
+}
+const disableDept = (id)=>{
+  deleteBtn({title:'Disable the Department', message:'Are you sure, you want to disable the department?', confirmFn:()=>{}})
 }
 return (
     <Container maxWidth="sm">
@@ -39,7 +43,7 @@ return (
                            <EditIcon onClick={() => setFormObj('departments',id)} />
                           </IconButton>
                           <IconButton sx={{ mr: 1, color:'#ff0000db' }} edge="end" aria-label="delete">
-                            <DeleteIcon onClick={() => {}} />
+                            <NotInterestedIcon onClick={() => disableDept(id)} />
                           </IconButton>
                         </ListItemButton>
                         }>

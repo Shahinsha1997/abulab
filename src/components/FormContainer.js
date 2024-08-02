@@ -7,14 +7,16 @@ import DepartmentForm from './DepartmentForm';
 import ProfileForm from './ProfileForm';
 import { useMediaQuery } from '@mui/material';
 import UserForm from './UserForm';
+import SessionList from './SessionList';
 const FormContainer = ({ 
     formObj,
     isFormLoading,
-    handleFormType
+    handleFormType,
+    setConfirmPopupObj
   }) => {
     const {type, id} = formObj;
     const prevForm = ()=>{
-      const page = id ? type : 'settingsPage'
+      const page = (id && id != 'add') ? type : 'settingsPage'
       handleFormType(page, '')
     }
 
@@ -34,9 +36,16 @@ const FormContainer = ({
         form: UserForm,
         title:'Users'
       },
+      'sessions': {
+        list: SessionList,
+        title:'Sessions'
+      },
     };
-    const submitBtn = (datas)=>{
-
+    const submitFn = ()=>{
+      childObj.submitFn();
+    };
+    const deleteBtn = (datas) =>{
+      setConfirmPopupObj(datas)
     }
     const commonProps = {
       backPage: prevForm,
@@ -47,7 +56,7 @@ const FormContainer = ({
       formWidth:'400px',
       isMobile: useMediaQuery('(max-width: 600px)'),
       id,
-      submitBtn: id ? submitBtn : ''
+      deleteBtn
     };
     const getFormComponent = (type, id, props) => {
       const formConfig = formComponents[type];
@@ -60,7 +69,6 @@ const FormContainer = ({
     
       const Component = id ? form : list;
       const formTitle = id ? (id == 'add' ? `Add ${type}` : `Edit ${type}`) : title
-    
       return <Component {...props} title={formTitle} />;
     };
     return (

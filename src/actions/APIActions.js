@@ -57,11 +57,83 @@ export const getDepartmentsAPI = (from)=>{
           })
         .then(res=>res.json())
         .then(res=>{
-            if(res.status == 200){
-                const { response } = res;
+            const { status, response } = res;
+            if(status == 200){
                 resolve(getAsObj(response,'id'))
             }
-            throw response.status
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+
+export const addDepartmentAPI = (payload)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/departments`, {
+            redirect: "follow",
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            body:JSON.stringify(payload),
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { id, status } = res;
+            if(status == 200){
+                resolve({id, ...getAsObj([{id,...payload}],'id')})
+            }
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+export const updateDepartmentAPI = (payload)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/departments/${payload.id}`, {
+            redirect: "follow",
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            body:JSON.stringify(payload),
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { status } = res;
+            if(status == 200){
+                resolve({id:payload.id, ...getAsObj([payload],'id')})
+            }
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+export const getSessionsAPI = (from)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/sessions?from=${from}`, {
+            redirect: "follow",
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { status, response } = res;
+            if(status == 200){
+                resolve(getAsObj(response,'id'))
+            }
+            throw res
             
         })
         .catch(err=>reject(err))
@@ -80,11 +152,11 @@ export const getOrgAPI = (orgId)=>{
           })
         .then(res=>res.json())
         .then(res=>{
-            if(res.status == 200){
-                const { response } = res;
+            const { status, response } = res;
+            if(status == 200){
                 resolve(getAsObj(response,'id'))
             }
-            throw response.status
+            throw res
             
         })
         .catch(err=>reject(err))
@@ -103,17 +175,64 @@ export const getUsersAPI = (from)=>{
           })
         .then(res=>res.json())
         .then(res=>{
-            if(res.status == 200){
-                const { response } = res;
+            const { status, response } = res;
+            if(status == 200){
                 resolve(getAsObj(response,'id'))
             }
-            throw response.status
+            throw res
             
         })
         .catch(err=>reject(err))
     })
 }
-
+export const addUsersAPI = (payload)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/users`, {
+            redirect: "follow",
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            body:JSON.stringify(payload),
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { status, id } = res;
+            if(status == 200){
+                resolve({id, ...getAsObj([{id,...payload}],'id')})
+            }
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+export const updateUsersAPI = (payload)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/users/${payload.id}`, {
+            redirect: "follow",
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            body:JSON.stringify(payload),
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { status } = res;
+            if(status == 200){
+                resolve({id:payload.id, ...getAsObj([payload],'id')})
+            }
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
 export const getProfilesAPI = (from)=>{
     return new Promise((resolve, reject)=>{
         return fetch(`${SERVER_URL}/profiles?from=${from}`, {
@@ -127,11 +246,61 @@ export const getProfilesAPI = (from)=>{
           })
         .then(res=>res.json())
         .then(res=>{
-            if(res.status == 200){
-                const { response } = res;
+            const { status, response } = res;
+            if(status == 200){
                 resolve(getAsObj(response,'id'))
             }
-            throw response.status
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+
+export const addProfileAPI = (payload)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/profiles`, {
+            redirect: "follow",
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            body:JSON.stringify(payload),
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { status, id } = res;
+            if(status == 200){
+                resolve({id, ...getAsObj([{id,...payload}],'id')})
+            }
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+
+export const updateProfileAPI = (payload)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/profiles/${payload.id}`, {
+            redirect: "follow",
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            body:JSON.stringify(payload),
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { status } = res;
+            if(status == 200){
+                resolve({id:payload.id, ...getAsObj([payload],'id')})
+            }
+            throw res
             
         })
         .catch(err=>reject(err))

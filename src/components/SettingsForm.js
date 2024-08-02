@@ -4,6 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, Button, Tex
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import { PersonOutlineOutlined, AccountTreeSharp, GroupAddOutlined } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
+import ManageAccountsRoundedIcon from '@mui/icons-material/ManageAccountsRounded';
 const SettingsPopup = ({
     setFormObj
 }) => {
@@ -30,6 +31,12 @@ const listItems = {
     id: 'profiles',
     name: 'Profiles'
   },
+  'sessions' : {
+    icon: <ManageAccountsRoundedIcon />,
+    id: 'sessions',
+    name: 'Sessions',
+    isAddNeeded:false
+  },
 }
 
 return (
@@ -38,9 +45,10 @@ return (
         <Grid item>
           <List>
             {Object.values(listItems).map(item=>{
-              const { icon, id, name } = item;
+              const { icon, id, name, isAddNeeded=true } = item;
               return (
                 <ListItem sx={styles} key={id} secondaryAction={
+                  isAddNeeded ? (
                   <ListItemButton sx={{'&:hover' : {backgroundColor: 'transparent' }}}>
                     <IconButton sx={{ mr: 1, color:'#4300ffa6' }} edge="end" aria-label="Add">
                      <AddIcon onClick={(e) => {
@@ -48,7 +56,7 @@ return (
                       setFormObj(id,'add')}
                       } />
                     </IconButton>
-                  </ListItemButton>
+                  </ListItemButton> ) :null
                   }  onClick={()=>setFormObj(id)}>
                     <ListItemIcon>
                       {icon}
