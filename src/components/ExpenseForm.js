@@ -5,7 +5,11 @@ import { Alert, Container, Grid, InputAdornment } from '@mui/material';
 import { FormControlLabel, Checkbox } from '@mui/material';
 import { EXPENSE_LABEL, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, isFormErrorFound, setLocalStorageData } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
-
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs';
+import { DateTimePicker } from '@mui/x-date-pickers';
+// import { format } from 'date-fns';
 const ExpenseForm = ({
     toggleDrawer,
     isAdmin,
@@ -32,6 +36,10 @@ const ExpenseForm = ({
         setState({...state, ...initialState})
       },[formType])
       const handleInputChange = (event, val) => {
+        if(event.$d){
+            setState((prevState) => ({ ...prevState, time: new Date(event.$d).getTime()}));
+            return setErrorState({})
+        }
         let { name='drName', value } = event.target;
         if(name == 'adminVisibilty' || name == 'isExternalLab'){
           value = val;
@@ -63,7 +71,7 @@ const handleExpenseSubmit = (event)=>{
     }
     const payload = Object.assign({
         uuid: uuid,
-        time: isAddForm ? Date.now() : time,
+        time: time,
         patientId: '', 
         name: getFullName(),
         mobileNumber: '', 
@@ -93,7 +101,8 @@ const {
     status, 
     totalAmount, 
     adminVisibilty,
-    isExternalLab 
+    isExternalLab,
+    time
 } = state;
 const { 
     name: nameError, 
@@ -124,12 +133,26 @@ return(
                 {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
             </Grid>
             {isAdmin ? (
+                <>
                 <Grid item>
-                <FormControlLabel
-                    control={<Checkbox name='adminVisibilty' checked={adminVisibilty} onChange={handleInputChange} />}
-                    label="Visibility to Only Admin"
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDayjs} >
+                        <DateTimePicker
+                            sx={{minWidth:'100%'}}
+                            label="Select Date Time"
+                            value={dayjs(time)}
+                            onChange={handleInputChange}
+                            name='time'
+                            format='DD/MM/YYYY hh:mm a'
+                        />
+                    </LocalizationProvider>
                 </Grid>
+                <Grid item>
+                    <FormControlLabel
+                        control={<Checkbox name='adminVisibilty' checked={adminVisibilty} onChange={handleInputChange} />}
+                        label="Visibility to Only Admin"
+                        />
+                </Grid>
+                </>
             ) : null}
             <Grid item>
                 <FormControlLabel
