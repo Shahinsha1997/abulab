@@ -80,7 +80,7 @@ const appointmentReducer = (state = {}, action={}) => {
     }
   };
 const moduleReducer = (state = {}, action={}) => {
-  const { res={}, module } = action.payload || {}
+  const { res={}, module, id, newData } = action.payload || {}
   const { obj } = res;
   const existObj = {...state[module]}
     switch (action.type) {
@@ -93,7 +93,6 @@ const moduleReducer = (state = {}, action={}) => {
          ...obj
         };
       case MODIFY_DATA:
-        const { id, newData } = action.payload;
         // Check if the data with the given ID exists
         return state[id]
           ? {

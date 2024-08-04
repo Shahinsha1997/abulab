@@ -9,6 +9,15 @@ import { bind, getCurrentMonth, getErrorMessage } from '../utils/utils';
 import FormContainer from './FormContainer';
 import { getDepartmentsAPI, getOrgAPI, getProfilesAPI, getSessionsAPI, getUsersAPI, logout } from '../actions/APIActions';
 
+import io from 'socket.io-client';
+import { configSocket } from '../utils/socket';
+
+const socket = io('http://localhost:8443', {
+      transports: ['websocket'],
+      cors: {
+        origin: "http://localhost:3000/",
+      }
+  });
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -61,8 +70,9 @@ class DashboardLayout extends Component {
     )
   }
   componentDidMount(){
-    const { userObj, getDatas } = this.props;
+    const { userObj, getDatas, logoutUser } = this.props;
     const { orgId } = userObj;
+    configSocket({socket, logoutUser})
     getOrgAPI(orgId).then(res=>{
       console.log(res);
       this.setState({isFormLoading:false})
@@ -140,7 +150,7 @@ class DashboardLayout extends Component {
               </DialogContent>
               <DialogActions>
                 <Button onClick={()=>this.setConfirmPopupObj({title:''})}>Cancel</Button>
-                <Button onClick={isConfirmationPopup.confirmFn()}>Ok</Button>
+                <Button onClick={isConfirmationPopup.confirmFn}>Ok</Button>
               </DialogActions>
             </Dialog>
           ) :null

@@ -306,3 +306,26 @@ export const updateProfileAPI = (payload)=>{
         .catch(err=>reject(err))
     })
 }
+export const deleteSessionAPI = (id)=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${SERVER_URL}/sessions/${id}`, {
+            redirect: "follow",
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'session': getLocalStorageData('sessionId','',false)
+            },
+            credentials:'include'
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { status } = res;
+            if(status == 200){
+                resolve(res)
+            }
+            throw res
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
