@@ -300,8 +300,8 @@ export const sortIds = (ids,obj,key)=>ids.sort(function(a, b){return obj[b][key]
 export const fieldFilterArr = (ids, obj, field)=>{
     const categorizedIds = {}
     ids.forEach(id => {
-        const { [field]:fieldName } = obj[id]; 
-      
+        let { [field]:fieldName } = obj[id]; 
+        fieldName = fieldName.toString();
         if (!categorizedIds[fieldName.toLowerCase()]) {
           categorizedIds[fieldName.toLowerCase()] = []; 
         }
