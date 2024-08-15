@@ -356,7 +356,7 @@ class DashboardLayout extends Component {
       { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
       { label: 'Admin Panel', icon: adminSection ? <AdminPanelSettingsTwoToneIcon/> : <AdminPanelSettingsIcon />, handleClick:this.toggleAdminSection },
       { label: 'Add', icon: <AddIcon />, handleClick:(e)=>handleClick(e,'addPopup')},
-      { label: 'Personal Expenses', icon: page == PERSONAL_EXPENSE_VIEW ? <RequestQuoteOutlinedIcon/> : <RequestQuoteIcon />, handleClick: ()=>this.setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)},
+      { label: 'Personal', icon: page == PERSONAL_EXPENSE_VIEW ? <RequestQuoteOutlinedIcon/> : <RequestQuoteIcon />, handleClick: ()=>this.setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)},
       { label: 'More', icon: <MoreVertIcon/>, handleClick: (e)=>handleClick(e,'morePopup') },
     ];
     const addOptions = [
