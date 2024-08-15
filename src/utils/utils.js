@@ -6,6 +6,7 @@ export const OUTSTANDING_LABEL = 'Outstanding';
 export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss.','Mast.'];
 export const ONE_DAY_IN_MS = 24*60*60*1000
 export const APPOINTMENTS_VIEW = 'Appointments_View';
+export const PERSONAL_EXPENSE_VIEW = 'PERSONAL_EXPENSE_VIEW';
 export const LAB_VIEW = 'Lab_View'
 export const TABLE_VIEW = 'TABLE_VIEW';
 export const LIST_VIEW = 'LIST_VIEW'
@@ -372,6 +373,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     let totalDiscount = 0;
     let patientCount = 0;
     let externalLabAmount = 0 ;
+    let personalExpenseAmount = 0;
     const getByTime = (id, type) =>{
             if(typeof resultObj[type] == 'undefined'){
                 resultObj[type] = {
@@ -389,6 +391,8 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
                 resultObj[type].expense = resultObj[type].expense + parseInt(totalAmount)
                 if(['endocare','micro lab'].includes(name.toLowerCase().trim()) || name.toLowerCase().includes('|external lab')){
                     externalLabAmount += parseInt(totalAmount);
+                }else if(name.toLowerCase().includes('|personal expense')){
+                    personalExpenseAmount += parseInt(totalAmount);
                 }
             }else{
                 const {income, expense, outstanding, discount:resDiscount=0 } = resultObj[type];
@@ -452,7 +456,8 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         totalOutstanding, 
         totalDiscount, 
         patientCount,
-        externalLabAmount
+        externalLabAmount,
+        personalExpenseAmount
     };
 }
 
@@ -505,7 +510,10 @@ export const getEditedFormProperties = (properties={}, testObj={})=>{
                 break;
             }
         }
-        if(name.toLowerCase().includes('|admin only')){
+        if(name.toLowerCase().includes('|personal expense')){
+            updatedProperties['name'] = name.replace('|Personal Expense|Admin Only','');
+        }
+        else if(name.toLowerCase().includes('|admin only')){
             updatedProperties['name'] = name.replace('|Admin Only','');
             updatedProperties['adminVisibilty'] = true;
         }

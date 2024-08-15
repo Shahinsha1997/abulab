@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
@@ -22,6 +22,8 @@ import SyncIcon from '@mui/icons-material/Sync';
 import TableViewIcon from '@mui/icons-material/TableView';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { getDataIds } from '../selectors/incomeselectors';
+import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteTwoTone';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -250,6 +252,7 @@ class DashboardLayout extends Component {
     const isProfitFilter = ['profit','profitByDoc'].includes(typeFilter);
     let { 
       dataIds, 
+      personalExpenseIds,
       filteredByStatus, 
       filteredByDrName, 
       data, 
@@ -267,7 +270,7 @@ class DashboardLayout extends Component {
     })
     this.dueWithMobile = dueWithMobile;
     this.patientIdObj = patientIdObj
-    dataIds = (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredByStatus[typeFilter.toLowerCase()] || dataIds) || [];
+    dataIds = (page == PERSONAL_EXPENSE_VIEW ? personalExpenseIds : (docInput ? filteredByDrName[docInput.toLowerCase()] : filteredByStatus[typeFilter.toLowerCase()] || dataIds || []).filter(id=>!personalExpenseIds.includes(id)));
     dataIds = getTimeFilter({dataIds, timeFilter, timeInput, data});
     if(isProfitFilter && timeFilter == 'All'){
       showAlert({'type': 'info', 'message':'Profit Values will be shown except All in Time Frame'})
@@ -353,18 +356,24 @@ class DashboardLayout extends Component {
       { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
       { label: 'Admin Panel', icon: adminSection ? <AdminPanelSettingsTwoToneIcon/> : <AdminPanelSettingsIcon />, handleClick:this.toggleAdminSection },
       { label: 'Add', icon: <AddIcon />, handleClick:(e)=>handleClick(e,'addPopup')},
-      { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page == LAB_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},
+      { label: 'Personal Expenses', icon: page == PERSONAL_EXPENSE_VIEW ? <RequestQuoteOutlinedIcon/> : <RequestQuoteIcon />, handleClick: ()=>this.setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)},
       { label: 'More', icon: <MoreVertIcon/>, handleClick: (e)=>handleClick(e,'morePopup') },
     ];
-    !isAdmin && options.splice(1,1)
     const addOptions = [
       { label: 'Add Income', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addIncome')}},
       { label: 'Add Expense', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addExpenses')} },
+      { label: 'Add Personal Expenses', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addPersonalExpenses')} },
       { label: 'Add/Update Test', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addTests')} },
       { label: 'Add Appointment', icon: <AddIcon />, handleClick:()=>window.open('/appointments','_self') },
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
     ];
+    if(!isAdmin){
+      options.splice(1,1);
+      options.splice(2,1)
+      addOptions.splice(2,1)
+    }
     let moreOptions = [
+      { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page != APPOINTMENTS_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},
       { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
       { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
       { label: `Switch to ${viewType == LIST_VIEW ? 'Table View' : 'List View'}`, icon: viewType == LIST_VIEW ? <TableViewIcon /> : <ListAltIcon />, handleClick: ()=>{handleClose();this.toggleViewType()} },
@@ -375,7 +384,7 @@ class DashboardLayout extends Component {
     const poupOptions = popupType == 'addPopup' ? addOptions : moreOptions;
       return ( 
         <Box sx={{display:'flex', flexDirection:'row'}}>
-           <Grid container sx={{ display: 'flex', flexShrink:0 }} spacing={options.length == 5 ? 1.5 : 7}>
+           <Grid container sx={{ display: 'flex', flexShrink:0 }} spacing={options.length == 5 ? 1.5 : 15}>
         {options.map((option, index) => (
           <Grid item key={option.label}>
             <IconButton onClick={option.handleClick} sx={{color:'white', ...option.sx, fontSize:['0.7rem','1rem','1.3rem']}}> 
@@ -552,6 +561,7 @@ const mapStateToProps = (state,props)=>{
   const { isAdmin, id } = user;
   const { 
     dataIds, 
+    personalExpenseIds,
     filteredByDrName, 
     filteredByStatus, 
     datas:data, 
@@ -560,6 +570,7 @@ const mapStateToProps = (state,props)=>{
   return {
     data,
     dataIds,
+    personalExpenseIds,
     filteredByStatus,
     filteredByDrName, 
     isAdmin,

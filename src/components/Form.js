@@ -13,6 +13,7 @@ import { APPOINTMENTS_VIEW, EXPENSE_LABEL, getAmountVal, getAsObj, getEditedForm
 import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
 import TestForm from './TestForm';
+import PersonalExpenseForm from './PersonalExpenseForm';
 const Form = ({
   addData,
   data,
@@ -35,7 +36,7 @@ const Form = ({
   const isAddForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('add') != -1
   const isIncomeForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
   const isMobile = useMediaQuery('(max-width: 600px)');
-  
+  const isPersonalExpense = formType == 'addPersonalExpenses' || (data[formType] && data[formType].name.indexOf("Personal Expense") != -1)
   const toggleDrawer = (open) => (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -58,7 +59,7 @@ const Form = ({
                   }
                 >
                     <Typography gutterBottom style={{fontSize: '1.5rem'}} component="div">
-                     {formType == 'addTests' ? 'Add Test Form' : isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} Expenses`}
+                     {formType == 'addTests' ? 'Add Test Form' : isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} ${isPersonalExpense ? 'Personal' : ''} Expenses`}
                     </Typography>
                 </ListItem>
             </List>
@@ -92,6 +93,17 @@ const Form = ({
                 showAlert={showAlert}
                 testArr={testArr}
                 multiTestAdd={multiTestAdd}
+              />
+            ) : isPersonalExpense ? (
+              <PersonalExpenseForm
+                formType={formType}
+                data={data}
+                toggleDrawer={toggleDrawer}
+                isAdmin={isAdmin}
+                isAddForm={isAddForm}
+                showAlert={showAlert}
+                addData={addData}
+                setSyncStatus={setSyncStatus}
               />
             ): (
               <ExpenseForm

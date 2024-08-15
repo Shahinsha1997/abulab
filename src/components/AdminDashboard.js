@@ -113,7 +113,8 @@ const AdminDashBoard=({
         totalOutstanding,
         totalDiscount,
         patientCount,
-        externalLabAmount
+        externalLabAmount,
+        personalExpenseAmount
     } = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
     let {
         totalIncome: previousTotalIncome, 
@@ -121,7 +122,8 @@ const AdminDashBoard=({
         totalOutstanding : previousTotalOutstanding,
         totalDiscount: previousTotalDiscount,
         patientCount: previousPatientCount,
-        externalLabAmount: prevExternalLabAmount
+        externalLabAmount: prevExternalLabAmount,
+        personalExpenseAmount: prevPersonalExpenseAmount
     } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
     const previousProfit = previousTotalIncome - previousTotalDiscount - previousTotalExpense
     const profit = totalIncome - totalDiscount - totalExpense
@@ -130,6 +132,7 @@ const AdminDashBoard=({
         getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome, current: totalIncome, desc:'(Paid Amount)'}),
         getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense}),
         getCard({name: 'External Lab Expense', type: 'externalLab', previous: prevExternalLabAmount, current: externalLabAmount}),
+        getCard({name: 'Personal Expense', type: 'personalExpense', previous: prevPersonalExpenseAmount, current: personalExpenseAmount}),
         getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),
         getCard({name: 'Discount Panel', type: 'discount', previous: previousTotalDiscount, current: totalDiscount}),
         getCard({name: 'Patient Panel', type: 'patient', previous: previousPatientCount, current: patientCount}),

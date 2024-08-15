@@ -7,17 +7,14 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PrintIcon from '@mui/icons-material/Print';
 import useMediaQuery from '@mui/material/useMediaQuery'; 
 import SyncIcon from '@mui/icons-material/Sync';
-import ReactToPrint from 'react-to-print';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import { APPOINTMENTS_VIEW, LAB_VIEW, clearCache, getLocalStorageData, printPage } from '../utils/utils';
+import { APPOINTMENTS_VIEW, LAB_VIEW, PERSONAL_EXPENSE_VIEW, clearCache, getLocalStorageData, printPage } from '../utils/utils';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
-import PersonIcon from '@mui/icons-material/Person';
 import { useTheme } from '@mui/material/styles'; 
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
 import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteTwoTone';
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -55,6 +52,9 @@ const LeftPanel = ({
   const handleAddExpensesClick = () => {
     toggleForm('addExpenses')
   };
+  const handleAddPersonalExpenses = () => {
+    toggleForm('addPersonalExpenses')
+  };
   const handleAddTest = () =>{
     toggleForm('addTests')
   }
@@ -62,7 +62,10 @@ const LeftPanel = ({
     clearCache();
   }
   const handleAppointmentsPage = ()=>{
-    setPage(page == LAB_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)
+    setPage(page != APPOINTMENTS_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)
+  }
+  const handlePersonalExpensePage = ()=>{
+    setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)
   }
 
   const handleLogoutClick = () => {
@@ -106,108 +109,6 @@ const LeftPanel = ({
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: "65%", maxHeight:'65%', overflow:'auto'  }}>
-        {isMobile ? (
-          <>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={toggleFilterPopup}>
-              <Tooltip
-                title={'Filter'}
-                placement="top"
-                disableInteractive={theme.breakpoints.down('sm')}
-              >
-              <FilterAltIcon color="primary" />
-              </Tooltip>
-            </Box>
-          
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-income-btn" onClick={handleAddIncomeClick}>
-              <Tooltip
-                title={'Add Income'}
-                placement="top"
-                disableInteractive={theme.breakpoints.down('sm')}
-              >
-              <AddIcon color="primary" />
-              </Tooltip>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-expenses-btn" onClick={handleAddExpensesClick}>
-            <Tooltip
-                title={'Add Expenses'}
-                placement="top"
-                disableInteractive={theme.breakpoints.down('sm')}
-              >
-              <AddIcon color="primary" />
-              </Tooltip>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-test-btn" onClick={handleAddTest}>
-              <Tooltip
-                  title={'Add/Edit Test'}
-                  placement="top"
-                  disableInteractive={theme.breakpoints.down('sm')}
-                >
-                <AddIcon color="primary" />
-              </Tooltip>
-            </Box>
-            {isAdmin && (
-              <>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="add-appointment-btn" onClick={()=>window.open('/appointments','_self')}>
-              <Tooltip
-                  title={'Add Appointment'}
-                  placement="top"
-                  disableInteractive={theme.breakpoints.down('sm')}
-                >
-                <AddIcon color="primary" />
-              </Tooltip>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="sync-now-btn" onClick={handleAppointmentsPage}>
-                <Tooltip
-                  title={`${page == APPOINTMENTS_VIEW ? 'Hide ' : 'Show ' } Appointments`}
-                  placement="top"
-                  disableInteractive={theme.breakpoints.down('sm')}
-                >
-                  {page == APPOINTMENTS_VIEW ? (
-                    <EventTwoToneIcon color="primary" />
-                 ): (
-                   <EventSharpIcon color="primary" />
-                  )}
-                </Tooltip>
-              </Box>
-              </>
-            )}
-            {syncNow ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="sync-now-btn" onClick={syncNow}>
-                <Tooltip
-                title={'Sync Now'}
-                placement="top"
-                disableInteractive={theme.breakpoints.down('sm')}
-              >
-                <SyncIcon color="primary" />
-                </Tooltip>
-              </Box>
-            ) : null}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="clear-cache-btn" onClick={handleClearCache}>
-              <Tooltip
-                  title={'Clear Cache'}
-                  placement="top"
-                  disableInteractive={theme.breakpoints.down('sm')}
-                >
-                <NotInterestedIcon color="primary" />
-              </Tooltip>
-            </Box>
-            {isAdmin && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} id="clear-cache-btn" onClick={toggleAdminSection}>
-              <Tooltip
-                  title={'Admin Panel'}
-                  placement="top"
-                  disableInteractive={theme.breakpoints.down('sm')}
-                >
-                {adminSection ? (
-                  <AdminPanelSettingsTwoToneIcon color="primary" />
-                ): (
-                  <AdminPanelSettingsIcon color="primary" />
-                )}
-              </Tooltip>
-            </Box>
-            )}
-          </>
-        ) : (
           <>
             <Button variant="contained" startIcon={<AddIcon />} id="add-income-btn" onClick={handleAddIncomeClick}>
               Add Income
@@ -215,6 +116,11 @@ const LeftPanel = ({
             <Button variant="contained" startIcon={<AddIcon />} id="add-expenses-btn" onClick={handleAddExpensesClick}>
                 Add Expenses
             </Button>
+            {isAdmin && (
+              <Button variant="contained" startIcon={<AddIcon />} id="add-expenses-btn" onClick={handleAddPersonalExpenses}>
+                Add Personal Expenses
+              </Button>
+            )}
             <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest}>
                 Add/Edit Test
             </Button>
@@ -222,10 +128,15 @@ const LeftPanel = ({
               <Button variant="contained" startIcon={<AddIcon />} id="add-appoinment-btn" onClick={()=>window.open('/appointments','_self')}>
                   Add Appointment
               </Button>
-              <Button variant="contained" startIcon={<EventSharpIcon />} id="show-appoinment-btn" onClick={handleAppointmentsPage}>
+              <Button variant="contained" startIcon={page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>} id="show-appoinment-btn" onClick={handleAppointmentsPage}>
                   {`${page == APPOINTMENTS_VIEW ? 'Hide ' : 'Show ' } Appointments`}
               </Button>
             </>
+            {isAdmin && (
+              <Button variant="contained" startIcon={page == PERSONAL_EXPENSE_VIEW ? <RequestQuoteOutlinedIcon/> :<RequestQuoteIcon />} id="show-appoinment-btn" onClick={handlePersonalExpensePage}>
+                {`${page == PERSONAL_EXPENSE_VIEW ? 'Hide ' : 'Show ' } Personal Expenses`}
+              </Button>
+            )}
             {syncNow ? (
             <Button variant="contained" startIcon={<SyncIcon />} id="sync-now-btn" onClick={syncNow} sx={{ padding: '8px 16px',  }}>
               Sync Now
@@ -240,7 +151,6 @@ const LeftPanel = ({
             </Button>
             )}
         </>
-      )}
     </Box>
     <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center' }}>
     {isAdmin && false && (
