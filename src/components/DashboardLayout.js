@@ -181,21 +181,25 @@ class DashboardLayout extends Component {
     const apiMethod = type == 'addTest' ? addTestDataAPI : addDataAPI 
     const reducerMethod = type == 'addTest' ? multiTestAdd : multiAdd
     setLocalStorageData('lastSyncTime', Date.now());
+    const handleBeforeunload = (e)=>{e.preventDefault()}
     if((addPendingDatas.length > 0 || updatePendingDatas.length > 0  || addTestDatas.length > 0) && !this.isSyncInProgress){
       this.isSyncInProgress = true;
-      this.setSyncStatus(false)
+      this.setSyncStatus(false);
+      window.addEventListener('beforeunload', handleBeforeunload);
       return apiMethod(type).then((res)=>{
         reducerMethod({data:res})
         showAlert({type: 'success', message: getMessages(type).success})
         this.setSyncStatus(true)
         this.isSyncInProgress = false;
         scheduleSync(this.syncNowDatas, showAlert)
+        window.removeEventListener('beforeunload',handleBeforeunload); 
         this.setState({
           addTry: 0,
           updateTry : 0,
           addTestTry: 0
         }, ()=>this.syncNowDatas())
       }).catch(err=>{
+        window.removeEventListener('beforeunload',handleBeforeunload); 
         this.setSyncStatus(false)
         this.isSyncInProgress = false;
         if(addTry > 5 || updateTry > 5 || addTestTry > 5){

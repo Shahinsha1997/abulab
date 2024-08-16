@@ -2,9 +2,9 @@ import { getAsObj, getLocalStorageData, setCacheDatas, setCacheTestDatas, setLoc
 
 const getDataUrl = ()=>{
     if(location.hostname == 'localhost'){
-        return 'https://script.google.com/macros/s/AKfycbwBlSvdGkaKljFvuwfOmdGuPVegEmZ08i7Eh8IsRVZ0tKSyePevkS0JGVlArPXNyODk/exec'
+        return 'https://script.google.com/macros/s/AKfycbwFtlsVMi2WaEqvquqX1rejNvlA1_19vulTG517MZeoBtgyum9y3HdJf8bnUQKtJrsHBQ/exec'
     }
-    return 'https://script.google.com/macros/s/AKfycbykiEI6Q_SDAg4athDiWmnhFGkX6hkhktvjYdmQCCiJd2VsPEJUgJhEs95YCKy1O5Cvhg/exec'
+    return 'https://script.google.com/macros/s/AKfycbwliMCeyobekGzB1efZ4l1wrDYvL-fj8rWBIYOMcM4c7ngBH07_6_RY03pC_4w3hXCPxg/exec'
 }
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbyzv_FekWZBKuK7gw2m-jqVdVtXAG_IJLRw9RTEFOvy2RDMYFZD2nwqN4WGvJidxYLG/exec'
 const DATA_URL = getDataUrl();
