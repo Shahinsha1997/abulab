@@ -33,7 +33,7 @@ const Form = ({
   patientIdObj,
   setDetailViewId
 }) => {
-  const isAddForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('add') != -1
+  const isAddForm = (page == APPOINTMENTS_VIEW && data[formType]) || (!data[formType] && formType.indexOf('add') != -1)
   const isIncomeForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
   const isMobile = useMediaQuery('(max-width: 600px)');
   const isPersonalExpense = formType == 'addPersonalExpenses' || (data[formType] && data[formType].name.indexOf("Personal Expense") != -1)
