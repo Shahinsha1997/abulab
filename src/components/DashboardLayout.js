@@ -384,7 +384,7 @@ class DashboardLayout extends Component {
       { label: 'Logout', icon: <LogoutIcon disabled={isLogoutDisabled} sx={{color:'red'}} />, sx:{color:'red'}, handleClick: logoutUser },
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
     ];
-   !isSyncNowNeeded() && moreOptions.splice(0,1)
+   !isSyncNowNeeded() && moreOptions.splice(1,1)
     const poupOptions = popupType == 'addPopup' ? addOptions : moreOptions;
       return ( 
         <Box sx={{display:'flex', flexDirection:'row'}}>
