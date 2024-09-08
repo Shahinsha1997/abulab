@@ -41,7 +41,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
                         <Grid item sx={{display:'flex'}}>
                             <Typography>{time}</Typography>
                         </Grid>
-                        {!drName.toLowerCase().includes('self') &&(
+                        {drName && !drName.toLowerCase().includes('self') &&(
                             <Grid item sx={{display:'flex'}}>
                                 <Typography>{drName}</Typography>
                             </Grid>

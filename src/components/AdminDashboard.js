@@ -34,7 +34,8 @@ import { getDatasByProfit, getTimeFilter } from '../utils/utils';
 const AdminDashBoard=({
     allDataIds,
     data,
-    filterObj
+    filterObj,
+    isAdmin
 })=>{
     const isMobile = useMediaQuery('(max-width: 600px)');
     const [numCardsPerRow, setNumCardsPerRow] = useState(isMobile ? 1 : 2)
@@ -125,18 +126,21 @@ const AdminDashBoard=({
         externalLabAmount: prevExternalLabAmount,
         personalExpenseAmount: prevPersonalExpenseAmount
     } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
-    const previousProfit = previousTotalIncome - previousTotalDiscount - previousTotalExpense
-    const profit = totalIncome - totalDiscount - totalExpense
-    const cards = [
-        getCard({name: 'Profit Panel', type: 'profit', previous: previousProfit, current: profit, desc:"(Paid Amount - Expense - Discount)"}),
+    const previousProfit = previousTotalIncome - previousTotalExpense
+    const profit = totalIncome - totalExpense;
+    let cards = [getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),];
+    if(isAdmin){
+       cards = [
+        getCard({name: 'Profit Panel', type: 'profit', previous: previousProfit, current: profit, desc:"(Paid Amount - Expense)"}),
         getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome, current: totalIncome, desc:'(Paid Amount)'}),
-        getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense}),
+        getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense, desc:"(All except personal expense)"}),
         getCard({name: 'External Lab Expense', type: 'externalLab', previous: prevExternalLabAmount, current: externalLabAmount}),
         getCard({name: 'Personal Expense', type: 'personalExpense', previous: prevPersonalExpenseAmount, current: personalExpenseAmount}),
         getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),
         getCard({name: 'Discount Panel', type: 'discount', previous: previousTotalDiscount, current: totalDiscount}),
         getCard({name: 'Patient Panel', type: 'patient', previous: previousPatientCount, current: patientCount}),
     ];
+    }
     useEffect(() => {
         const containerWidth = containerRef.current.offsetWidth;
         const cardWidth = 400;

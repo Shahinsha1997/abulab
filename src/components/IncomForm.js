@@ -104,6 +104,7 @@ const IncomeForm = ({
       status,
       drName,
       description,
+      modifiedTime: Date.now(),
       discount : getAmountVal(discount),
       totalAmount : getAmountVal(totalAmount), 
       paidAmount:  getAmountVal(paidAmount), 

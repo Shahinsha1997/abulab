@@ -4,7 +4,7 @@ const getDataUrl = ()=>{
     if(location.hostname == 'localhost'){
         return 'https://script.google.com/macros/s/AKfycbwFtlsVMi2WaEqvquqX1rejNvlA1_19vulTG517MZeoBtgyum9y3HdJf8bnUQKtJrsHBQ/exec'
     }
-    return 'https://script.google.com/macros/s/AKfycbwliMCeyobekGzB1efZ4l1wrDYvL-fj8rWBIYOMcM4c7ngBH07_6_RY03pC_4w3hXCPxg/exec'
+    return 'https://script.google.com/macros/s/AKfycbxi9ArTgNgvKTXr62Yfyb4n-jONbnuzIu7QKi_vY9447nqIGGQMDRxGKLzuZsitMlYFQw/exec'
 }
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbyzv_FekWZBKuK7gw2m-jqVdVtXAG_IJLRw9RTEFOvy2RDMYFZD2nwqN4WGvJidxYLG/exec'
 const DATA_URL = getDataUrl();

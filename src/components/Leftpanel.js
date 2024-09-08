@@ -8,13 +8,14 @@ import PrintIcon from '@mui/icons-material/Print';
 import useMediaQuery from '@mui/material/useMediaQuery'; 
 import SyncIcon from '@mui/icons-material/Sync';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import { APPOINTMENTS_VIEW, LAB_VIEW, PERSONAL_EXPENSE_VIEW, clearCache, getLocalStorageData, printPage } from '../utils/utils';
+import { APPOINTMENTS_VIEW, DUEALARM_VIEW, LAB_VIEW, PERSONAL_EXPENSE_VIEW, clearCache, getLocalStorageData, printPage } from '../utils/utils';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { useTheme } from '@mui/material/styles'; 
 import EventSharpIcon from '@mui/icons-material/EventSharp';
 import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteTwoTone';
+import CampaignIcon from '@mui/icons-material/CampaignOutlined';
 const LeftPanel = ({ 
   isAdmin, 
   logoutUser, 
@@ -25,7 +26,8 @@ const LeftPanel = ({
   adminSection,
   setPage,
   page,
-  toggleFilterPopup
+  toggleFilterPopup,
+  isDueAlarmNeeded
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); 
   const [dateTime, setDateTime] = useState(new Date().toLocaleString("en-GB", {
@@ -33,7 +35,8 @@ const LeftPanel = ({
       month: "short",
       year: "numeric"
     }));
-  const [time, setTime] = useState()
+  const [time, setTime] = useState();
+  const [alarmColor, setAlarmColor] = useState('white');
   setTimeout(()=>{
     let date = new Date();
     date  = date.toLocaleString("en-GB", {
@@ -43,6 +46,7 @@ const LeftPanel = ({
         hour12: true
       });
       setTime(date)
+      setAlarmColor(alarmColor == 'white' ? 'yellow' : 'white')
   },1000)
 
   const handleAddIncomeClick = () => {
@@ -66,6 +70,9 @@ const LeftPanel = ({
   }
   const handlePersonalExpensePage = ()=>{
     setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)
+  }
+  const handleDueAlarmPage = ()=>{
+    setPage(page != DUEALARM_VIEW ? DUEALARM_VIEW : LAB_VIEW)
   }
 
   const handleLogoutClick = () => {
@@ -124,6 +131,10 @@ const LeftPanel = ({
             <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest}>
                 Add/Edit Test
             </Button>
+            <Button variant="contained" id="add-test-btn" onClick={handleDueAlarmPage}>
+                Due Follow Up
+                {isDueAlarmNeeded && <CampaignIcon sx={{paddingLeft:'10px', fontSize:'35px', color:alarmColor}} />}
+            </Button>
             <>
               <Button variant="contained" startIcon={<AddIcon />} id="add-appoinment-btn" onClick={()=>window.open('/appointments','_self')}>
                   Add Appointment
@@ -145,11 +156,9 @@ const LeftPanel = ({
             <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache}>
                 Clear Cache
             </Button>
-            {isAdmin && (
             <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection}>
-                  {adminSection ? 'Hide' : 'Show'} Admin Panel
+                  {adminSection ? 'Hide' : 'Show'} {isAdmin ? 'Admin' : 'Due'} Panel
             </Button>
-            )}
         </>
     </Box>
     <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'space-between', alignItems: 'center' }}>

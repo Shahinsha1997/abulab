@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { fieldFilterArr, getDrNameList, selectn } from '../utils/utils';
+import { fieldFilterArr, getDrNameList, isDueAlarmNeeded, selectn } from '../utils/utils';
 
 
 const getDatas = state=> state.data;
@@ -46,7 +46,8 @@ export const getDataIds = createSelector(
         const keys = Object.keys(datas);
         const sortedKeys = keys.sort(function(a, b){return datas[b].time-datas[a].time});
         const filteredByStatus = fieldFilterArr(sortedKeys,datas,'status');
-        const filteredByDrName = fieldFilterArr(sortedKeys,datas,'drName')
+        const filteredByDrName = fieldFilterArr(sortedKeys,datas,'drName');
+        const isDueAlarmNeed = isDueAlarmNeeded(filteredByStatus.outstanding, datas);
         const drNamesList = getDrNameList(datas,sortedKeys)
         foundDuplicates(datas);
         const personalExpenseIds = keys.filter(id=>(selectn(`${id}.name`,datas)|| '').toLowerCase().includes('|personal expense'));
@@ -56,7 +57,8 @@ export const getDataIds = createSelector(
             filteredByDrName, 
             filteredByStatus, 
             datas, 
-            drNamesList
+            drNamesList,
+            isDueAlarmNeeded:isDueAlarmNeed
         }
     }
 )

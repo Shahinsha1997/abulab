@@ -331,6 +331,7 @@ const RightPanel = ({
                     allDataIds={allDataIds} 
                     data={data}
                     filterObj={filterObj}
+                    isAdmin={isAdmin}
                   />
                 </Box>
               ): (

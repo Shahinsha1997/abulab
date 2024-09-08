@@ -7,6 +7,7 @@ export const PREFIX_NAMES_LIST = ['Mrs.','Mr.','Baby.','Miss.','Mast.'];
 export const ONE_DAY_IN_MS = 24*60*60*1000
 export const APPOINTMENTS_VIEW = 'Appointments_View';
 export const PERSONAL_EXPENSE_VIEW = 'PERSONAL_EXPENSE_VIEW';
+export const DUEALARM_VIEW = 'DueAlarm_View';
 export const LAB_VIEW = 'Lab_View'
 export const TABLE_VIEW = 'TABLE_VIEW';
 export const LIST_VIEW = 'LIST_VIEW'
@@ -125,6 +126,53 @@ export const getFormFields = (fieldType)=>{
                 label: 'Comments / Remarks',
                 'maxWidth': '150px'
             }
+        },
+        [DUEALARM_VIEW] : {
+            'isScheduled' : {
+                id: 'isScheduled',
+                label: 'More Options',
+                'maxWidth': '50px'
+            },
+            'time' : {
+                id: 'time',
+                label: 'Date & Time',
+                'maxWidth': '120px'
+            },
+            'patientId' : {
+                id: 'patientId',
+                label: 'Patient ID',
+                'maxWidth': '75px'
+            },
+            'name' : {
+                id: 'name',
+                label: 'Name',
+                'maxWidth': '120px'
+            },
+            'mobileNumber' : {
+                id: 'mobileNumber',
+                label: 'Mobile Number',
+                'maxWidth': '75px'
+            },
+            'totalAmount' : {
+                id: 'totalAmount',
+                label: 'Total Amount',
+                'maxWidth': '100px'
+            },
+            'dueAmount' : {
+                id: 'dueAmount',
+                label: 'Due Amount',
+                'maxWidth': '80px'
+            },
+            'comments' : {
+                id: 'comments',
+                label: 'Comments / Remarks',
+                'maxWidth': '150px'
+            },
+            'status' : {
+                id: 'status',
+                label: 'Status',
+                'maxWidth': '75px'
+            },
         },
         'profit' : {
             'time' : {
@@ -311,6 +359,36 @@ export const fieldFilterArr = (ids, obj, field)=>{
     return categorizedIds;
 }
 
+export const isDueAlarmNeeded = (ids=[], obj) =>{
+    let isDueAlarmNeeded = false;
+    const currentTime = Date.now();
+    const minimumTime = currentTime - (15 * ONE_DAY_IN_MS )
+    const maxTime = currentTime - (60 * ONE_DAY_IN_MS)
+    const modifyMinTime = currentTime - (7 * ONE_DAY_IN_MS )
+    for(let i=0;i<ids.length;i++){
+        const { time, comments, modifiedTime } = obj[ids[i]];
+        if((maxTime <= time && time <= minimumTime && comments == '') ||(comments !='' && modifiedTime <= modifyMinTime)){
+            isDueAlarmNeeded = true;
+            break;
+        }
+    }
+    return isDueAlarmNeeded;
+}
+export const getDueAlarmedDatas = (ids=[],obj) =>{
+    let dueAlarmedDataIds = [];
+    const currentTime = Date.now();
+    const minimumTime = currentTime - (15 * ONE_DAY_IN_MS )
+    const maxTime = currentTime - (60 * ONE_DAY_IN_MS)
+    const modifyMinTime = currentTime - (7 * ONE_DAY_IN_MS )
+    for(let i=0;i<ids.length;i++){
+        const { time, comments, modifiedTime } = obj[ids[i]];
+        if((maxTime <= time && time <= minimumTime && comments == '') ||(comments !='' && modifiedTime <= modifyMinTime)){
+            dueAlarmedDataIds.push(obj[ids[i]]);
+        }
+    }
+    return dueAlarmedDataIds;
+}
+
 export const getUniQueIds = (ids) =>{
     const uniqueIds = [];
     const seen = new Set();
@@ -387,12 +465,14 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
             const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0, name='' } = object[id];
            
             if(status == EXPENSE_LABEL){
-                totalExpense += parseInt(totalAmount) 
-                resultObj[type].expense = resultObj[type].expense + parseInt(totalAmount)
-                if(['endocare','micro lab'].includes(name.toLowerCase().trim()) || name.toLowerCase().includes('|external lab')){
-                    externalLabAmount += parseInt(totalAmount);
-                }else if(name.toLowerCase().includes('|personal expense')){
+                if(name.toLowerCase().includes('|personal expense')){
                     personalExpenseAmount += parseInt(totalAmount);
+                }else{
+                    if(['endocare','micro lab'].includes(name.toLowerCase().trim()) || name.toLowerCase().includes('|external lab')){
+                        externalLabAmount += parseInt(totalAmount);
+                    }
+                    totalExpense += parseInt(totalAmount) 
+                    resultObj[type].expense = resultObj[type].expense + parseInt(totalAmount)
                 }
             }else{
                 const {income, expense, outstanding, discount:resDiscount=0 } = resultObj[type];

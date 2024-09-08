@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
@@ -15,7 +15,7 @@ import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSetting
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { CloseOutlined } from '@mui/icons-material';
+import { CampaignOutlined, CloseOutlined } from '@mui/icons-material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import SyncIcon from '@mui/icons-material/Sync';
@@ -75,7 +75,8 @@ class DashboardLayout extends Component {
       'getRightPanel',
       'getBottomPanel',
       'toggleViewType',
-      'deleteData'
+      'deleteData',
+      'toggleDueFollowPage'
     ]
     bind.apply(this, methods);
   }
@@ -129,6 +130,10 @@ class DashboardLayout extends Component {
     if(page == APPOINTMENTS_VIEW){
       this.getAppoinmentDatas();
     }
+  }
+  toggleDueFollowPage(){
+    const { page } = this.state;
+    this.setPage(page == DUEALARM_VIEW ? LAB_VIEW : DUEALARM_VIEW);
   }
   toggleAdminSection(){
     const { adminSection, page } = this.state;
@@ -282,6 +287,9 @@ class DashboardLayout extends Component {
     if(page == APPOINTMENTS_VIEW){
       tableColumns = Object.values(getFormFields(APPOINTMENTS_VIEW));
       dataIds = getAppoinmentsData(Object.values(appointmentObj))
+    }else if(page == DUEALARM_VIEW){
+      tableColumns = Object.values(getFormFields(DUEALARM_VIEW));
+      dataIds = getDueAlarmedDatas(filteredByStatus.outstanding, data)
     }
     else if(isProfitFilter && timeFilter != 'All'){
       let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
@@ -339,7 +347,8 @@ class DashboardLayout extends Component {
       isAdmin, 
       appConfig, 
       isLogoutDisabled, 
-      isMobile
+      isMobile,
+      isDueAlarmNeeded
     } = this.props
     const { 
       filteredDataIds, 
@@ -357,7 +366,7 @@ class DashboardLayout extends Component {
     this.setState({addPopup: null});
   };
     let options = [
-      { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
+      { label: 'Due Followup', icon: <CampaignOutlined sx={{fontSize:'25px', color:isDueAlarmNeeded ? 'yellow': 'white'}} />, handleClick:this.toggleDueFollowPage },
       { label: 'Admin Panel', icon: adminSection ? <AdminPanelSettingsTwoToneIcon/> : <AdminPanelSettingsIcon />, handleClick:this.toggleAdminSection },
       { label: 'Add', icon: <AddIcon />, handleClick:(e)=>handleClick(e,'addPopup')},
       { label: 'Personal', icon: page == PERSONAL_EXPENSE_VIEW ? <RequestQuoteOutlinedIcon/> : <RequestQuoteIcon />, handleClick: ()=>this.setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)},
@@ -377,6 +386,7 @@ class DashboardLayout extends Component {
       addOptions.splice(2,1)
     }
     let moreOptions = [
+      { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
       { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page != APPOINTMENTS_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},
       { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
       { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
@@ -493,7 +503,8 @@ class DashboardLayout extends Component {
       isAdmin, 
       appConfig, 
       isLogoutDisabled, 
-      isMobile
+      isMobile,
+      isDueAlarmNeeded
     } = this.props
     const { 
       filteredDataIds, 
@@ -543,6 +554,7 @@ class DashboardLayout extends Component {
               setPage={this.setPage}
               page={page}
               toggleFilterPopup={this.toggleFilterPopup}
+              isDueAlarmNeeded={isDueAlarmNeeded}
             />
           {this.getRightPanel()}
           </>
@@ -569,7 +581,8 @@ const mapStateToProps = (state,props)=>{
     filteredByDrName, 
     filteredByStatus, 
     datas:data, 
-    drNamesList 
+    drNamesList,
+    isDueAlarmNeeded
   } = getDataIds(state);
   return {
     data,
@@ -584,7 +597,8 @@ const mapStateToProps = (state,props)=>{
     testArr: Object.values(testArr),
     testObj: getAsObj(Object.values(testArr),'testName').obj,
     appointmentObj,
-    isMobile
+    isMobile,
+    isDueAlarmNeeded
   }
 }
 
