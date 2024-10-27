@@ -490,7 +490,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
             }
     }
     ids.map((id)=>{
-        const date = new Date(id);
+        const date = new Date(object[id].time);
         if(typeFilter == 'profitByDoc'){
             if(object[id].drName){
                 getByTime(id, object[id].drName)
@@ -520,7 +520,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
             const timeArr = ['12AM','1AM','2AM','3AM','4AM','5AM','6AM','7AM','8AM','9AM','10AM','11AM','12PM','1PM','2PM','3PM','4PM','5PM','6PM','7PM','8PM','9PM','10PM','11PM'];
             time = timeArr[key]
         }else if(timeFilter == 'MonthWise'){
-            const date = new Date(ids[0]);
+            const date = new Date(object[ids[0]].time);
             const month = date.getMonth();
             time = (key == 1 ? `${key}st` : key == 2 ? `${key}nd` : key == 3 ? `${key}rd` : `${key}th`) + ' ' + monthList[month];
         }else{
