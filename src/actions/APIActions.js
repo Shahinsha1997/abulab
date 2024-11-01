@@ -2,10 +2,10 @@ import { getAsObj, getLocalStorageData, setCacheDatas, setCacheTestDatas, setLoc
 
 const getDataUrl = ()=>{
     if(location.hostname == 'localhost'){
-        // return 'http://localhost:8443'
-        return 'https://shahinshaas-2642.zcodeusers.com';
+        return 'http://localhost:8443'
+        
     }
-    return 'https://script.google.com/macros/s/AKfycbxi9ArTgNgvKTXr62Yfyb4n-jONbnuzIu7QKi_vY9447nqIGGQMDRxGKLzuZsitMlYFQw/exec'
+    return 'https://shahinshaas-2642.zcodeusers.com';
 }
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbyzv_FekWZBKuK7gw2m-jqVdVtXAG_IJLRw9RTEFOvy2RDMYFZD2nwqN4WGvJidxYLG/exec'
 const DATA_URL = getDataUrl();
