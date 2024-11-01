@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Grid, Card, CardContent, Typography, Box, ListItemIcon, ListItemText, List, ListItem } from '@mui/material';
 import { FixedSizeList } from 'react-window';
-import { OUTSTANDING_LABEL, getCellFormattedVal, sendWhatsappMessage } from '../utils/utils';
+import { API_FETCH_LIMIT, OUTSTANDING_LABEL, getCellFormattedVal, sendWhatsappMessage } from '../utils/utils';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import BiotechSharpIcon from '@mui/icons-material/BiotechSharp';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -90,7 +90,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
     )
 }
 
-  const VirtualizedCardList = ({ items, toggleForm, isAdmin, deleteData, setDetailViewId }) => {
+  const VirtualizedCardList = ({ items, applyFilters, filterObj, toggleForm, isAdmin, deleteData, setDetailViewId }) => {
     const [popupRef, setPopupRef] = useState('');
     const [popupType, setPopupType] = useState('');
     const [popupOptions, setPopupOptions] = useState([])
@@ -129,6 +129,15 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
         }
         setPopupOptions(options)
     }
+    const handleScroll = ({ scrollDirection, scrollOffset, scrollUpdateWasRequested }) => {
+        if (scrollDirection === 'forward' && !scrollUpdateWasRequested ) {
+          const bottomOffset = 5; // Load more when 50px from the bottom
+          const listHeight = 800; // Height defined in List component
+          if (scrollOffset > items.length * 140 - listHeight - bottomOffset) {
+            applyFilters({...filterObj, from: filterObj.from + API_FETCH_LIMIT})
+          }
+        }
+      };
     return (
     <Box sx={{minWidth:'100wh', overflow:'hidden', flexShrink:0, display:'flex',}}>
         <FixedSizeList
@@ -137,6 +146,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
             width={'100%'}
             itemSize={140} 
             itemData={items}
+            onScroll={handleScroll}
         >
         {({ index, style }) => (
             <Box style={{ ...style}}>
@@ -149,21 +159,24 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
   };
 const printableCard = ({
     tableData, 
+    tableDataIds,
     tableColumns, 
     filterObj, 
     toggleForm,
     isAdmin,
     isFetching,
     deleteData,
-    setDetailViewId
+    setDetailViewId,
+    applyFilters
 })=>{
-
     const { typeFilter, timeFilter } = filterObj;
     const filterType = timeFilter != 'All' ? typeFilter : ''
-    const rows = tableData.map((row, index) => {
-        const resp = {id: `${(row.uuid || row.drName || row.id)}_${index}`,uuid:row.uuid}
+    const rows = tableDataIds.map((row, index) => {
+        const { uuid, drName, id, status } = tableData[row]
+        const rowData= tableData[row]
+        const resp = {id: `${(uuid || drName || id)}_${index}`, uuid}
         for(let i=0;i<tableColumns.length;i++){
-          resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
+            resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,rowData[tableColumns[i].id],status, filterType)
         }
         resp['isScheduled'] = row['isScheduled']
         return resp
@@ -171,7 +184,7 @@ const printableCard = ({
     return (
         <Grid container justifyContent="center" spacing={2}>
             <Grid item xs={12} md={8}>
-                <VirtualizedCardList items={rows} setDetailViewId={setDetailViewId} toggleForm={toggleForm} isAdmin={isAdmin} deleteData={deleteData}/>
+                <VirtualizedCardList applyFilters={applyFilters} filterObj={filterObj} items={rows} setDetailViewId={setDetailViewId} toggleForm={toggleForm} isAdmin={isAdmin} deleteData={deleteData}/>
             </Grid>
         </Grid>
         );

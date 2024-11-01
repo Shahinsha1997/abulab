@@ -2,7 +2,8 @@ import { getAsObj, getLocalStorageData, setCacheDatas, setCacheTestDatas, setLoc
 
 const getDataUrl = ()=>{
     if(location.hostname == 'localhost'){
-        return 'https://script.google.com/macros/s/AKfycbwFtlsVMi2WaEqvquqX1rejNvlA1_19vulTG517MZeoBtgyum9y3HdJf8bnUQKtJrsHBQ/exec'
+        // return 'http://localhost:8443'
+        return 'https://shahinshaas-2642.zcodeusers.com';
     }
     return 'https://script.google.com/macros/s/AKfycbxi9ArTgNgvKTXr62Yfyb4n-jONbnuzIu7QKi_vY9447nqIGGQMDRxGKLzuZsitMlYFQw/exec'
 }
@@ -25,40 +26,50 @@ export const authenticate = (userName, password) =>{
     })
 }
 
-export const addDataAPI = (type) =>{
-    const pendingKey = type == 'add' ? 'addPendingDatas' : 'updatePendingDatas'
-    const inProgressKey = type == 'add' ? 'addInProgressDatas' : 'updateInProgressDatas'
-    const data = getLocalStorageData(pendingKey, '[]');
-    const inProgressData = getLocalStorageData(inProgressKey, '[]');
-    setLocalStorageData(inProgressKey,[...inProgressData, ...data])
-    setLocalStorageData(pendingKey,[]);
+export const addDataAPI = (data) =>{
     return new Promise((resolve, reject)=>{
-        return fetch(DATA_URL, {
+        return fetch(`${DATA_URL}/api/v1/labRecord`, {
             redirect: "follow",
             method: 'POST',
-            body: JSON.stringify({"payload": [...inProgressData, ...data], "type": type}), 
+            body: JSON.stringify(data), 
             headers: {
-                "Content-Type": "text/plain;charset=utf-8",
+                "Content-Type": "application/json",
             }
           })
         .then(res=>res.json())
-        .then(response=>{
-            console.log(response)
-            if(response.status == 200){
-                setLocalStorageData(inProgressKey,[]);
-                // return resolve(setCacheDatas(getAsObj(response.data,'uuid',false)))
-                return getDataAPI().then((res)=>{
-                    return resolve(res)
-                })
+        .then(res=>{
+            const { id, status } = res;
+            if(status == 200){
+                resolve(id)
             }
-            setLocalStorageData(pendingKey,[...inProgressData, ...data])
-            setLocalStorageData(inProgressKey,[]);
-            throw response.status
+            throw status
             
         })
         .catch(err=>{
-            setLocalStorageData(pendingKey,[...inProgressData, ...data])
-            setLocalStorageData(inProgressKey,[]);
+            reject(err)
+        })
+    })
+}
+export const updateDataAPI = (data) =>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${DATA_URL}/api/v1/labRecord/${data.uuid}`, {
+            redirect: "follow",
+            method: 'PUT',
+            body: JSON.stringify(data), 
+            headers: {
+                "Content-Type": "application/json",
+            }
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { id, status } = res;
+            if(status == 200){
+                resolve(id)
+            }
+            throw status
+            
+        })
+        .catch(err=>{
             reject(err)
         })
     })
@@ -66,19 +77,15 @@ export const addDataAPI = (type) =>{
 export const deleteDataAPI = (uuid)=>{
     const userObj = getLocalStorageData('userObj',{})
     return new Promise((resolve, reject)=>{
-        return fetch(`${DATA_URL}`, {
+        return fetch(`${DATA_URL}/api/v1/labRecord/${uuid}?userId=${userObj.id}`, {
             redirect: "follow",
-            method: 'POST',
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8",
-            },
-            body: JSON.stringify({"payload": {uuid,userId:userObj.id},type:'delete'}), 
+            method: 'DELETE' 
           })
         .then(res=>res.json())
         .then(response=>{
             console.log(response)
             if(response.data || response.status == 200){
-                resolve(setCacheDatas({obj:uuid, type:'DELETE'}))
+                resolve(uuid)
             }
             throw response.status;
             
@@ -86,24 +93,21 @@ export const deleteDataAPI = (uuid)=>{
         .catch(err=>reject(err))
     })
 }
-export const getDataAPI = ()=>{
-    const lastRowId = getLocalStorageData('lastCallTime','', false);
-    setLocalStorageData('lastCallTime',Date.now())
+export const getDataAPI = ({from, searchField, sortField, sortOrder, searchStr, timeFrom, timeTo})=>{
+//     const lastRowId = getLocalStorageData('lastCallTime','', false);
+//     setLocalStorageData('lastCallTime',Date.now())
     const userObj = getLocalStorageData('userObj',{})
     return new Promise((resolve, reject)=>{
-        return fetch(`${DATA_URL}?type=AbuLabReport&userId=${userObj.id}${lastRowId ? '&lastRowId='+lastRowId : ''}`, {
+        return fetch(`${DATA_URL}/api/v1/labRecord?userId=${userObj.id}&from=${from}&searchField=${searchField}&sortField=${sortField}&sortOrder=${sortOrder}&searchStr=${searchStr}&timeFrom=${timeFrom}&timeTo=${timeTo}`, {
             redirect: "follow",
-            method: 'GET',
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8",
-            }
+            method: 'GET'
           })
         .then(res=>res.json())
-        .then(response=>{
-            if(response.data || response.status == 200){
-                const { data } = response;
-                const { obj, ids } = getAsObj(data,'uuid',false)
-                resolve(setCacheDatas({obj, ids:sortIds(ids, obj,'time')}))
+        .then(res=>{
+            const { response=[], status } = res;
+            if(response || status == 200){
+                console.log("Data", response)
+                resolve(getAsObj(response,'uuid',false))
             }
             throw response.status
             
@@ -111,21 +115,66 @@ export const getDataAPI = ()=>{
         .catch(err=>reject(err))
     })
 }
+
+export const getDueDataAPI = ({from})=>{
+    //     const lastRowId = getLocalStorageData('lastCallTime','', false);
+    //     setLocalStorageData('lastCallTime',Date.now())
+        const userObj = getLocalStorageData('userObj',{})
+        return new Promise((resolve, reject)=>{
+            return fetch(`${DATA_URL}/api/v1/dueDatas?userId=${userObj.id}&from=${from}`, {
+                redirect: "follow",
+                method: 'GET'
+              })
+            .then(res=>res.json())
+            .then(res=>{
+                const { response=[], status } = res;
+                if(response || status == 200){
+                    console.log("Data", response)
+                    resolve(getAsObj(response,'uuid',false))
+                }
+                throw response.status
+                
+            })
+            .catch(err=>reject(err))
+        })
+    }
+
 
 export const getTestDataAPI = ()=>{
     return new Promise((resolve, reject)=>{
-        return fetch(`${DATA_URL}?type=TestData`, {
+        return fetch(`${DATA_URL}/api/v1/testRecord`, {
             redirect: "follow",
             method: 'GET',
             headers: {
-                "Content-Type": "text/plain;charset=utf-8",
+                "Content-Type": "application/json",
             }
           })
         .then(res=>res.json())
-        .then(response=>{
-            if(response.data || response.status == 200){
-                const { data } = response;
-                resolve(setCacheTestDatas(getAsObj(data,'testId')))
+        .then(res=>{
+            const { response, status } = res;
+            if(response || status == 200){
+                resolve(getAsObj(response,'testId'))
+            }
+            throw response.status
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+export const getDocDataAPI = () =>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${DATA_URL}/api/v1/doctor`, {
+            redirect: "follow",
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+            }
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { response, status } = res;
+            if(response || status == 200){
+                resolve(response)
             }
             throw response.status
             
@@ -134,38 +183,52 @@ export const getTestDataAPI = ()=>{
     })
 }
 
-
-export const addTestDataAPI = () =>{
-    const pendingKey = 'addTestDatas'
-    const inProgressKey = 'addInProgressTestDatas'
-    const data = getLocalStorageData(pendingKey, '[]');
-    const inProgressData = getLocalStorageData(inProgressKey, '[]');
-    setLocalStorageData(inProgressKey,[...inProgressData, ...data])
-    setLocalStorageData(pendingKey,[]);
+export const addTestDataAPI = (data) =>{
+    const userObj = getLocalStorageData('userObj',{})
     return new Promise((resolve, reject)=>{
-        return fetch(DATA_URL, {
+        return fetch(`${DATA_URL}/api/v1/testRecord?userId=${userObj.id}`, {
             redirect: "follow",
             method: 'POST',
-            body: JSON.stringify({"payload": [...inProgressData, ...data], "type": 'TestData'}), 
+            body: JSON.stringify(data), 
             headers: {
-                "Content-Type": "text/plain;charset=utf-8",
+                "Content-Type": "application/json"
             }
           })
         .then(res=>res.json())
-        .then(response=>{
-            console.log(response)
-            if(response.status == 200){
-                setLocalStorageData(inProgressKey,[]);
-                return resolve(setCacheTestDatas(getAsObj(data,'testId')))
+        .then(res=>{
+            const { id, status } = res;
+            if(status == 200){
+                return resolve(id)
             }
-            setLocalStorageData(pendingKey,[...inProgressData, ...data])
-            setLocalStorageData(inProgressKey,[]);
-            throw response.status
+            throw status
             
         })
         .catch(err=>{
-            setLocalStorageData(pendingKey,[...inProgressData, ...data])
-            setLocalStorageData(inProgressKey,[]);
+            reject(err)
+        })
+    })
+}
+export const updateTestDataAPI = (data,id) =>{
+    const userObj = getLocalStorageData('userObj',{})
+    return new Promise((resolve, reject)=>{
+        return fetch(`${DATA_URL}/api/v1/testRecord/${id}?userId=${userObj.id}`, {
+            redirect: "follow",
+            method: 'PUT',
+            body: JSON.stringify(data), 
+            headers: {
+                "Content-Type": "application/json"
+            }
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { response, status } = res;
+            if(status == 200){
+                return resolve(response)
+            }
+            throw status
+            
+        })
+        .catch(err=>{
             reject(err)
         })
     })
@@ -206,6 +269,51 @@ export const getAppointmentDatasAPI = ()=>{
             if(response.data || response.status == 200){
                 const { data } = response;
                 resolve(getAsObj(data,'uuid'))
+            }
+            throw response.status
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+
+export const getDashboardAPI = ({timeFrom, timeTo})=>{
+    const userObj = getLocalStorageData('userObj',{})
+    return new Promise((resolve, reject)=>{
+        return fetch(`${DATA_URL}/api/v1/dashboard?userId=${userObj.id}&timeFrom=${timeFrom}&timeTo=${timeTo}`, {
+            redirect: "follow",
+            method: 'GET',
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+            }
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { response, status } = res;
+            if(response || status == 200){
+                resolve(response)
+            }
+            throw response.status
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+export const getAPILimitDatas = ()=>{
+    const userObj = getLocalStorageData('userObj',{})
+    return new Promise((resolve, reject)=>{
+        return fetch(`${DATA_URL}/api/v1/lab/apiusage?userId=${userObj.id}`, {
+            redirect: "follow",
+            method: 'GET',
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+            }
+          })
+        .then(res=>res.json())
+        .then(res=>{
+            const { response, status } = res;
+            if(response || status == 200){
+                resolve(response)
             }
             throw response.status
             

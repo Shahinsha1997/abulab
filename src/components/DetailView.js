@@ -19,13 +19,14 @@ const DetailView = ({
     isAdmin,
     dataIds,
     nextRecord,
-    prevRecord
+    prevRecord,
+    data
 }) => {
     const isMobile = useMediaQuery('(max-width: 600px)');
     id = parseInt(id)
     const handleEdit = ()=>{
         setDetailViewId('')
-        toggleForm((dataIds[id].uuid || '').toString())
+        toggleForm((data[dataIds[id]].uuid || '').toString())
     }
     useEffect(() => {
       const handleKeyDown = (event) => {
@@ -55,7 +56,7 @@ const DetailView = ({
         namePrefix: 'Mrs.',
         status:INCOME_LABEL,
         uuid:''
-        }, ...(getEditedFormProperties(dataIds[id],testObj))})
+        }, ...(getEditedFormProperties(data[dataIds[id]],testObj))})
 
     const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix, status } = initialState;
     const dueAmount = (totalAmount-discount-paidAmount)

@@ -4,9 +4,9 @@ import RightPanel from './RightPanel';
 import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
-import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas } from '../utils/utils';
-import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
+import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData, multiDocAdd } from '../dispatcher/action';
+import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, parseDate, API_FETCH_LIMIT } from '../utils/utils';
+import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getDocDataAPI, getDueDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
 import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
@@ -29,8 +29,6 @@ class DashboardLayout extends Component {
     super(props)
     this.state={
       formType: '',
-      from: 1,
-      limit: 50,
       previousId: '',
       filteredDataIds:[],
       isFetching: false,
@@ -39,7 +37,13 @@ class DashboardLayout extends Component {
         timeFilter:'MonthWise', 
         typeFilter:'All',
         timeInput: getCurrentMonth(), 
-        docInput:''
+        docInput:'',
+        from:0,
+        searchStr:'',
+        searchField: '',
+        sortField:'ID',
+        sortOrder:'ASC',
+        isNoMore: false
       },
       page:LAB_VIEW,
       tableColumns: Object.values(getFormFields('allFields')),
@@ -65,7 +69,6 @@ class DashboardLayout extends Component {
       'getFilteredDataIds',
       'getAlertContent',
       'setSyncStatus',
-      'syncNowDatas',
       'toggleAdminSection',
       'setPage',
       'getAppoinmentDatas',
@@ -76,16 +79,23 @@ class DashboardLayout extends Component {
       'getBottomPanel',
       'toggleViewType',
       'deleteData',
-      'toggleDueFollowPage'
+      'toggleDueFollowPage',
+      'getTimeObj'
     ]
     bind.apply(this, methods);
+  }
+  getTimeObj(){
+    const { filterObj} = this.state;
+    const { timeFilter, timeInput } = filterObj;
+    const { startDate, endDate } = parseDate(timeInput)
+    return {timeFrom: startDate, timeTo: endDate}
   }
   deleteData(id){
     const { showAlert, deleteData } = this.props;
     this.setState({isLoading:true})
     deleteDataAPI(id).then(res=>{
       this.setState({isLoading:false})
-      deleteData({'data':{'obj':id}})
+      deleteData({'obj':id, ids:id})
       showAlert({type: 'success', message:"Data deleted Successfully."})
     }).catch(err=>{
       this.setState({isLoading:false})
@@ -122,10 +132,16 @@ class DashboardLayout extends Component {
     this.setState({viewType: viewType == LIST_VIEW ? TABLE_VIEW : LIST_VIEW})
   }
   setPage(page){
-    const { adminSection} = this.state
+    const { adminSection, filterObj} = this.state
     this.setState({
       page,
       adminSection: page == APPOINTMENTS_VIEW ? false : adminSection
+    }, ()=>{
+      let obj = {from : 0, isNoMore: false, searchField: '', searchStr: ''}
+      if(page == PERSONAL_EXPENSE_VIEW){
+        obj = {...obj, searchField:'name',searchStr: 'Personal Expense'}
+      }
+      this.applyFilters({...filterObj, ...obj });
     })
     if(page == APPOINTMENTS_VIEW){
       this.getAppoinmentDatas();
@@ -176,49 +192,7 @@ class DashboardLayout extends Component {
       </Snackbar>
     )
   }
-  syncNowDatas(){
-    const { multiAdd, showAlert, multiTestAdd } = this.props;
-    const { addTry=0, updateTry=0, addTestTry=0 } = this.state;
-    const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
-    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
-    const addTestDatas = getLocalStorageData('addTestDatas','[]');
-    const type = addPendingDatas.length > 0 ? 'add' : updatePendingDatas.length > 0 ? 'update' : 'addTest'
-    const apiMethod = type == 'addTest' ? addTestDataAPI : addDataAPI 
-    const reducerMethod = type == 'addTest' ? multiTestAdd : multiAdd
-    setLocalStorageData('lastSyncTime', Date.now());
-    const handleBeforeunload = (e)=>{e.preventDefault()}
-    if((addPendingDatas.length > 0 || updatePendingDatas.length > 0  || addTestDatas.length > 0) && !this.isSyncInProgress){
-      this.isSyncInProgress = true;
-      this.setSyncStatus(false);
-      window.addEventListener('beforeunload', handleBeforeunload);
-      return apiMethod(type).then((res)=>{
-        reducerMethod({data:res})
-        showAlert({type: 'success', message: getMessages(type).success})
-        this.setSyncStatus(true)
-        this.isSyncInProgress = false;
-        scheduleSync(this.syncNowDatas, showAlert)
-        window.removeEventListener('beforeunload',handleBeforeunload); 
-        this.setState({
-          addTry: 0,
-          updateTry : 0,
-          addTestTry: 0
-        }, ()=>this.syncNowDatas())
-      }).catch(err=>{
-        window.removeEventListener('beforeunload',handleBeforeunload); 
-        this.setSyncStatus(false)
-        this.isSyncInProgress = false;
-        if(addTry > 5 || updateTry > 5 || addTestTry > 5){
-          return showAlert({type: 'error', message:'Please Contact Shahinsha...'})
-        }
-        this.setState({
-          addTry: type == 'add' ? addTry + 1 : addTry,
-          updateTry : type == 'update' ? updateTry + 1 : updateTry,
-          addTestTry: type == 'addTest' ? addTestTry + 1 : addTestTry
-        },()=>this.syncNowDatas(type))
-        showAlert({type: 'error', message:getMessages(type).fail})
-      })
-    }
-  }
+  
 
   toggleForm(formType=''){
     this.setState({
@@ -227,12 +201,15 @@ class DashboardLayout extends Component {
   }
   componentDidMount(){
     const { multiAdd, showAlert, getDatas } = this.props;
-    scheduleSync(this.syncNowDatas, showAlert)
-    const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
-    const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
-    getDatas({data: setCacheDatas({})})
-    this.getAllDatas(()=>multiAdd({data:getAsObj([...pendingDatas, ...updatePendingDatas])}));
-    
+    delete localStorage['dataIds']
+    delete localStorage['datas']
+    delete localStorage['lastCallTime']
+    delete localStorage['testDatas']
+    // scheduleSync(this.syncNowDatas, showAlert)
+    // const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
+    // const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
+    // getDatas({data: setCacheDatas({})})
+    this.getAllDatas(true);
   }
   componentDidUpdate(prevProps, prevState){
     const { dataIds } = this.props;
@@ -241,14 +218,17 @@ class DashboardLayout extends Component {
       timeFilter, 
       typeFilter
     } = filterObj
-    const isIntialLoad =  dataIds.length != filteredDataIds.length && timeFilter == 'All' && typeFilter == 'All'
-    if(prevProps.dataIds.length != dataIds.length){
-      this.setState({previousId:''})
-      this.previousID = ''
+    if(prevState.filterObj != filterObj && !filterObj.isNoMore){
+      return this.getAllDatas()
     }
-    if(prevState.page != page || previousId != prevState.previousId  || isFetching != prevState.isFetching || prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != syncStatus ){
-      this.getFilteredDataIds();
-    };
+    // const isIntialLoad =  dataIds.length != filteredDataIds.length && timeFilter == 'All' && typeFilter == 'All'
+    // if(prevProps.dataIds.length != dataIds.length){
+    //   this.setState({previousId:''})
+    //   this.previousID = ''
+    // }
+    // if(prevState.page != page || previousId != prevState.previousId  || isFetching != prevState.isFetching || prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != syncStatus ){
+    //   this.getFilteredDataIds();
+    // };
   }
   getFilteredDataIds(){
     let { previousId, filterObj, tableColumns, page } = this.state;
@@ -313,18 +293,29 @@ class DashboardLayout extends Component {
       isListHide: false
     })
   }
-  getAllDatas(callbk){
-    const { from , limit } = this.state;
-    const { getDatas, showAlert, logoutUser, multiTestAdd } = this.props;
-    const promises = [getDataAPI(),getTestDataAPI()]
+  getAllDatas(isMounted=false){
+    const { filterObj, limit, page} = this.state;
+    const { from, sortField, sortOrder,searchField, searchStr} = filterObj;
+    const { getDatas, showAlert, logoutUser, multiTestAdd,multiDocAdd } = this.props;
+    const getData = page == DUEALARM_VIEW ? getDueDataAPI : getDataAPI
+    const promises = [getData({from, searchField, sortField, sortOrder, searchStr, ...this.getTimeObj()})]
+    if(isMounted){
+      promises.push(getTestDataAPI())
+      promises.push(getDocDataAPI())
+    } ;
     this.setState({isLoading:true})
+    isMounted && this.setIsFetching(true)
     Promise.all(promises).then(res=>{
     this.setState({isLoading:false})
       const datas = res[0];
       const testDatas = res[1];
-      getDatas({data: datas, from})
-      multiTestAdd({data:testDatas})
-      callbk && callbk();
+      datas.ids.length < API_FETCH_LIMIT && this.applyFilters({...filterObj, isNoMore: true})
+      getDatas({...datas, from})
+      if(isMounted){
+        multiTestAdd({...testDatas})
+        multiDocAdd({arr:res[2]})
+        this.setIsFetching(false)
+      }
     }).catch(err=>{
       this.setState({isLoading:false})
       console.log(err)
@@ -335,11 +326,15 @@ class DashboardLayout extends Component {
     })
   }
   applyFilters(filters){
+    // this.setState({
+    //   filterObj : filters,
+    //   page: LAB_VIEW,
+    //   filterPopup: false
+    // }, this.getFilteredDataIds)
     this.setState({
       filterObj : filters,
-      page: LAB_VIEW,
       filterPopup: false
-    }, this.getFilteredDataIds)
+    })
   }
   getBottomPanel = ()=>{
     const { 
@@ -388,8 +383,8 @@ class DashboardLayout extends Component {
     let moreOptions = [
       { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
       { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page != APPOINTMENTS_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},
-      { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
-      { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
+      // { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
+      // { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
       { label: `Switch to ${viewType == LIST_VIEW ? 'Table View' : 'List View'}`, icon: viewType == LIST_VIEW ? <TableViewIcon /> : <ListAltIcon />, handleClick: ()=>{handleClose();this.toggleViewType()} },
       { label: 'Logout', icon: <LogoutIcon disabled={isLogoutDisabled} sx={{color:'red'}} />, sx:{color:'red'}, handleClick: logoutUser },
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
@@ -460,16 +455,18 @@ class DashboardLayout extends Component {
       isFetching,
       isListHide,
       filterPopup,
-      viewType
+      viewType,
+      isLoading
     } = this.state;
     return (
       <RightPanel 
+        isLoading={isLoading}
         addData={addData} 
         toggleForm={this.toggleForm} 
         formType={formType}
         data={page == APPOINTMENTS_VIEW ? appointmentObj : data}
         allDataIds={dataIds}
-        dataIds={filteredDataIds}
+        dataIds={dataIds}
         multiAdd={multiAdd}
         previousId={previousId}
         setPreviousId={this.setPreviousId}
@@ -510,7 +507,8 @@ class DashboardLayout extends Component {
       filteredDataIds, 
       adminSection,
       page,
-      isLoading
+      isLoading,
+      filterObj
     } = this.state;
     const { alertOptions={} } = appConfig
     return (
@@ -544,13 +542,14 @@ class DashboardLayout extends Component {
           <>
             <LeftPanel
               isAdmin={isAdmin} 
+              applyFilters={this.applyFilters}
+              filterObj={filterObj}
               isLogoutDisabled={isLogoutDisabled} 
               toggleForm={this.toggleForm} 
               logoutUser={logoutUser} 
               patientCount={filteredDataIds.length}
               toggleAdminSection={this.toggleAdminSection}
               adminSection={adminSection}
-              syncNow={isSyncNowNeeded() && this.syncNowDatas}
               setPage={this.setPage}
               page={page}
               toggleFilterPopup={this.toggleFilterPopup}
@@ -572,16 +571,19 @@ const mapStateToProps = (state,props)=>{
     appConfig, 
     testObj:testArr,
     appointmentObj,
+    data={},
+    dataIds=[],
+    doc=[]
   } = state;
   const { isMobile } = props;
   const { isAdmin, id } = user;
   const { 
-    dataIds, 
+    // dataIds, 
     personalExpenseIds,
     filteredByDrName, 
     filteredByStatus, 
-    datas:data, 
-    drNamesList,
+    // datas:data, 
+    // drNamesList,
     isDueAlarmNeeded
   } = getDataIds(state);
   return {
@@ -593,7 +595,7 @@ const mapStateToProps = (state,props)=>{
     isAdmin,
     appConfig,
     isLogoutDisabled: id  == '1714472861155',
-    drNamesList,
+    drNamesList:doc,
     testArr: Object.values(testArr),
     testObj: getAsObj(Object.values(testArr),'testName').obj,
     appointmentObj,
@@ -610,6 +612,7 @@ export default connect(mapStateToProps,{
   closeAlert,
   showAlert,
   multiTestAdd,
+  multiDocAdd,
   multiAppointmentAdd,
   deleteData
 })(DashboardLayout);

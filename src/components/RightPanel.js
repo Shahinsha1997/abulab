@@ -49,7 +49,8 @@ const RightPanel = ({
   filterPopup,
   viewType,
   patientIdObj,
-  deleteData
+  deleteData,
+  isLoading
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
@@ -75,7 +76,7 @@ const RightPanel = ({
         return setDetailViewId(id === '' ? '' : parseInt(id));
       }
       for(let i=0;i<dataIds.length;i++){
-        if(dataIds[i].uuid == id){
+        if(data[dataIds[i]].uuid == id){
           return setDetailViewId(i);
         }
       }
@@ -87,7 +88,7 @@ const RightPanel = ({
     const handleTypeFilter = (e)=>{
         const type = e.target.value;
         setTypeFilter(type)
-        setShowDoctorInput(type === 'Doctor');
+        setShowDoctorInput(type === 'doctor_name');
         setDocInput('')
     }
     const handleInput = (e, value) =>{
@@ -99,13 +100,23 @@ const RightPanel = ({
     }
 
     const handleFilterSubmit = ()=>{
-      setListHide(true)
-      applyFilters({
+      // setListHide(true)
+      const obj = {
+        ...filterObj,
         timeFilter, 
         typeFilter, 
         timeInput, 
-        docInput
-      })
+        docInput,
+        searchField:'',
+        searchStr:'',
+        from:0, 
+        isNoMore:false
+      }
+      if(docInput){
+        obj.searchField = typeFilter;
+        obj.searchStr = docInput
+      }
+      applyFilters(obj)
     }
     const getPlaceholder = () => {
         switch (timeFilter) {
@@ -119,6 +130,19 @@ const RightPanel = ({
             return '';
         }
       };
+
+    const handlePaginationModelChange = ()=>{
+      // const{ from } = filterObj;
+      // setIsLoading(true)
+      // applyFilters({...filterObj, from: from + API_FETCH_LIMIT})
+      // setIsLoading(false)
+    }
+    const handleScroll = () => {
+      // const { scrollTop, scrollHeight, clientHeight } = dataGridRef.current;
+      // if (scrollTop + clientHeight >= scrollHeight - 10 && !isFetching) {
+      //   handlePaginationModelChange();
+      // }
+    };
     return (
       <Box sx={{flexGrow:1, overflow: 'hidden' }}>
         <Box
@@ -180,14 +204,15 @@ const RightPanel = ({
            drNamesList={drNamesList}
            testObj={testObj}
            testArr={testArr}
-           nextRecord={()=>handleDetailViewId(getDetailViewIds({type:'next',dataIds,id:detailViewId}))}
-           prevRecord={()=>handleDetailViewId(getDetailViewIds({type:'prev',dataIds,id:detailViewId}))}
+           nextRecord={()=>handleDetailViewId(getDetailViewIds({type:'next',data,dataIds,id:detailViewId}))}
+           prevRecord={()=>handleDetailViewId(getDetailViewIds({type:'prev',data,dataIds,id:detailViewId}))}
            title={getIdPrefix()+selectn(`${detailViewId}.patientId`,dataIds)}
            formWidth= {isMobile ? '100wh' : '600px'}
            setDetailViewId={handleDetailViewId}
            closePopup={handleDetailViewId}
            dataIds={dataIds}
            isAdmin={isAdmin}
+           data={data}
            />
         ): null}
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height:'200px' }}>
@@ -204,7 +229,7 @@ const RightPanel = ({
                     IconProps={{ color: 'inherit' }}
                     sx={{fontSize: 'inherit', height:isMobile ? '40px' : 'inherit', width:isMobile ? '100px': 'inherit'}}
                 >
-                    <MenuItem value="All">All</MenuItem>
+                    {/* <MenuItem value="All">All</MenuItem> */}
                     <MenuItem value="DayWise">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <CalendarTodayOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} />
@@ -217,12 +242,12 @@ const RightPanel = ({
                         <Typography variant="body2">Month Wise</Typography>
                     </Box>
                     </MenuItem>
-                    <MenuItem value="YearWise">
+                    {/* <MenuItem value="YearWise">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} />
                         <Typography variant="body2">Year Wise</Typography>
                     </Box>
-                    </MenuItem>
+                    </MenuItem> */}
                 </Select>
                 </FormControl>
                 <Box sx={{padding:isMobile ? '0' : "0 20px"}}>
@@ -258,7 +283,7 @@ const RightPanel = ({
                 sx={{fontSize: 'inherit', height:isMobile ? '40px' : 'inherit', width:isMobile ? '100px': 'inherit'}}
                 >
                 <MenuItem value="All">All</MenuItem>
-                <MenuItem value="Income">
+                {/* <MenuItem value="Income">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <AccountBalanceWalletOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} />
                     <Typography variant="body2">Income</Typography>
@@ -273,13 +298,49 @@ const RightPanel = ({
                 <MenuItem value="Outstanding">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
-                    <Typography variant="body2">Outstanding</Typography>
+                    {/* <Typography variant="body2">Outstanding</Typography>
+                    </Box>
+                </MenuItem> */} 
+                <MenuItem value="name">
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
+                    <Typography variant="body2">Name</Typography>
                     </Box>
                 </MenuItem>
-                <MenuItem value="Doctor">
+                <MenuItem value="work">
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
+                    <Typography variant="body2">Test List</Typography>
+                    </Box>
+                </MenuItem>
+                <MenuItem value="status">
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
+                    <Typography variant="body2">Status</Typography>
+                    </Box>
+                </MenuItem>
+                <MenuItem value="mobile_number">
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
+                    <Typography variant="body2">Mobile Number</Typography>
+                    </Box>
+                </MenuItem>
+                <MenuItem value="patientId">
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
+                    <Typography variant="body2">Patient ID</Typography>
+                    </Box>
+                </MenuItem>
+                <MenuItem value="doctor_name">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="primary.main" /> {/* Set doctor icon color */}
                     <Typography variant="body2">Doctor</Typography>
+                    </Box>
+                </MenuItem>
+                <MenuItem value="comments">
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <StarBorderOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} color="warning.main" /> {/* Set outstanding icon color */}
+                    <Typography variant="body2">Comments</Typography>
                     </Box>
                 </MenuItem>
                 <MenuItem value="profit" sx={{ display: isAdmin ? 'flex': 'none'}}>
@@ -296,8 +357,26 @@ const RightPanel = ({
                 </MenuItem>
                 </Select>
             </FormControl>
-
-            <Box sx={{padding:isMobile ? '0' : "0 20px"}}>
+            <Box sx={{display: ['profitByDoc','profit', 'All','doctor_name'].includes(typeFilter) ? 'none' : 'block', padding:isMobile ? '0' : "0 20px"}}>
+                <TextField
+                  id="docFilterInput"
+                  label="Search"
+                  variant="outlined"
+                  autoComplete="off"
+                  placeholder={'Search...'}
+                  onChange={handleInput}
+                  value={docInput}
+                  InputProps={{
+                      endAdornment: (
+                      <InputAdornment position="end">
+                          <IconButton>
+                          </IconButton>
+                      </InputAdornment>
+                      ),
+                  }}
+                />
+                </Box>
+            <Box sx={{display: showDoctorInput ? 'block' : 'none', padding:isMobile ? '0' : "0 20px"}}>
             <Autocomplete
                 value={docInput}
                 id={'docFilterInput'}
@@ -318,9 +397,11 @@ const RightPanel = ({
             }
                 />
             </Box>
-            <Button variant="contained" startIcon={<FilterAltIcon />} onClick={handleFilterSubmit}>
-                Filter Results
-            </Button>
+            <Box sx={{padding:isMobile ? '0' : "0 10px"}}>
+              <Button variant="contained" startIcon={<FilterAltIcon />} onClick={handleFilterSubmit}>
+                  Filter Results
+              </Button>
+            </Box>
             </Box>
               ) : null}
             {!isListHide ? (
@@ -335,16 +416,18 @@ const RightPanel = ({
                   />
                 </Box>
               ): (
-                (isMobile && viewType == LIST_VIEW && page != APPOINTMENTS_VIEW) ? (
+                  (isMobile && viewType == LIST_VIEW && page != APPOINTMENTS_VIEW) ? (
                   <PrintableCard 
                     isFetching={isFetching} 
                     setDetailViewId={handleDetailViewId} 
                     tableColumns={tableColumns} 
                     isAdmin={isAdmin} 
-                    tableData={dataIds} 
+                    tableData={data}
+                    tableDataIds={dataIds}
                     filterObj={filterObj} 
                     toggleForm={toggleForm}
                     deleteData={deleteData} 
+                    applyFilters={applyFilters}
                   />
                 ) : (
                   <PrintableList 
@@ -353,14 +436,16 @@ const RightPanel = ({
                     setDetailViewId={handleDetailViewId} 
                     tableColumns={tableColumns} 
                     isAdmin={isAdmin} 
-                    tableData={dataIds} 
+                    tableData={data}
+                    tableDataIds={dataIds}
+                    data={data}
                     filterObj={filterObj} 
                     toggleForm={toggleForm}
+                    applyFilters={applyFilters}
+                    isLoading={isLoading}
                   />
                 )
-                
               )}
-              
             </Box>
             ) : null}
             {isMobile ? null : (

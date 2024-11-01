@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import { Alert, Container, Grid, InputAdornment } from '@mui/material';
 import { Autocomplete, TextField } from '@mui/material';
 import { getAsObj, getLocalStorageData, setCacheTestDatas, setLocalStorageData } from '../utils/utils';
+import { addTestDataAPI, updateTestDataAPI } from '../actions/APIActions';
 
 const TestForm = ({
     formType,
@@ -72,17 +73,17 @@ const TestForm = ({
         }
         const { testId, testName, testAmount } = state;
         const data = {
-            testId: testId || Date.now(),
+            testId: testId || '',
             testAmount,
             testName
         }
-        const localStorageKey = 'addTestDatas'
-        const addTestPending = getLocalStorageData(localStorageKey,'[]');
-        addTestPending.push(data)
-        setLocalStorageData(localStorageKey, addTestPending)
-        multiTestAdd({data:setCacheTestDatas(getAsObj([data],'testId'))})
-        toggleDrawer()();
-        showAlert({type: 'success', message:"Test Datas Queued Successfully..."})
+        const testDataAPI = testId ? updateTestDataAPI : addTestDataAPI;
+        testDataAPI(data, testId).then(id=>{
+            multiTestAdd(getAsObj([testId ? data : {...data, testId: id}],'testId'))
+            toggleDrawer()();
+            showAlert({type: 'success', message:testId ? "Test Datas Updated Successfully" : "Test Datas added Successfully..."})
+        }).catch(err=>showAlert({type: 'error', message:err.message}))
+       
     }
     const { testAmount } = state;
     const { testName: nameError, testAmount: totalAmountErr } = errState;

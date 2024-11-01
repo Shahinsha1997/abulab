@@ -9,6 +9,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers';
+import { modifyData } from '../dispatcher/action';
+import { useDispatch } from 'react-redux';
+import { addDataAPI, updateDataAPI } from '../actions/APIActions';
 // import { format } from 'date-fns';
 const ExpenseForm = ({
     toggleDrawer,
@@ -20,6 +23,7 @@ const ExpenseForm = ({
     setSyncStatus,
     showAlert
 }) => {
+    const dispatch = useDispatch();
     const initialState = ({...{
         open: false,
         name: '',
@@ -28,7 +32,7 @@ const ExpenseForm = ({
         adminVisibilty: false,
         isExternalLab: false,
         time: Date.now(),
-        uuid: uuidv4(),
+        uuid: '',
       }, ...(getEditedFormProperties(data[formType]))})
       const [state, setState] = React.useState(initialState);
       const [errState, setErrorState] = React.useState({});
@@ -69,7 +73,7 @@ const handleExpenseSubmit = (event)=>{
         fullName += isExternalLab ? '|External Lab' : ''
         return fullName
     }
-    const payload = Object.assign({
+    const data = Object.assign({
         uuid: uuid,
         time: time,
         patientId: '', 
@@ -85,15 +89,20 @@ const handleExpenseSubmit = (event)=>{
         isScheduled: true,
         comments: ''
     })
-    addPending.splice(0,0,payload)
-    setLocalStorageData(localStorageKey, addPending)
-    addData({data: getAsObj([payload])});
-    toggleDrawer()();
-    if(!isAddForm){
-        setSyncStatus(true);
-        setTimeout(()=>setSyncStatus(false),1)
-    }
-    showAlert({type: 'success', message:isAddForm ? "Datas Queued for Expense Add Successfully..." : "Datas Queued for Expense Update successfully"})
+    const dataAPI = isAddForm ? addDataAPI : updateDataAPI
+    dataAPI(data).then(id=>{
+        toggleDrawer()();
+        if(!isAddForm){
+            dispatch(modifyData(data.uuid, data))
+            setSyncStatus(true);
+            setTimeout(()=>setSyncStatus(false),1)
+        }else{
+            addData(getAsObj([{...data,uuid:id}]));
+        }
+        showAlert({type: 'success', message:isAddForm ? "Datas Added Successfully..." : "Datas Updated successfully"})
+    }).catch(err=>{
+        showAlert({type: 'error', message:err.message})
+    })
 }
 const {
     name, 

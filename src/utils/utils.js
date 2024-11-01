@@ -64,67 +64,79 @@ export const getFormFields = (fieldType)=>{
             'isScheduled' : {
                 id: 'isScheduled',
                 label: 'More Options',
-                'maxWidth': '50px'
+                'maxWidth': '150px'
             },
             'time' : {
                 id: 'time',
                 label: 'Date & Time',
-                'maxWidth': '120px'
+                'maxWidth': '120px',
+                apiKey:'added_time'
             },
             'patientId' : {
                 id: 'patientId',
                 label: 'Patient ID',
-                'maxWidth': '75px'
+                'maxWidth': '75px',
+                apiKey:'patientId'
             },
             'name' : {
                 id: 'name',
                 label: 'Name',
-                'maxWidth': '120px'
+                'maxWidth': '120px',
+                apiKey:'name'
             },
             'mobileNumber' : {
                 id: 'mobileNumber',
                 label: 'Mobile Number',
-                'maxWidth': '75px'
+                'maxWidth': '100px',
+                apiKey:'mobile_number'
             },
             'drName' : {
                 id: 'drName',
                 label: 'Doctor Name',
-                'maxWidth': '120px'
+                'maxWidth': '120px',
+                apiKey:'doctor_name'
             },
             'status' : {
                 id: 'status',
                 label: 'Status',
-                'maxWidth': '75px'
+                'maxWidth': '100px',
+                apiKey:'status'
             },
             'description' : {
                 id: 'description',
                 label: 'Test List',
-                'maxWidth': '150px'
+                'maxWidth': '350px',
+                apiKey:'work'
             },
             'totalAmount' : {
                 id: 'totalAmount',
                 label: 'Total Amount',
-                'maxWidth': '100px'
+                'maxWidth': '100px',
+                apiKey:'total_amount'
             },
             'discount' : {
                 id: 'discount',
                 label: 'Discount',
-                'maxWidth': '80px'
+                'maxWidth': '80px',
+                apiKey:'discount'
             },
             'paidAmount' : {
                 id: 'paidAmount',
                 label: 'Paid Amount',
-                'maxWidth': '80px'
+                'maxWidth': '80px',
+                apiKey:'paid_amount'
             },
             'dueAmount' : {
                 id: 'dueAmount',
                 label: 'Due Amount',
-                'maxWidth': '80px'
+                'maxWidth': '80px',
+                apiKey:'due_amount'
             },
             'comments' : {
                 id: 'comments',
                 label: 'Comments / Remarks',
-                'maxWidth': '150px'
+                'maxWidth': '150px',
+                apiKey:'comments'
             }
         },
         [DUEALARM_VIEW] : {
@@ -151,7 +163,7 @@ export const getFormFields = (fieldType)=>{
             'mobileNumber' : {
                 id: 'mobileNumber',
                 label: 'Mobile Number',
-                'maxWidth': '75px'
+                'maxWidth': '100px'
             },
             'totalAmount' : {
                 id: 'totalAmount',
@@ -310,6 +322,7 @@ export const getCellFormattedVal = (cellName, value='', statusType, filterType)=
 export const ADD_DATA = 'ADD_DATA';
 export const MODIFY_DATA = 'MODIFY_DATA';
 export const MULTI_ADD = 'MULTI_ADD';
+export const MULTI_DOC_ADD = 'MULTI_DOC_ADD';
 export const DATA_DELETE = 'DELETE_DATA';
 export const GET_DATA = 'GET_DATA'
 export const MULTI_TEST_ADD = 'MULTI_TEST_ADD'
@@ -401,7 +414,7 @@ export const getUniQueIds = (ids) =>{
     });
     return uniqueIds
 }
-function parseDate(dateString, isPrevious) {
+export function parseDate(dateString, isPrevious) {
     const parts = dateString.split('/');
     if (parts.length === 3) {
     const startDate = new Date(parts[2], parts[1] - 1, parts[0]).getTime() - (isPrevious ? 24*60*60*1000 : 0);
@@ -767,18 +780,18 @@ export const sendWhatsappMessage = (type,rowDetails)=>{
     return title;
   }
 
- export const getDetailViewIds = ({id,dataIds, type})=>{
+ export const getDetailViewIds = ({id,dataIds,data, type})=>{
     let newId = ''
     if(type == 'next'){
         for(let i=id+1;i<dataIds.length;i++){
-            if(dataIds[i].status != EXPENSE_LABEL){
+            if(data[dataIds[i]].status != EXPENSE_LABEL){
                 newId = i;
                 break;
             }
         }
     }else{
         for(let i=id-1;i>=0;i--){
-            if(dataIds[i].status != EXPENSE_LABEL){
+            if(data[dataIds[i]].status != EXPENSE_LABEL){
                 newId = i;
                 break;
             }
@@ -786,3 +799,4 @@ export const sendWhatsappMessage = (type,rowDetails)=>{
     }
     return newId  
 }
+export const API_FETCH_LIMIT = 20;

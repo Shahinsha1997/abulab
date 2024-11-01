@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - secondarylab
 jobs:
   build:
     name: Build
@@ -38,4 +39,11 @@ jobs:
         with:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ABULAB }}"
           projectId: abulab-79efc
-          channelId: live
+          channelId: ${{ github.ref == 'refs/heads/main' && 'live' || github.head_ref || github.ref_name }}
+        env:
+          DEBUG: firebase*
+      - name: List Firebase Hosting Channels
+        run: |
+          firebase hosting:channel:list --project abulab-79efc --json | jq -r '.channels[] | select(.id == "'${{ github.ref_name }}'") | .url'
+        env:
+          FIREBASE_TOKEN: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_ABULAB }}"

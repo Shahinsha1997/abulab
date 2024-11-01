@@ -20,14 +20,15 @@ const LeftPanel = ({
   isAdmin, 
   logoutUser, 
   toggleForm, 
-  syncNow, 
   isLogoutDisabled,
   toggleAdminSection,
   adminSection,
   setPage,
   page,
   toggleFilterPopup,
-  isDueAlarmNeeded
+  isDueAlarmNeeded,
+  applyFilters,
+  filterObj
 }) => {
   const isMobile = useMediaQuery('(max-width: 600px)'); 
   const [dateTime, setDateTime] = useState(new Date().toLocaleString("en-GB", {
@@ -69,7 +70,7 @@ const LeftPanel = ({
     setPage(page != APPOINTMENTS_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)
   }
   const handlePersonalExpensePage = ()=>{
-    setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)
+    setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW);
   }
   const handleDueAlarmPage = ()=>{
     setPage(page != DUEALARM_VIEW ? DUEALARM_VIEW : LAB_VIEW)
@@ -148,14 +149,14 @@ const LeftPanel = ({
                 {`${page == PERSONAL_EXPENSE_VIEW ? 'Hide ' : 'Show ' } Personal Expenses`}
               </Button>
             )}
-            {syncNow ? (
+            {/* {syncNow ? (
             <Button variant="contained" startIcon={<SyncIcon />} id="sync-now-btn" onClick={syncNow} sx={{ padding: '8px 16px',  }}>
               Sync Now
             </Button>
             ): null}
             <Button variant="contained" startIcon={<NotInterestedIcon />} id="clear-cache-btn" onClick={handleClearCache}>
                 Clear Cache
-            </Button>
+            </Button> */}
             <Button variant="contained" startIcon={<SupervisorAccountIcon />} id="show-hide-admin-btn" onClick={toggleAdminSection}>
                   {adminSection ? 'Hide' : 'Show'} {isAdmin ? 'Admin' : 'Due'} Panel
             </Button>

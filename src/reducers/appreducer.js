@@ -1,4 +1,4 @@
-import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE } from "../utils/utils";
+import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE, MULTI_DOC_ADD } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
@@ -42,26 +42,27 @@ const initialState = {
 //       return state;
 //     }
 // }
-// const dataIdsReducers = (state=[], action={}) =>{
-//   const { from, data={} } = action.payload || {};
-//   const { ids=[] } = data;
-//   switch (action.type) {
-//     case GET_DATA:
-//       return [...ids.filter(id=>!state.includes(id)), ...state ];
-//     case ADD_DATA:
-//     case MULTI_ADD:
-//       return getUniQueIds([
-//         ...ids,
-//         ...state,
-//       ]);
-//     default:
-//       return state;
-//     }
-// }
+const dataIdsReducers = (state=[], action={}) =>{
+  const { ids=[], from } = action.payload || {};
+  switch (action.type) {
+    case GET_DATA:
+      return from == 0 ? ids : [...state, ...ids.filter(id=>!state.includes(id)), ];
+    case ADD_DATA:
+    case MULTI_ADD:
+      return getUniQueIds([
+        ...ids,
+        ...state,
+      ]);
+    case DATA_DELETE:
+      state.splice(state.indexOf(parseInt(ids)),1)
+      return state;
+    default:
+      return state;
+    }
+}
 
 const testDataReducer = (state = {}, action={}) => {
-  const { data={} } = action.payload || {}
-  const { obj } = data;
+  const { obj } = action.payload || {}
     switch (action.type) {
       case MULTI_TEST_ADD:
         return {...state, ...obj}
@@ -80,11 +81,10 @@ const appointmentReducer = (state = {}, action={}) => {
     }
   };
 const dataReducer = (state = {}, action={}) => {
-  const { data={} } = action.payload || {}
-  const { obj } = data;
+  const { obj={}, from } = action.payload || {}
     switch (action.type) {
       case GET_DATA:
-        return {...state, ...obj}
+        return from == 0 ? obj : {...state, ...obj}
       case ADD_DATA:
         return {
           ...state,
@@ -147,16 +147,26 @@ function appReducer(state=appReducerInitialState,action){
       return state;
   }
 }
+const docDataReducer = (state = [], action={}) => {
+  const { arr=[] } = action.payload || {}
+    switch (action.type) {
+      case MULTI_DOC_ADD:
+        return [...state, ...arr]
+      default:
+        return state;
+    }
+  };
 
 export const getAllReducers = () =>{
     return {
         user: userReducer,
         data: dataReducer,
-        // dataIds: dataIdsReducers,
+        dataIds: dataIdsReducers,
         // filteredIds: filteredDataIdReducers,
         // filteredByDrName: filteredByDrName,
         appConfig: appReducer,
         testObj: testDataReducer,
-        appointmentObj: appointmentReducer
+        appointmentObj: appointmentReducer,
+        doc: docDataReducer
     }
 }

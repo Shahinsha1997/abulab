@@ -7,6 +7,9 @@ import Select from '@mui/material/Select';
 import { v4 as uuidv4 } from 'uuid';
 import { APPOINTMENTS_VIEW, OUTSTANDING_LABEL, PREFIX_NAMES_LIST, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, getProperId, getStatus, isFormErrorFound, setLocalStorageData } from '../utils/utils';
 import { Autocomplete, TextField, Chip, Container, Grid, InputAdornment, Link } from '@mui/material';
+import { addDataAPI, updateDataAPI } from '../actions/APIActions';
+import { modifyData, multiDocAdd } from '../dispatcher/action';
+import { useDispatch } from 'react-redux';
 const IncomeForm = ({ 
     getIdPrefix, 
     toggleDrawer,
@@ -28,10 +31,11 @@ const IncomeForm = ({
     patientIdObj,
     setDetailViewId
 }) => {
+    const dispatch = useDispatch();
     const initialState = ({...{
         open: false,
         time: Date.now(),
-        uuid: uuidv4(),
+        uuid: '',
         patientId: getProperId(previousID+1),
         name: '',
         mobileNumber: '',
@@ -92,12 +96,9 @@ const IncomeForm = ({
     if(isError){
       return setErrorState(errObj)
     }
-    const localStorageKey = isAddForm ? 'addPendingDatas' : 'updatePendingDatas'
-    const addPending = getLocalStorageData(localStorageKey,'[]');
     
     const data = Object.assign({
-      uuid: uuid,
-      time: isAddForm ? Date.now() : time,
+      uuid,
       patientId: patientId, 
       name: namePrefix+name,
       mobileNumber, 
@@ -109,22 +110,29 @@ const IncomeForm = ({
       totalAmount : getAmountVal(totalAmount), 
       paidAmount:  getAmountVal(paidAmount), 
       dueAmount: getAmountVal(dueAmount),
-      isScheduled: true,
+      isNewDr: !drNamesList.includes(drName),
       comments
     })
-    addPending.splice(0,0,data)
-    setLocalStorageData(localStorageKey, addPending)
-    addData({data: getAsObj([data])});
-    toggleDrawer()();
+    const dataAPI = isAddForm ? addDataAPI : updateDataAPI
+    dataAPI(data).then(id=>{
+        toggleDrawer()();
+    if(!drNamesList.includes(drName)){
+        dispatch(multiDocAdd({arr:[drName]}))
+    }
     if(isAddForm){
       setPreviousId(patientId)
       setState(initialState)
       page != APPOINTMENTS_VIEW ? toggleForm(formType) : null
+      addData(getAsObj([{...data, uuid: id, time: Date.now()}]));
     }else{
+      dispatch(modifyData(data.uuid, data))
       setSyncStatus(true);
       setTimeout(()=>setSyncStatus(false),1)
     }
-    showAlert({type: 'success', message:isAddForm ? "Datas Queued for Income Add Successfully..." : "Datas Queued for Income Update successfully"})
+    showAlert({type: 'success', message:isAddForm ? "Datas Added Successfully..." : "Datas Updated successfully"})
+    }).catch(err=>{
+        showAlert({type: 'error', message:err.message})
+    })
   };
     const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix } = state;
     const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
