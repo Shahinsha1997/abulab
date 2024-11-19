@@ -126,9 +126,9 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
             options = options.slice(0,options.length-1)
         }else{
             const index = options;
-            console.log("Items",items[index])
+            const { status, mobileNumber } = items[index];
             const moreOption= [
-                {label:items[index].isBlockedUser ? 'Unblock User' :'Block User', isAllowed:(items[index].status == OUTSTANDING_LABEL && isAdmin), icon:<BlockIcon />, handleClick:(e)=>handleMoreOption(e,index,'block')},
+                {label:items[index].isBlockedUser ? 'Unblock User' :'Block User', isAllowed:(status == OUTSTANDING_LABEL && isAdmin && mobileNumber != '-'), icon:<BlockIcon />, handleClick:(e)=>handleMoreOption(e,index,'block')},
                 {label:'Edit', isAllowed:(items[index].status == OUTSTANDING_LABEL || isAdmin), icon:<EditIcon />, handleClick:(e)=>handleMoreOption(e,index,'edit')},
                 {label:'Delete', isAllowed:isAdmin, icon:<DeleteIcon sx={{color:'#ff000087'}}/>, handleClick:(e)=>handleMoreOption(e,index,'delete')},
                 {label:'Send Report Progress', isAllowed:true, icon:<WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />, handleClick:(e)=>handleMoreOption(e,index,'sendReport')},
