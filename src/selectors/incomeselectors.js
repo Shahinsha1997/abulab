@@ -47,6 +47,7 @@ export const getDataIds = createSelector(
         const sortedKeys = keys.sort(function(a, b){return datas[b].time-datas[a].time});
         const filteredByStatus = fieldFilterArr(sortedKeys,datas,'status');
         const filteredByDrName = fieldFilterArr(sortedKeys,datas,'drName');
+        const filteredByBlocked = fieldFilterArr(sortedKeys,datas,'isBlockedUser', 'true');
         const isDueAlarmNeed = isDueAlarmNeeded(filteredByStatus.outstanding, datas);
         const drNamesList = getDrNameList(datas,sortedKeys)
         foundDuplicates(datas);
@@ -56,6 +57,7 @@ export const getDataIds = createSelector(
             personalExpenseIds,
             filteredByDrName, 
             filteredByStatus, 
+            filteredByBlocked,
             datas, 
             drNamesList,
             isDueAlarmNeeded:isDueAlarmNeed

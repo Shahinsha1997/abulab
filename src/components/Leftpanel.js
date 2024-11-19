@@ -8,13 +8,14 @@ import PrintIcon from '@mui/icons-material/Print';
 import useMediaQuery from '@mui/material/useMediaQuery'; 
 import SyncIcon from '@mui/icons-material/Sync';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
-import { APPOINTMENTS_VIEW, DUEALARM_VIEW, LAB_VIEW, PERSONAL_EXPENSE_VIEW, clearCache, getLocalStorageData, printPage } from '../utils/utils';
+import { APPOINTMENTS_VIEW, BLOCKED_USER_VIEW, DUEALARM_VIEW, LAB_VIEW, PERSONAL_EXPENSE_VIEW, clearCache, getLocalStorageData, printPage } from '../utils/utils';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { useTheme } from '@mui/material/styles'; 
 import EventSharpIcon from '@mui/icons-material/EventSharp';
 import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteTwoTone';
+import BlockIcon from '@mui/icons-material/Block';
 import CampaignIcon from '@mui/icons-material/CampaignOutlined';
 const LeftPanel = ({ 
   isAdmin, 
@@ -70,6 +71,9 @@ const LeftPanel = ({
   }
   const handlePersonalExpensePage = ()=>{
     setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)
+  }
+  const handleBlockPage = ()=>{
+    setPage(page != BLOCKED_USER_VIEW ? BLOCKED_USER_VIEW : LAB_VIEW)
   }
   const handleDueAlarmPage = ()=>{
     setPage(page != DUEALARM_VIEW ? DUEALARM_VIEW : LAB_VIEW)
@@ -148,6 +152,14 @@ const LeftPanel = ({
                 {`${page == PERSONAL_EXPENSE_VIEW ? 'Hide ' : 'Show ' } Personal Expenses`}
               </Button>
             )}
+            {
+              isAdmin && (
+                <Button variant="contained" startIcon={<BlockIcon/>} id="show-appoinment-btn" onClick={handleBlockPage}>
+                {`${page == BLOCKED_USER_VIEW ? 'Hide ' : 'Show ' } Blocked Users`}
+                </Button>
+              )
+
+            }
             {syncNow ? (
             <Button variant="contained" startIcon={<SyncIcon />} id="sync-now-btn" onClick={syncNow} sx={{ padding: '8px 16px',  }}>
               Sync Now

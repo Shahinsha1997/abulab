@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, IconButton, Link, useMediaQuery } from '@mui/material';
-import { EXPENSE_LABEL, OUTSTANDING_LABEL, getCellFormattedVal } from '../utils/utils';
+import { EXPENSE_LABEL, OUTSTANDING_LABEL, getCellFormattedVal, getListRows } from '../utils/utils';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import { DataGrid } from '@mui/x-data-grid';
@@ -61,7 +61,8 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
     isAdmin,
     isFetching,
     setDetailViewId,
-    deleteData
+    deleteData,
+    handleBlockUser
   }) =>{
     const [hoveredCellId, setIsCellHovered] = useState(false);
     const handleRowEnter = (params) => {
@@ -83,7 +84,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
           return (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'row' }}>
             <Box sx={{width:"20px"}}>
-                <WhatsAppIconPopup rowDetails={params.row} hoveredCellId={hoveredCellId}/>
+                <WhatsAppIconPopup handleBlockUser={handleBlockUser} isAdmin={isAdmin} rowDetails={params.row} hoveredCellId={hoveredCellId}/>
             </Box>
             <Box sx={{width:"20px" , paddingLeft:'20px'}}>
             { (status == OUTSTANDING_LABEL || isAdmin) && (
@@ -134,14 +135,7 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
          }
       }: {}),
     }));
-    const rows = tableData.map((row, index) => {
-      const resp = {id: `${(row.uuid || row.drName || row.id)}_${index}`, uuid:row.uuid}
-      for(let i=0;i<tableColumns.length;i++){
-        resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
-      }
-      resp['isScheduled'] = row['isScheduled']
-      return resp
-    });
+    const rows =getListRows(tableData, tableColumns, filterType)
     return(
         <MyDataGrid
           id="tableContainer"

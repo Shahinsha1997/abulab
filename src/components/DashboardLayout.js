@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas } from '../utils/utils';
+import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, getBlockedUserDatas, BLOCKED_USER_VIEW } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
@@ -24,6 +24,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import { getDataIds } from '../selectors/incomeselectors';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import BlockIcon from '@mui/icons-material/Block';
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -76,7 +77,8 @@ class DashboardLayout extends Component {
       'getBottomPanel',
       'toggleViewType',
       'deleteData',
-      'toggleDueFollowPage'
+      'toggleDueFollowPage',
+      'togglePage'
     ]
     bind.apply(this, methods);
   }
@@ -134,6 +136,10 @@ class DashboardLayout extends Component {
   toggleDueFollowPage(){
     const { page } = this.state;
     this.setPage(page == DUEALARM_VIEW ? LAB_VIEW : DUEALARM_VIEW);
+  }
+  togglePage(newPage){
+    const { page } = this.state;
+    this.setPage(page ==  newPage ? LAB_VIEW : newPage);
   }
   toggleAdminSection(){
     const { adminSection, page } = this.state;
@@ -235,7 +241,7 @@ class DashboardLayout extends Component {
     
   }
   componentDidUpdate(prevProps, prevState){
-    const { dataIds } = this.props;
+    const { dataIds, data } = this.props;
     const { filteredDataIds, filterObj, syncStatus, page, isFetching, previousId } = this.state;
     const {
       timeFilter, 
@@ -246,7 +252,14 @@ class DashboardLayout extends Component {
       this.setState({previousId:''})
       this.previousID = ''
     }
-    if(prevState.page != page || previousId != prevState.previousId  || isFetching != prevState.isFetching || prevProps.dataIds.length != dataIds.length || isIntialLoad || prevState.syncStatus != syncStatus ){
+    if(
+        prevState.page != page || 
+        previousId != prevState.previousId ||
+        isFetching != prevState.isFetching ||
+        prevProps.dataIds.length != dataIds.length ||
+        isIntialLoad || 
+        prevState.syncStatus != syncStatus 
+      ){
       this.getFilteredDataIds();
     };
   }
@@ -266,14 +279,24 @@ class DashboardLayout extends Component {
       filteredByDrName, 
       data, 
       showAlert, 
-      appointmentObj 
+      appointmentObj,
+      filteredByBlocked
     } = this.props;
     const dueWithMobile = {};
     const patientIdObj = {};
     dataIds.map(dataId=>{
-      const { mobileNumber, dueAmount=0, patientId } = data[dataId];
+      const { mobileNumber, dueAmount=0, patientId, isBlockedUser,time  } = data[dataId];
       if(dueAmount > 0 && mobileNumber.toString().length == 10){
-        dueWithMobile[mobileNumber] = (dueWithMobile[mobileNumber] || 0) + dueAmount;
+        const {
+          dueAmount: existDueAmount=0,
+          isBlockedUser: existBlocked=false, 
+          added_time: existTime=0  
+        } = dueWithMobile[mobileNumber] || {};
+        dueWithMobile[mobileNumber] = {
+          dueAmount:existDueAmount + dueAmount,
+          isBlockedUser: existBlocked || isBlockedUser,
+          added_time: existTime == 0 ? time : (existTime > time) ? time : existTime
+        };
        }
        patientIdObj[patientId] = dataId;
     })
@@ -290,6 +313,9 @@ class DashboardLayout extends Component {
     }else if(page == DUEALARM_VIEW){
       tableColumns = Object.values(getFormFields(DUEALARM_VIEW));
       dataIds = getDueAlarmedDatas(filteredByStatus.outstanding, data)
+    }else if(page == BLOCKED_USER_VIEW){
+      tableColumns = Object.values(getFormFields(BLOCKED_USER_VIEW));
+      dataIds = getBlockedUserDatas(filteredByBlocked, data, dueWithMobile);
     }
     else if(isProfitFilter && timeFilter != 'All'){
       let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
@@ -367,40 +393,35 @@ class DashboardLayout extends Component {
   };
     let options = [
       { label: 'Due Followup', icon: <CampaignOutlined sx={{fontSize:'25px', color:isDueAlarmNeeded ? 'yellow': 'white'}} />, handleClick:this.toggleDueFollowPage },
-      { label: 'Admin Panel', icon: adminSection ? <AdminPanelSettingsTwoToneIcon/> : <AdminPanelSettingsIcon />, handleClick:this.toggleAdminSection },
+      { isHidden: !isAdmin, label: 'Admin Panel', icon: adminSection ? <AdminPanelSettingsTwoToneIcon/> : <AdminPanelSettingsIcon />, handleClick:this.toggleAdminSection },
       { label: 'Add', icon: <AddIcon />, handleClick:(e)=>handleClick(e,'addPopup')},
-      { label: 'Personal', icon: page == PERSONAL_EXPENSE_VIEW ? <RequestQuoteOutlinedIcon/> : <RequestQuoteIcon />, handleClick: ()=>this.setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)},
+      { isHidden: !isAdmin,label: 'Personal', icon: page == PERSONAL_EXPENSE_VIEW ? <RequestQuoteOutlinedIcon/> : <RequestQuoteIcon />, handleClick: ()=>this.setPage(page != PERSONAL_EXPENSE_VIEW ? PERSONAL_EXPENSE_VIEW : LAB_VIEW)},
       { label: 'More', icon: <MoreVertIcon/>, handleClick: (e)=>handleClick(e,'morePopup') },
     ];
     const addOptions = [
       { label: 'Add Income', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addIncome')}},
       { label: 'Add Expense', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addExpenses')} },
-      { label: 'Add Personal Expenses', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addPersonalExpenses')} },
+      { isHidden: !isAdmin, label: 'Add Personal Expenses', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addPersonalExpenses')} },
       { label: 'Add/Update Test', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addTests')} },
       { label: 'Add Appointment', icon: <AddIcon />, handleClick:()=>window.open('/appointments','_self') },
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
     ];
-    if(!isAdmin){
-      options.splice(1,1);
-      options.splice(2,1)
-      addOptions.splice(2,1)
-    }
     let moreOptions = [
+      { isHidden: !isAdmin, label: 'Blocked User List', icon: <BlockIcon />, handleClick:()=>{this.togglePage(BLOCKED_USER_VIEW),handleClose()} },
       { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
       { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page != APPOINTMENTS_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},
-      { label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
+      { isHidden: !isSyncNowNeeded(), label: 'Sync Now', icon: <SyncIcon />, handleClick: this.syncNowDatas },
       { label: 'Clear Cache', icon: <NotInterestedIcon  />, handleClick: clearCache },
       { label: `Switch to ${viewType == LIST_VIEW ? 'Table View' : 'List View'}`, icon: viewType == LIST_VIEW ? <TableViewIcon /> : <ListAltIcon />, handleClick: ()=>{handleClose();this.toggleViewType()} },
       { label: 'Logout', icon: <LogoutIcon disabled={isLogoutDisabled} sx={{color:'red'}} />, sx:{color:'red'}, handleClick: logoutUser },
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
     ];
-   !isSyncNowNeeded() && moreOptions.splice(1,1)
     const poupOptions = popupType == 'addPopup' ? addOptions : moreOptions;
       return ( 
         <Box sx={{display:'flex', flexDirection:'row'}}>
            <Grid container sx={{ display: 'flex', flexShrink:0 }} spacing={options.length == 5 ? 1.5 : 15}>
         {options.map((option, index) => (
-          <Grid item key={option.label}>
+          <Grid item key={option.label} sx={{visibility: option.isHidden ? 'hidden' : 'visible'}}>
             <IconButton onClick={option.handleClick} sx={{color:'white', ...option.sx, fontSize:['0.7rem','1rem','1.3rem']}}> 
               <Grid container direction="column" alignItems="center"> 
                 <Grid item>
@@ -424,7 +445,7 @@ class DashboardLayout extends Component {
         MenuListProps={{ 'aria-labelledby': 'menu-add-options' }}
       >
         {poupOptions.map((option, index) => (
-        <MenuItem onClick={option.handleClick} sx={{...(option.sx || {})}}>
+        <MenuItem onClick={option.handleClick} sx={{display: option.isHidden ? 'none' : '',...(option.sx || {})}}>
           <ListItemIcon>
             {option.icon}
           </ListItemIcon>
@@ -580,6 +601,7 @@ const mapStateToProps = (state,props)=>{
     personalExpenseIds,
     filteredByDrName, 
     filteredByStatus, 
+    filteredByBlocked,
     datas:data, 
     drNamesList,
     isDueAlarmNeeded
@@ -598,7 +620,8 @@ const mapStateToProps = (state,props)=>{
     testObj: getAsObj(Object.values(testArr),'testName').obj,
     appointmentObj,
     isMobile,
-    isDueAlarmNeeded
+    isDueAlarmNeeded,
+    filteredByBlocked
   }
 }
 

@@ -8,6 +8,7 @@ export const ONE_DAY_IN_MS = 24*60*60*1000
 export const APPOINTMENTS_VIEW = 'Appointments_View';
 export const PERSONAL_EXPENSE_VIEW = 'PERSONAL_EXPENSE_VIEW';
 export const DUEALARM_VIEW = 'DueAlarm_View';
+export const BLOCKED_USER_VIEW = 'Blocked_User_View';
 export const LAB_VIEW = 'Lab_View'
 export const TABLE_VIEW = 'TABLE_VIEW';
 export const LIST_VIEW = 'LIST_VIEW'
@@ -167,6 +168,38 @@ export const getFormFields = (fieldType)=>{
                 id: 'comments',
                 label: 'Comments / Remarks',
                 'maxWidth': '150px'
+            },
+            'status' : {
+                id: 'status',
+                label: 'Status',
+                'maxWidth': '75px'
+            },
+        },
+        [BLOCKED_USER_VIEW] : {
+            'isScheduled' : {
+                id: 'isScheduled',
+                label: 'More Options',
+                'maxWidth': '50px'
+            },
+            'name' : {
+                id: 'name',
+                label: 'Name',
+                'maxWidth': '120px'
+            },
+            'mobileNumber' : {
+                id: 'mobileNumber',
+                label: 'Mobile Number',
+                'maxWidth': '75px'
+            },
+            'dueAmount' : {
+                id: 'dueAmount',
+                label: 'Total Due Amount',
+                'maxWidth': '80px'
+            },
+            'time' : {
+                id: 'time',
+                label: 'Due From',
+                'maxWidth': '120px'
             },
             'status' : {
                 id: 'status',
@@ -346,17 +379,24 @@ export const selectn = (key,obj={}) =>{
 }
 export const sortIds = (ids,obj,key)=>ids.sort(function(a, b){return obj[b][key]-obj[a][key]})
 
-export const fieldFilterArr = (ids, obj, field)=>{
+export const fieldFilterArr = (ids, obj, field, value)=>{
     const categorizedIds = {}
+    if(value){
+        categorizedIds[field] = []
+    }
     ids.forEach(id => {
         let { [field]:fieldName } = obj[id]; 
         fieldName = fieldName.toString();
-        if (!categorizedIds[fieldName.toLowerCase()]) {
-          categorizedIds[fieldName.toLowerCase()] = []; 
+        if(value && fieldName == value){
+            categorizedIds[field].push(id);
+        }else{
+            if (!categorizedIds[fieldName.toLowerCase()]) {
+                categorizedIds[fieldName.toLowerCase()] = []; 
+              }
+              categorizedIds[fieldName.toLowerCase()].push(id); 
         }
-        categorizedIds[fieldName.toLowerCase()].push(id); 
       });
-    return categorizedIds;
+    return value ? categorizedIds[field] : categorizedIds;
 }
 
 export const isDueAlarmNeeded = (ids=[], obj) =>{
@@ -388,7 +428,15 @@ export const getDueAlarmedDatas = (ids=[],obj) =>{
     }
     return dueAlarmedDataIds;
 }
-
+export const getBlockedUserDatas = (ids=[], obj, mobileObj={}) =>{
+    const blockedUserList = [];
+    for(let i=0;i<ids.length;i++){
+        const { uuid, mobileNumber } =obj[ids[i]];
+        const { dueAmount, added_time} = mobileObj[mobileNumber]
+        blockedUserList.push({uuid, ...obj[ids[i]], dueAmount, time:added_time})
+    }
+    return blockedUserList;
+}
 export const getUniQueIds = (ids) =>{
     const uniqueIds = [];
     const seen = new Set();
@@ -785,4 +833,16 @@ export const sendWhatsappMessage = (type,rowDetails)=>{
         }
     }
     return newId  
+}
+
+export const getListRows = (tableData, tableColumns, filterType)=>{
+    return tableData.map((row, index) => {
+        const resp = {id: `${(row.uuid || row.drName || row.id)}_${index}`,uuid:row.uuid}
+        for(let i=0;i<tableColumns.length;i++){
+          resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
+        }
+        resp['isScheduled'] = row['isScheduled']
+        resp['isBlockedUser'] = row['isBlockedUser'];
+        return resp
+      });
 }

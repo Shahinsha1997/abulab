@@ -5,7 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
 import Select from '@mui/material/Select';
 import { v4 as uuidv4 } from 'uuid';
-import { APPOINTMENTS_VIEW, OUTSTANDING_LABEL, PREFIX_NAMES_LIST, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, getProperId, getStatus, isFormErrorFound, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, OUTSTANDING_LABEL, PREFIX_NAMES_LIST, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, getProperId, getStatus, getTimeWithDate, isFormErrorFound, setLocalStorageData } from '../utils/utils';
 import { Autocomplete, TextField, Chip, Container, Grid, InputAdornment, Link } from '@mui/material';
 const IncomeForm = ({ 
     getIdPrefix, 
@@ -89,6 +89,9 @@ const IncomeForm = ({
     const dueAmount = totalAmount- parseInt(discount) - paidAmount
     const status = getStatus(true, dueAmount)
     const { isError, errObj } = isFormErrorFound('',status,state)
+    if(isAddForm && dueWithMobile[mobileNumber]?.isBlockedUser){
+        return setErrorState({mobileNumber:'User Blocked By Management Team'})  
+    }
     if(isError){
       return setErrorState(errObj)
     }
@@ -104,6 +107,7 @@ const IncomeForm = ({
       status,
       drName,
       description,
+      isBlockedUser: false,
       modifiedTime: Date.now(),
       discount : getAmountVal(discount),
       totalAmount : getAmountVal(totalAmount), 
@@ -182,8 +186,12 @@ const IncomeForm = ({
                         }}
                         fullWidth 
                     />
-                    {(dueWithMobile[mobileNumber] && isAddForm) && <Alert severity="info">{`Exist Due Amount ₹ ${dueWithMobile[mobileNumber]}`}</Alert>}
-                    {mobileNumberErr && <Alert severity="error">{mobileNumberErr}</Alert>}
+                    {(dueWithMobile[mobileNumber] && isAddForm) 
+                    ? (dueWithMobile[mobileNumber].isBlockedUser 
+                        ? <><Alert severity="error">User Blocked By Management Team</Alert><Alert severity="info">{`Exist Due Amount ₹ ${dueWithMobile[mobileNumber].dueAmount} from ${getTimeWithDate(dueWithMobile[mobileNumber].added_time)}`}</Alert></> 
+                        : <Alert severity="info">{`Exist Due Amount ₹ ${dueWithMobile[mobileNumber].dueAmount} from ${getTimeWithDate(dueWithMobile[mobileNumber].added_time)}`}</Alert>) 
+                    : mobileNumberErr 
+                    ? <Alert severity="error">{mobileNumberErr}</Alert> : null}
                 </Grid>
                 <Grid item>
                     <Autocomplete

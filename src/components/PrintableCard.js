@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Grid, Card, CardContent, Typography, Box, ListItemIcon, ListItemText, List, ListItem } from '@mui/material';
 import { FixedSizeList } from 'react-window';
-import { OUTSTANDING_LABEL, getCellFormattedVal, sendWhatsappMessage } from '../utils/utils';
+import { OUTSTANDING_LABEL, getAsObj, getCellFormattedVal, getListRows, getLocalStorageData, sendWhatsappMessage, setLocalStorageData } from '../utils/utils';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import BiotechSharpIcon from '@mui/icons-material/BiotechSharp';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {  Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import DeleteIcon from '@mui/icons-material/Delete';
+import BlockIcon from '@mui/icons-material/Block';
 const styles = {
     root: {
       overflow: 'hidden',
@@ -48,12 +49,16 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
                         )}
                     </Grid>
                     <Grid container sx={{display:'flex', flexDirection:'row',padding:0.2}} spacing={1}>
-                        <Grid item sx={{display:'flex',fontWeight: 'medium'}}>
-                            <Typography>T.A: ₹ {totalAmount == '-' ? 0 : totalAmount}</Typography>
-                        </Grid>
-                        <Grid item sx={{display:'flex', color:'#26d626b0'}}>
-                            <Typography sx={{fontWeight: 'medium'}}>P.A: ₹ {paidAmount == '-' ? 0 : paidAmount}</Typography>
-                        </Grid>
+                        {totalAmount && (
+                            <Grid item sx={{display:'flex',fontWeight: 'medium'}}>
+                                <Typography>T.A: ₹ {totalAmount == '-' ? 0 : totalAmount}</Typography>
+                            </Grid>
+                        )}
+                        {paidAmount && (
+                            <Grid item sx={{display:'flex', color:'#26d626b0'}}>
+                                <Typography sx={{fontWeight: 'medium'}}>P.A: ₹ {paidAmount == '-' ? 0 : paidAmount}</Typography>
+                            </Grid>
+                        )}
                         {dueAmount != '-' && (
                             <Grid item sx={{display:'flex', color:'#df1e1ea8'}}>
                                 <Typography sx={{fontWeight: 'medium'}}>D.A: ₹ {dueAmount}</Typography>
@@ -90,7 +95,7 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
     )
 }
 
-  const VirtualizedCardList = ({ items, toggleForm, isAdmin, deleteData, setDetailViewId }) => {
+  const VirtualizedCardList = ({ handleBlockUser, items, toggleForm, isAdmin, deleteData, setDetailViewId }) => {
     const [popupRef, setPopupRef] = useState('');
     const [popupType, setPopupType] = useState('');
     const [popupOptions, setPopupOptions] = useState([])
@@ -104,6 +109,8 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
             toggleForm((items[index].uuid).toString());
         }else if(type == 'delete'){
             deleteData((items[index].uuid).toString());
+        }else if(type == 'block'){
+            handleBlockUser(items[index].uuid)
         }else{
             sendWhatsappMessage(type,items[index])
         }
@@ -119,7 +126,9 @@ const CustomCard = ({ index, data, handleClose, handlePopup, popupRef, popupType
             options = options.slice(0,options.length-1)
         }else{
             const index = options;
+            console.log("Items",items[index])
             const moreOption= [
+                {label:items[index].isBlockedUser ? 'Unblock User' :'Block User', isAllowed:(items[index].status == OUTSTANDING_LABEL && isAdmin), icon:<BlockIcon />, handleClick:(e)=>handleMoreOption(e,index,'block')},
                 {label:'Edit', isAllowed:(items[index].status == OUTSTANDING_LABEL || isAdmin), icon:<EditIcon />, handleClick:(e)=>handleMoreOption(e,index,'edit')},
                 {label:'Delete', isAllowed:isAdmin, icon:<DeleteIcon sx={{color:'#ff000087'}}/>, handleClick:(e)=>handleMoreOption(e,index,'delete')},
                 {label:'Send Report Progress', isAllowed:true, icon:<WhatsAppIcon style={{ color: 'green', backgroundColor: 'transparent' }} />, handleClick:(e)=>handleMoreOption(e,index,'sendReport')},
@@ -155,23 +164,17 @@ const printableCard = ({
     isAdmin,
     isFetching,
     deleteData,
-    setDetailViewId
+    setDetailViewId,
+    handleBlockUser
 })=>{
 
     const { typeFilter, timeFilter } = filterObj;
     const filterType = timeFilter != 'All' ? typeFilter : ''
-    const rows = tableData.map((row, index) => {
-        const resp = {id: `${(row.uuid || row.drName || row.id)}_${index}`,uuid:row.uuid}
-        for(let i=0;i<tableColumns.length;i++){
-          resp[tableColumns[i].id] = getCellFormattedVal(tableColumns[i].id,row[tableColumns[i].id],row['status'], filterType)
-        }
-        resp['isScheduled'] = row['isScheduled']
-        return resp
-      });
+    const rows = getListRows(tableData, tableColumns, filterType)
     return (
         <Grid container justifyContent="center" spacing={2}>
             <Grid item xs={12} md={8}>
-                <VirtualizedCardList items={rows} setDetailViewId={setDetailViewId} toggleForm={toggleForm} isAdmin={isAdmin} deleteData={deleteData}/>
+                <VirtualizedCardList handleBlockUser={handleBlockUser} items={rows} setDetailViewId={setDetailViewId} toggleForm={toggleForm} isAdmin={isAdmin} deleteData={deleteData}/>
             </Grid>
         </Grid>
         );

@@ -4,7 +4,7 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem, TableContai
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import { CalendarTodayOutlined, ScheduleOutlined, AccountBalanceWalletOutlined, MoneyOffOutlined, StarBorderOutlined } from '@mui/icons-material'; // Import icons
 import Form from './Form';
-import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LIST_VIEW, getCurrentMonth, getDatasByProfit, getDetailViewIds, getFormFields, getIdPrefix, getTimeFilter, selectn } from '../utils/utils';
+import { APPOINTMENTS_VIEW, EXPENSE_LABEL, LIST_VIEW, getAsObj, getCurrentMonth, getDatasByProfit, getDetailViewIds, getFormFields, getIdPrefix, getLocalStorageData, getTimeFilter, selectn, setLocalStorageData } from '../utils/utils';
 import PrintableList from './PrintableList';
 import AddIcon from '@mui/icons-material/Add';
 import Backdrop from '@mui/material/Backdrop';
@@ -63,7 +63,19 @@ const RightPanel = ({
   const handleClose = (e) => {
     setOpen(false);
   }
-
+  const handleBlockUser = (uuid)=>{
+    const userData = data[uuid];
+    const localStorageKey = 'updatePendingDatas'
+    const addPending = getLocalStorageData(localStorageKey,'[]');
+    userData.isBlockedUser = !userData.isBlockedUser
+    userData.isScheduled = true;
+    addPending.splice(0,0,userData)
+    setLocalStorageData(localStorageKey, addPending);
+    addData({data: getAsObj([userData])});
+    setSyncStatus(true);
+    setTimeout(()=>setSyncStatus(false),1)
+    showAlert({type: 'success', message:"Datas Queued for Block Update successfully"})
+  }
     const [timeFilter, setTimeFilter] = useState('MonthWise')
     const [typeFilter, setTypeFilter] = useState('All')
     const [showDoctorInput, setShowDoctorInput] = useState(false);
@@ -345,6 +357,7 @@ const RightPanel = ({
                     filterObj={filterObj} 
                     toggleForm={toggleForm}
                     deleteData={deleteData} 
+                    handleBlockUser={handleBlockUser}
                   />
                 ) : (
                   <PrintableList 
@@ -356,6 +369,7 @@ const RightPanel = ({
                     tableData={dataIds} 
                     filterObj={filterObj} 
                     toggleForm={toggleForm}
+                    handleBlockUser={handleBlockUser}
                   />
                 )
                 
