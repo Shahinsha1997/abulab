@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, getBlockedUserDatas, BLOCKED_USER_VIEW } from '../utils/utils';
+import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, getBlockedUserDatas, BLOCKED_USER_VIEW, BLOCKABLE_USER_VIEW, getBlockAbleUserDatas } from '../utils/utils';
 import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
@@ -284,7 +284,7 @@ class DashboardLayout extends Component {
     } = this.props;
     const dueWithMobile = {};
     const patientIdObj = {};
-    dataIds.map(dataId=>{
+    filteredByStatus.outstanding.map(dataId=>{
       const { mobileNumber, dueAmount=0, patientId, isBlockedUser,time  } = data[dataId];
       if(dueAmount > 0 && mobileNumber.toString().length == 10){
         const {
@@ -316,6 +316,9 @@ class DashboardLayout extends Component {
     }else if(page == BLOCKED_USER_VIEW){
       tableColumns = Object.values(getFormFields(BLOCKED_USER_VIEW));
       dataIds = getBlockedUserDatas(filteredByBlocked, data, dueWithMobile);
+    }else if(page == BLOCKABLE_USER_VIEW){
+      tableColumns = Object.values(getFormFields(BLOCKED_USER_VIEW));
+      dataIds = getBlockAbleUserDatas(filteredByStatus.outstanding, data, dueWithMobile);
     }
     else if(isProfitFilter && timeFilter != 'All'){
       let profitObj = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
@@ -407,6 +410,7 @@ class DashboardLayout extends Component {
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
     ];
     let moreOptions = [
+      { isHidden: !isAdmin, label: 'Blockable User List', icon: <BlockIcon />, handleClick:()=>{this.togglePage(BLOCKABLE_USER_VIEW),handleClose()} },
       { isHidden: !isAdmin, label: 'Blocked User List', icon: <BlockIcon />, handleClick:()=>{this.togglePage(BLOCKED_USER_VIEW),handleClose()} },
       { label: 'Filter', icon: <FilterAltIcon />, handleClick:this.toggleFilterPopup },
       { label: 'Appointments', icon: page == APPOINTMENTS_VIEW ? <EventTwoToneIcon /> : <EventSharpIcon/>, handleClick: ()=>this.setPage(page != APPOINTMENTS_VIEW ? APPOINTMENTS_VIEW : LAB_VIEW)},

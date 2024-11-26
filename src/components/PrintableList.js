@@ -151,7 +151,6 @@ const MyDataGrid = styled(DataGrid)(({ theme }) => {
           columns={columns}
           pageSize={Infinity}
           getRowClassName={(params)=>{
-            console.log(params.row.isScheduled)
             return params.row.isScheduled ? 'MuiDataGrid-Scheduled' : ''
           }}
           paginationMode={'server'}

@@ -31,7 +31,6 @@ const WhatsAppIconPopup = ({
     }
     sendWhatsappMessage(type, rowDetails)
   }
-  console.log(rowDetails)
   const options = [
     { label: 'Send Report Progress', type:'sendReport', icon: <WhatsAppIcon  style={{ color: 'green', backgroundColor: 'transparent' }} />},
     { label: 'Delay in Report', type:'delayReport', icon: <WhatsAppIcon  style={{ color: 'green', backgroundColor: 'transparent' }} />}, 

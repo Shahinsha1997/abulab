@@ -9,6 +9,7 @@ export const APPOINTMENTS_VIEW = 'Appointments_View';
 export const PERSONAL_EXPENSE_VIEW = 'PERSONAL_EXPENSE_VIEW';
 export const DUEALARM_VIEW = 'DueAlarm_View';
 export const BLOCKED_USER_VIEW = 'Blocked_User_View';
+export const BLOCKABLE_USER_VIEW = 'Blockable_User_View';
 export const LAB_VIEW = 'Lab_View'
 export const TABLE_VIEW = 'TABLE_VIEW';
 export const LIST_VIEW = 'LIST_VIEW'
@@ -434,6 +435,20 @@ export const getBlockedUserDatas = (ids=[], obj, mobileObj={}) =>{
         const { uuid, mobileNumber } =obj[ids[i]];
         const { dueAmount, added_time} = mobileObj[mobileNumber]
         blockedUserList.push({uuid, ...obj[ids[i]], dueAmount, time:added_time})
+    }
+    return blockedUserList;
+}
+
+export const getBlockAbleUserDatas = (ids=[], obj, mobileObj={}) =>{
+    const blockedUserList = [];
+    const mobList = [];
+    for(let i=0;i<ids.length;i++){
+        const { uuid, mobileNumber, isBlockedUser } =obj[ids[i]];
+        if(!isBlockedUser && !mobList.includes(mobileNumber) && mobileObj[mobileNumber]){
+            const { dueAmount, added_time} = mobileObj[mobileNumber];
+            mobList.push(mobileNumber);
+            blockedUserList.push({uuid, ...obj[ids[i]], dueAmount, time:added_time})
+        }
     }
     return blockedUserList;
 }
