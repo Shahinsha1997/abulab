@@ -102,7 +102,7 @@ const AdminDashBoard=({
         return { color: percentage <= 35 ? colorArr[0] : percentage <= 70 ? colorArr[1] : colorArr[2] , percentage}
     }
     const getCard = (obj)=>{
-        const { name, previous, current, type, desc='' } = obj;
+        const { name, previous, current, type, desc='', isPercent=false } = obj;
         const { color, percentage } = getGaugeObj(current, previous, type);
         const isCurrencySymbolNeeded = !['paitent', 'readAPI','writeAPI','storageAPI'].includes(type)
         return (
@@ -140,7 +140,7 @@ const AdminDashBoard=({
                     display="block"
                     gutterBottom
                     >
-                    {`${isCurrencySymbolNeeded ? '₹ ' : ''}${current.toLocaleString('en-IN')} / ${previous.toLocaleString('en-IN')}`}
+                    {isPercent ? ((current*100)/previous).toFixed(2)+'% / 100%' : `${isCurrencySymbolNeeded ? '₹ ' : ''}${current.toLocaleString('en-IN')} / ${previous.toLocaleString('en-IN')}`}
                     </Typography>
                 </Box>
             </Box>
@@ -186,9 +186,9 @@ const AdminDashBoard=({
         getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),
         getCard({name: 'Discount Panel', type: 'discount', previous: previousTotalDiscount, current: totalDiscount}),
         getCard({name: 'Patient Panel', type: 'patient', previous: previousPatientCount, current: patientCount}),
-        getCard({name: 'Read API Panel', type: 'readAPI', previous: prevRowsRead, current: rowsRead}),
-        getCard({name: 'Write API Panel', type: 'writeAPI', previous: prevRowsWrite, current: rowsWrite}),
-        getCard({name: 'API Storage Panel', type: 'storageAPI', previous: prevStorageBytes, current: storageBytes})
+        getCard({isPercent:true,name: 'Read API Panel', type: 'readAPI', previous: prevRowsRead, current: rowsRead}),
+        getCard({isPercent:true,name: 'Write API Panel', type: 'writeAPI', previous: prevRowsWrite, current: rowsWrite}),
+        getCard({isPercent:true,name: 'API Storage Panel', type: 'storageAPI', previous: prevStorageBytes, current: storageBytes})
     ];
     }
     useEffect(() => {

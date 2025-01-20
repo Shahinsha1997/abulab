@@ -799,4 +799,4 @@ export const sendWhatsappMessage = (type,rowDetails)=>{
     }
     return newId  
 }
-export const API_FETCH_LIMIT = 20;
+export const API_FETCH_LIMIT = 50;

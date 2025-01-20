@@ -42,7 +42,7 @@ class DashboardLayout extends Component {
         searchStr:'',
         searchField: '',
         sortField:'ID',
-        sortOrder:'ASC',
+        sortOrder:'DESC',
         isNoMore: false
       },
       page:LAB_VIEW,
