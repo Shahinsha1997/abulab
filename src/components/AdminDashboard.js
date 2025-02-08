@@ -115,7 +115,9 @@ const AdminDashBoard=({
         totalDiscount,
         patientCount,
         externalLabAmount,
-        personalExpenseAmount
+        personalExpenseAmount,
+        profit,
+        netProfit
     } = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
     let {
         totalIncome: previousTotalIncome, 
@@ -124,14 +126,15 @@ const AdminDashBoard=({
         totalDiscount: previousTotalDiscount,
         patientCount: previousPatientCount,
         externalLabAmount: prevExternalLabAmount,
-        personalExpenseAmount: prevPersonalExpenseAmount
+        personalExpenseAmount: prevPersonalExpenseAmount,
+        profit: prevProfit,
+        netProfit: prevNetProfit
     } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
-    const previousProfit = previousTotalIncome - previousTotalExpense
-    const profit = totalIncome - totalExpense;
     let cards = [getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),];
     if(isAdmin){
        cards = [
-        getCard({name: 'Profit Panel', type: 'profit', previous: previousProfit, current: profit, desc:"(Paid Amount - Expense)"}),
+        getCard({name: 'Net Profit Panel', type: 'netProfit', previous: prevNetProfit, current: netProfit, desc:"(Profit - Personal Expenses)"}),
+        getCard({name: 'Profit Panel', type: 'profit', previous: prevProfit, current: profit, desc:"(Paid Amount - Expense)"}),
         getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome, current: totalIncome, desc:'(Paid Amount)'}),
         getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense, desc:"(All except personal expense)"}),
         getCard({name: 'External Lab Expense', type: 'externalLab', previous: prevExternalLabAmount, current: externalLabAmount}),

@@ -592,6 +592,8 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         const { income, expense } = resultObj[key]
         response.push({...resultObj[key], profit:income-expense,[keyName] : time})
     })
+    const profit = totalIncome - totalExpense;
+    const netProfit = profit - personalExpenseAmount;
     return { 
         dataIds: response, 
         totalExpense, 
@@ -600,7 +602,9 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         totalDiscount, 
         patientCount,
         externalLabAmount,
-        personalExpenseAmount
+        personalExpenseAmount,
+        profit,
+        netProfit
     };
 }
 
