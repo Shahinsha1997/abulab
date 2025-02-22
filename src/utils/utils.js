@@ -422,7 +422,7 @@ export const isDueAlarmNeeded = (ids=[], obj) =>{
     const modifyMinTime = currentTime - (7 * ONE_DAY_IN_MS )
     for(let i=0;i<ids.length;i++){
         const { time, comments, modifiedTime } = obj[ids[i]];
-        if((time <= minimumTime && comments == '') ||(comments !='' && modifiedTime <= modifyMinTime)){
+        if((time <= minimumTime && comments == '') ||(comments !='' && modifiedTime <= modifyMinTime && time <= minimumTime)){
             isDueAlarmNeeded = true;
             break;
         }
@@ -436,7 +436,7 @@ export const getDueAlarmedDatas = (ids=[],obj) =>{
     const modifyMinTime = currentTime - (7 * ONE_DAY_IN_MS )
     for(let i=0;i<ids.length;i++){
         const { time, comments, modifiedTime } = obj[ids[i]];
-        if((time <= minimumTime && comments == '') ||(comments !='' && modifiedTime <= modifyMinTime)){
+        if((time <= minimumTime && comments == '') ||(comments !='' && modifiedTime <= modifyMinTime && time <= minimumTime)){
             dueAlarmedDataIds.push(obj[ids[i]]);
         }
     }
