@@ -42,7 +42,8 @@ const IncomeForm = ({
         totalAmount: '0',
         paidAmount: '0',
         comments: '',
-        namePrefix: 'Mrs.'
+        namePrefix: 'Mrs.',
+        collectionAmount:0
         }, ...(getEditedFormProperties(data[formType],testObj))})
     const [state, setState] = React.useState(initialState);
     const [errState, setErrorState] = React.useState({});
@@ -84,7 +85,8 @@ const IncomeForm = ({
       namePrefix, 
       discount,
       uuid,
-      time
+      time,
+      collectionAmount
     } = state;
     const dueAmount = totalAmount- parseInt(discount) - paidAmount
     const status = getStatus(true, dueAmount)
@@ -113,6 +115,7 @@ const IncomeForm = ({
       totalAmount : getAmountVal(totalAmount), 
       paidAmount:  getAmountVal(paidAmount), 
       dueAmount: getAmountVal(dueAmount),
+      collectionAmount: getAmountVal(collectionAmount),
       isScheduled: true,
       comments
     })
@@ -130,7 +133,7 @@ const IncomeForm = ({
     }
     showAlert({type: 'success', message:isAddForm ? "Datas Queued for Income Add Successfully..." : "Datas Queued for Income Update successfully"})
   };
-    const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix } = state;
+    const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix, collectionAmount=0 } = state;
     const { name: nameError, description: descriptionErr, mobileNumber: mobileNumberErr, drName: drNameErr, totalAmount: totalAmountErr, paidAmount: paidAmountErr } = errState;
     const isFieldDisabled = !(isAddForm || isAdmin)
     const dueAmount = (totalAmount-discount-paidAmount);
@@ -255,12 +258,26 @@ const IncomeForm = ({
                         }}
                     />
                     {totalAmountErr && <Alert severity="error">{totalAmountErr}</Alert>}
+                    
                 </Grid>
                 <Grid item>
                     <TextField 
+                        sx={{width:'60%'}} 
                         label="Paid Amount" 
                         name="paidAmount" 
                         value={paidAmount} 
+                        onChange={handleInputChange} 
+                        required 
+                        fullWidth 
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                        }}
+                    />
+                    <TextField 
+                        sx={{width:'40%'}} 
+                        label="Collection Amount" 
+                        name="collectionAmount" 
+                        value={collectionAmount} 
                         onChange={handleInputChange} 
                         required 
                         fullWidth 

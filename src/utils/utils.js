@@ -113,6 +113,11 @@ export const getFormFields = (fieldType)=>{
                 label: 'Discount',
                 'maxWidth': '80px'
             },
+            'collectionAmount' : {
+                id: 'collectionAmount',
+                label: 'Collection Amount',
+                'maxWidth': '80px'
+            },
             'paidAmount' : {
                 id: 'paidAmount',
                 label: 'Paid Amount',
@@ -229,6 +234,11 @@ export const getFormFields = (fieldType)=>{
                 label: 'Discount',
                 'maxWidth': '150px'
             },
+            'collectionAmount' : {
+                id: 'collectionAmount',
+                label: 'Collection Amount',
+                'maxWidth': '80px'
+            },
             'outstanding' : {
                 id: 'outstanding',
                 label: 'Outstanding',
@@ -260,6 +270,11 @@ export const getFormFields = (fieldType)=>{
                 id: 'discount',
                 label: 'Discount',
                 'maxWidth': '150px'
+            },
+            'collectionAmount' : {
+                id: 'collectionAmount',
+                label: 'Collection Amount',
+                'maxWidth': '80px'
             },
             'outstanding' : {
                 id: 'outstanding',
@@ -512,6 +527,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
     let totalExpense = 0;
     let totalOutstanding = 0;
     let totalDiscount = 0;
+    let totalCollectionAmount = 0;
     let patientCount = 0;
     let externalLabAmount = 0 ;
     let personalExpenseAmount = 0;
@@ -525,7 +541,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
                     patientCount:0
                 }
             }
-            const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0, name='' } = object[id];
+            const { totalAmount=0, dueAmount=0, paidAmount=0, status, discount=0, name='', collectionAmount=0 } = object[id];
            
             if(status == EXPENSE_LABEL){
                 if(name.toLowerCase().includes('|personal expense')){
@@ -538,9 +554,10 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
                     resultObj[type].expense = resultObj[type].expense + parseInt(totalAmount)
                 }
             }else{
-                const {income, expense, outstanding, discount:resDiscount=0 } = resultObj[type];
+                const {income, expense, outstanding, discount:resDiscount=0} = resultObj[type];
                 totalIncome += parseInt(paidAmount)
                 totalDiscount += parseInt(discount || 0)
+                totalCollectionAmount += parseInt(collectionAmount || 0)
                 totalOutstanding += parseInt(dueAmount || 0)
                 patientCount += 1;
                 resultObj[type] = {
@@ -600,6 +617,7 @@ export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{
         totalIncome, 
         totalOutstanding, 
         totalDiscount, 
+        totalCollectionAmount,
         patientCount,
         externalLabAmount,
         personalExpenseAmount,

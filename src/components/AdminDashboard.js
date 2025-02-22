@@ -117,7 +117,8 @@ const AdminDashBoard=({
         externalLabAmount,
         personalExpenseAmount,
         profit,
-        netProfit
+        netProfit,
+        totalCollectionAmount
     } = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
     let {
         totalIncome: previousTotalIncome, 
@@ -128,7 +129,8 @@ const AdminDashBoard=({
         externalLabAmount: prevExternalLabAmount,
         personalExpenseAmount: prevPersonalExpenseAmount,
         profit: prevProfit,
-        netProfit: prevNetProfit
+        netProfit: prevNetProfit,
+        totalCollectionAmount: prevTotalCollectionAmount
     } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
     let cards = [getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),];
     if(isAdmin){
@@ -142,6 +144,7 @@ const AdminDashBoard=({
         getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),
         getCard({name: 'Discount Panel', type: 'discount', previous: previousTotalDiscount, current: totalDiscount}),
         getCard({name: 'Patient Panel', type: 'patient', previous: previousPatientCount, current: patientCount}),
+        getCard({name: 'Collection Amount Panel', type: 'collectionAmount', previous: prevTotalCollectionAmount, current: totalCollectionAmount}),
     ];
     }
     useEffect(() => {

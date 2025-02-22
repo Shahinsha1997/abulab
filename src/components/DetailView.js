@@ -54,10 +54,11 @@ const DetailView = ({
         comments: '',
         namePrefix: 'Mrs.',
         status:INCOME_LABEL,
-        uuid:''
+        uuid:'',
+        collectionAmount: 0
         }, ...(getEditedFormProperties(dataIds[id],testObj))})
 
-    const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix, status } = initialState;
+    const { patientId, name, mobileNumber, discount=0, description,testsArr, drName, totalAmount, paidAmount, comments, namePrefix, status, collectionAmount=0 } = initialState;
     const dueAmount = (totalAmount-discount-paidAmount)
     return(
         <Container>
@@ -187,9 +188,22 @@ const DetailView = ({
                     </Grid>
                     <Grid item>
                         <TextField 
+                            sx={{width:'60%'}} 
                             label="Paid Amount" 
                             name="paidAmount" 
                             value={paidAmount} 
+                            required 
+                            fullWidth 
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">₹ </InputAdornment>,
+                                readOnly:true
+                            }}
+                        />
+                        <TextField 
+                            sx={{width:'40%'}} 
+                            label="Collection Amount" 
+                            name="collectionAmount" 
+                            value={collectionAmount} 
                             required 
                             fullWidth 
                             InputProps={{
