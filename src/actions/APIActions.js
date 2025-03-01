@@ -1,9 +1,9 @@
 import { getAsObj, getLocalStorageData, setCacheDatas, setCacheTestDatas, setLocalStorageData, sortIds } from "../utils/utils"
 
 const getDataUrl = ()=>{
-    // if(location.hostname == 'localhost'){
-    //     return 'https://script.google.com/macros/s/AKfycby5hJsfPfdqWOgjXsbcV0Yqkiw0cF8gR2HISf_TGL3V7glJgw4EqYPO51ckJe3c4dkn8A/exec'
-    // }
+    if(location.hostname == 'localhost'){
+        return 'https://script.google.com/macros/s/AKfycby5hJsfPfdqWOgjXsbcV0Yqkiw0cF8gR2HISf_TGL3V7glJgw4EqYPO51ckJe3c4dkn8A/exec'
+    }
     return 'https://script.google.com/macros/s/AKfycby6CNgm22O0DswETueSplmfaRLFGWais5HW5Cgb94vJ3txa-UEdZ7nGgJpgkLBsBFxjaw/exec'
 }
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbyzv_FekWZBKuK7gw2m-jqVdVtXAG_IJLRw9RTEFOvy2RDMYFZD2nwqN4WGvJidxYLG/exec'
