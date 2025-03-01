@@ -1,16 +1,23 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { getLocalStorageData } from '../utils/utils';
+import { setUser } from '../dispatcher/action';
 
 const allowedPaths = ['/dashboard', '/reports/'];
 
-const PrivateRoute = () => {
+const PrivateRoute = (props) => {
+    const dispatch = useDispatch();
+
+    const setUsers = (userObj) => {
+        dispatch(setUser(userObj));
+    }
     const isLoggedIn = getLocalStorageData('userObj', '{}');
     const location = useLocation();
 
     const isPathAllowed = allowedPaths.some(path=>location.pathname.includes(path));
 
     if (isLoggedIn.userName) {
+        setUsers(isLoggedIn);
         if (isPathAllowed) {
             return <Outlet />; // Render the child component (nested route)
         } else {
