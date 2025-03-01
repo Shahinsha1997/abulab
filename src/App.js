@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import AppointmentForm from './components/AppoinmentPage';
 import { useMediaQuery } from '@mui/material';
+import ReportDv from './components/ReportDv';
 const App =(props)=>{
   const [currentPath, setCurrentPath] = useState('login')
   const [isNavigateNeed, setIsNavigateNeed] = useState(false)
@@ -24,6 +25,7 @@ const App =(props)=>{
         <Routes>
           <Route path="/login" element={<LoginPage isNavigateNeed={isNavigateNeed} currentPath={currentPath} handleNavigate={handleNavigate}/>} />
           <Route path="/" element={<PrivateRoute />}>
+            <Route path="/reports/:reportId" element={<ReportDv isMobile={isMobile}/>} /> 
             <Route path="/dashboard" element={<DashboardLayout isMobile={isMobile}/>} /> 
           </Route>
           <Route path="/appointments" element={<AppointmentForm/>} />

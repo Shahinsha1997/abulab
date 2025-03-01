@@ -49,10 +49,13 @@ const RightPanel = ({
   filterPopup,
   viewType,
   patientIdObj,
-  deleteData
+  deleteData,
+  reportObj,
+  reportDetails
 }) => {
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
+    { icon: <AddIcon />, name: 'Report', type:'addReports' },
     { icon: <AddIcon />, name: 'Expense', type:'addExpense' },
     { icon: <AddIcon />, name: 'Income', type:'addIncome'}
   ];
@@ -160,6 +163,8 @@ const RightPanel = ({
             testObj={testObj}
             multiTestAdd={multiTestAdd}
             testArr={testArr}
+            reportObj={reportObj}
+            reportDetails={reportDetails}
             page={page}
             dueWithMobile={dueWithMobile}
             patientIdObj={patientIdObj}

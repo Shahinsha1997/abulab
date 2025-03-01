@@ -63,6 +63,7 @@ const LeftPanel = ({
   const handleAddTest = () =>{
     toggleForm('addTests')
   }
+  const handleAddReport = ()=>toggleForm('addReports')
   const handleClearCache = ()=>{
     clearCache();
   }
@@ -137,6 +138,9 @@ const LeftPanel = ({
             )}
             <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddTest}>
                 Add/Edit Test
+            </Button>
+            <Button variant="contained" startIcon={<AddIcon />} id="add-test-btn" onClick={handleAddReport}>
+                Add/Edit Report Details
             </Button>
             <Button variant="contained" id="add-test-btn" onClick={handleDueAlarmPage}>
                 Due Follow Up

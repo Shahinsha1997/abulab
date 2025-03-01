@@ -13,6 +13,8 @@ export const BLOCKABLE_USER_VIEW = 'Blockable_User_View';
 export const LAB_VIEW = 'Lab_View'
 export const TABLE_VIEW = 'TABLE_VIEW';
 export const LIST_VIEW = 'LIST_VIEW'
+export const dummyArr =[];
+export const dummyObj = {};
 export const changePathName = (pathName)=>{
     window.history.pushState({},'page',pathName);
 }
@@ -24,8 +26,8 @@ export const getLocalStorageData = (key, defaultValue='{}',isParseNeeded=true)=>
     return localStorage[key] || defaultValue
     
 }
-export const setLocalStorageData =(key,obj={})=>{
-    localStorage[key] = JSON.stringify(obj)
+export const setLocalStorageData =(key,obj={}, isParseNeeded=true)=>{
+    localStorage[key] = isParseNeeded ? JSON.stringify(obj) : obj;
 }
 export const getProperId = (id) =>{
     id = parseInt(id);
@@ -362,8 +364,9 @@ export const MULTI_ADD = 'MULTI_ADD';
 export const DATA_DELETE = 'DELETE_DATA';
 export const GET_DATA = 'GET_DATA'
 export const MULTI_TEST_ADD = 'MULTI_TEST_ADD'
+export const MULTI_REPORT_ADD = 'MULTI_REPORT_ADD'
 export const MULTI_APPOINTMENT_ADD = 'MULTI_APPOINTMENT_ADD'
-
+export const isUnitNeededText = "| Unit Value";
 export function bind(...handlers) {
     handlers.forEach((handler) => {
       this[handler] = this[handler].bind(this);
@@ -658,6 +661,7 @@ export const clearCache = ()=>{
     delete localStorage['dataIds']
     delete localStorage['lastCallTime']
     delete localStorage['testDatas']
+    delete localStorage['reportDatas'];
     window.location.reload();
 }
 
@@ -695,7 +699,7 @@ export const getEditedFormProperties = (properties={}, testObj={})=>{
 }
 
 export const isSyncNowNeeded = ()=>{
-   var pendingDatas = ['addTestDatas','addPendingDatas','updatePendingDatas'];
+   var pendingDatas = ['addTestDatas','addPendingDatas','updatePendingDatas', 'addReportDatas'];
    for(let i=0;i<pendingDatas.length;i++){
     if(getLocalStorageData(pendingDatas[i],'[]').length > 0){
         return true;
@@ -764,6 +768,10 @@ export const copyToClipboard = (content)=>{
         'addTest' : {
             'success' : 'Test Datas  added/updated Successfully...',
             'fail' : "Test Datas doesn't added/updated successfully"
+        },
+        'addReportDatas':{
+            'success' : 'Report Datas  added/updated Successfully...',
+            'fail' : "Report Datas doesn't added/updated successfully"
         }
     }[type]
   }
@@ -880,4 +888,10 @@ export const getListRows = (tableData, tableColumns, filterType)=>{
         resp['isBlockedUser'] = row['isBlockedUser'];
         return resp
       });
+}
+export const getReportObj = (reportObj) =>{
+    const reportArr = Object.values(reportObj);
+    const headingArr = reportArr.map(({heading})=>heading.toLowerCase());
+    const reportTestArr = reportArr.map(({testId, testName})=>({testId, testName}));
+    return { headingArr, reportTestArr }
 }

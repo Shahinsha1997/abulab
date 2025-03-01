@@ -9,6 +9,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { OUTSTANDING_LABEL, getAsObj, getLocalStorageData, sendWhatsappMessage, setLocalStorageData } from '../utils/utils';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import BlockIcon from '@mui/icons-material/Block';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 const WhatsAppIconPopup = ({
     hoveredCellId,
     rowDetails,
@@ -28,12 +29,15 @@ const WhatsAppIconPopup = ({
     setAnchorEl(null);
     if(type == 'blockUser'){
       handleBlockUser(rowDetails.uuid);
+    }else if(type == 'openReport'){
+      return window.open("/reports/"+rowDetails.uuid, '_blank');
     }
     sendWhatsappMessage(type, rowDetails)
   }
   const options = [
     { label: 'Send Report Progress', type:'sendReport', icon: <WhatsAppIcon  style={{ color: 'green', backgroundColor: 'transparent' }} />},
     { label: 'Delay in Report', type:'delayReport', icon: <WhatsAppIcon  style={{ color: 'green', backgroundColor: 'transparent' }} />}, 
+    { label: 'Open Report', type:'openReport', icon: <ArticleOutlinedIcon  style={{ backgroundColor: 'transparent' }} />}, 
     { label: 'Close Popup', type:'closePopup'}
   ];
   (isAdmin && rowDetails.status == OUTSTANDING_LABEL) ? options.splice(0,0,{ label: rowDetails.isBlockedUser ? 'Unblock User': 'Block User', type:'blockUser', icon:<BlockIcon/>}) : '';

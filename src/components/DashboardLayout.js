@@ -5,8 +5,8 @@ import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, getBlockedUserDatas, BLOCKED_USER_VIEW, BLOCKABLE_USER_VIEW, getBlockAbleUserDatas } from '../utils/utils';
-import { addDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getTestDataAPI } from '../actions/APIActions';
+import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, getBlockedUserDatas, BLOCKED_USER_VIEW, BLOCKABLE_USER_VIEW, getBlockAbleUserDatas, MULTI_REPORT_ADD, MULTI_TEST_ADD, getReportObj } from '../utils/utils';
+import { addDataAPI, addReportDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getReportDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
 import EventTwoToneIcon from '@mui/icons-material/EventTwoTone';
@@ -184,21 +184,22 @@ class DashboardLayout extends Component {
   }
   syncNowDatas(){
     const { multiAdd, showAlert, multiTestAdd } = this.props;
-    const { addTry=0, updateTry=0, addTestTry=0 } = this.state;
+    const { addTry=0, updateTry=0, addTestTry=0, addReportTry=0 } = this.state;
     const addPendingDatas = getLocalStorageData('addPendingDatas','[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]');
     const addTestDatas = getLocalStorageData('addTestDatas','[]');
-    const type = addPendingDatas.length > 0 ? 'add' : updatePendingDatas.length > 0 ? 'update' : 'addTest'
-    const apiMethod = type == 'addTest' ? addTestDataAPI : addDataAPI 
+    const addReportDatas = getLocalStorageData('addReportDatas','[]');
+    const type = addPendingDatas.length > 0 ? 'add' : updatePendingDatas.length > 0 ? 'update' : addReportDatas.length > 0 ? 'addReportDatas' : 'addTest'
+    const apiMethod = type == 'addTest' ? addTestDataAPI : type == 'addReportDatas' ? addReportDataAPI : addDataAPI 
     const reducerMethod = type == 'addTest' ? multiTestAdd : multiAdd
     setLocalStorageData('lastSyncTime', Date.now());
     const handleBeforeunload = (e)=>{e.preventDefault()}
-    if((addPendingDatas.length > 0 || updatePendingDatas.length > 0  || addTestDatas.length > 0) && !this.isSyncInProgress){
+    if((addPendingDatas.length > 0 || updatePendingDatas.length > 0  || addTestDatas.length > 0 || addReportDatas.length > 0) && !this.isSyncInProgress){
       this.isSyncInProgress = true;
       this.setSyncStatus(false);
       window.addEventListener('beforeunload', handleBeforeunload);
       return apiMethod(type).then((res)=>{
-        reducerMethod({data:res})
+        reducerMethod({data:res, type: type == 'addReportDatas' ? MULTI_REPORT_ADD : MULTI_TEST_ADD})
         showAlert({type: 'success', message: getMessages(type).success})
         this.setSyncStatus(true)
         this.isSyncInProgress = false;
@@ -207,19 +208,21 @@ class DashboardLayout extends Component {
         this.setState({
           addTry: 0,
           updateTry : 0,
-          addTestTry: 0
+          addTestTry: 0,
+          addReportTry: 0
         }, ()=>this.syncNowDatas())
       }).catch(err=>{
         window.removeEventListener('beforeunload',handleBeforeunload); 
         this.setSyncStatus(false)
         this.isSyncInProgress = false;
-        if(addTry > 5 || updateTry > 5 || addTestTry > 5){
+        if(addTry > 5 || updateTry > 5 || addTestTry > 5 || addReportTry > 5){
           return showAlert({type: 'error', message:'Please Contact Shahinsha...'})
         }
         this.setState({
           addTry: type == 'add' ? addTry + 1 : addTry,
           updateTry : type == 'update' ? updateTry + 1 : updateTry,
-          addTestTry: type == 'addTest' ? addTestTry + 1 : addTestTry
+          addTestTry: type == 'addTest' ? addTestTry + 1 : addTestTry,
+          addReportTry: type == 'addReportDatas' ? addReportTry + 1 : addReportTry
         },()=>this.syncNowDatas(type))
         showAlert({type: 'error', message:getMessages(type).fail})
       })
@@ -232,12 +235,16 @@ class DashboardLayout extends Component {
     })
   }
   componentDidMount(){
-    const { multiAdd, showAlert, getDatas } = this.props;
+    const { multiAdd, showAlert,multiTestAdd, getDatas } = this.props;
     scheduleSync(this.syncNowDatas, showAlert)
     const pendingDatas = getLocalStorageData('addPendingDatas', '[]');
     const updatePendingDatas = getLocalStorageData('updatePendingDatas','[]')
     getDatas({data: setCacheDatas({})})
-    this.getAllDatas(()=>multiAdd({data:getAsObj([...pendingDatas, ...updatePendingDatas])}));
+    this.getAllDatas(()=>{
+      multiAdd({data:getAsObj([...pendingDatas, ...updatePendingDatas])})
+      multiTestAdd({data:getAsObj([...getLocalStorageData('addTestDatas', '[]')])}, MULTI_TEST_ADD)
+      multiTestAdd({data:getAsObj([...getLocalStorageData('addReportDatas', '[]')])}, MULTI_REPORT_ADD)
+    });
     
   }
   componentDidUpdate(prevProps, prevState){
@@ -345,14 +352,16 @@ class DashboardLayout extends Component {
   getAllDatas(callbk){
     const { from , limit } = this.state;
     const { getDatas, showAlert, logoutUser, multiTestAdd } = this.props;
-    const promises = [getDataAPI(),getTestDataAPI()]
+    const promises = [getDataAPI(),getTestDataAPI(),getReportDataAPI()]
     this.setState({isLoading:true})
     Promise.all(promises).then(res=>{
     this.setState({isLoading:false})
       const datas = res[0];
       const testDatas = res[1];
+      const reportDatas = res[2];
       getDatas({data: datas, from})
       multiTestAdd({data:testDatas})
+      multiTestAdd({data:reportDatas},MULTI_REPORT_ADD)
       callbk && callbk();
     }).catch(err=>{
       this.setState({isLoading:false})
@@ -406,6 +415,7 @@ class DashboardLayout extends Component {
       { label: 'Add Expense', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addExpenses')} },
       { isHidden: !isAdmin, label: 'Add Personal Expenses', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addPersonalExpenses')} },
       { label: 'Add/Update Test', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addTests')} },
+      { label: 'Add/Update Report Details', icon: <AddIcon />, handleClick:()=>{handleClose();this.toggleForm('addReports')} },
       { label: 'Add Appointment', icon: <AddIcon />, handleClick:()=>window.open('/appointments','_self') },
       { label: 'Close', icon: <CloseOutlined />, handleClick:handleClose},
     ];
@@ -472,7 +482,9 @@ class DashboardLayout extends Component {
       multiTestAdd,
       testArr,
       dataIds,
-      appointmentObj
+      appointmentObj,
+      reportObj,
+      reportDetails
     } = this.props
     const { 
       formType,
@@ -507,6 +519,8 @@ class DashboardLayout extends Component {
         drNamesList={drNamesList}
         testArr={testArr}
         testObj={testObj}
+        reportObj={reportObj}
+        reportDetails={reportDetails}
         multiTestAdd={multiTestAdd}
         adminSection={adminSection}
         page={page}
@@ -596,6 +610,7 @@ const mapStateToProps = (state,props)=>{
     user, 
     appConfig, 
     testObj:testArr,
+    reportObj,
     appointmentObj,
   } = state;
   const { isMobile } = props;
@@ -622,6 +637,8 @@ const mapStateToProps = (state,props)=>{
     drNamesList,
     testArr: Object.values(testArr),
     testObj: getAsObj(Object.values(testArr),'testName').obj,
+    reportObj,
+    reportDetails: getReportObj(reportObj),
     appointmentObj,
     isMobile,
     isDueAlarmNeeded,

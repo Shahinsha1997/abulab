@@ -1,4 +1,4 @@
-import { ADD_DATA, MODIFY_DATA, MULTI_ADD, GET_DATA, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE } from "../utils/utils";
+import { ADD_DATA, MODIFY_DATA, MULTI_ADD, GET_DATA, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE, MULTI_REPORT_ADD } from "../utils/utils";
 
 export const setUser = (datas={}) => {
     return {
@@ -8,10 +8,8 @@ export const setUser = (datas={}) => {
 };
 
 export const logoutUser = ()=>{
-    delete localStorage['userObj']
-    return {
-        type: 'LOGOUT'
-    }
+    localStorage.clear();
+    window.location.href = '/login';
 }
 export const getDatas = (data) => ({
     type: GET_DATA,
@@ -46,8 +44,8 @@ export const closeAlert = () =>({
 })
 
 
-export const multiTestAdd = (data) =>({
-    type: MULTI_TEST_ADD,
+export const multiTestAdd = (data,type=MULTI_TEST_ADD) =>({
+    type: type,
     payload: data
 })
 

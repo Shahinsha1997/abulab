@@ -1,10 +1,10 @@
 import { getAsObj, getLocalStorageData, setCacheDatas, setCacheTestDatas, setLocalStorageData, sortIds } from "../utils/utils"
 
 const getDataUrl = ()=>{
-    if(location.hostname == 'localhost'){
-        return 'https://script.google.com/macros/s/AKfycbwioLTGFkRvuzn2komBf0uRnM9C3vYivSFSXilT2K5WixSX2VVBNZ7nCDQMRYSKzaeAsQ/exec'
-    }
-    return 'https://script.google.com/macros/s/AKfycbxrklFs9pdbzltx2kdwsbUs4K4GfjfRxLZXWPn-hwOR4fkIesc6h5mqrbfVKIP4B4b6Ag/exec'
+    // if(location.hostname == 'localhost'){
+    //     return 'https://script.google.com/macros/s/AKfycby5hJsfPfdqWOgjXsbcV0Yqkiw0cF8gR2HISf_TGL3V7glJgw4EqYPO51ckJe3c4dkn8A/exec'
+    // }
+    return 'https://script.google.com/macros/s/AKfycby6CNgm22O0DswETueSplmfaRLFGWais5HW5Cgb94vJ3txa-UEdZ7nGgJpgkLBsBFxjaw/exec'
 }
 const AUTHENTICATE_URL = 'https://script.google.com/macros/s/AKfycbyzv_FekWZBKuK7gw2m-jqVdVtXAG_IJLRw9RTEFOvy2RDMYFZD2nwqN4WGvJidxYLG/exec'
 const DATA_URL = getDataUrl();
@@ -171,6 +171,64 @@ export const addTestDataAPI = () =>{
     })
 }
 
+export const getReportDataAPI = ()=>{
+    return new Promise((resolve, reject)=>{
+        return fetch(`${DATA_URL}?type=ReportDatas`, {
+            redirect: "follow",
+            method: 'GET',
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+            }
+          })
+        .then(res=>res.json())
+        .then(response=>{
+            if(response.data || response.status == 200){
+                const { data } = response;
+                resolve(setCacheTestDatas(getAsObj(data,'testId'), 'reportDatas'))
+            }
+            throw response.status
+            
+        })
+        .catch(err=>reject(err))
+    })
+}
+
+
+export const addReportDataAPI = () =>{
+    const pendingKey = 'addReportDatas'
+    const inProgressKey = 'addInProgressReportDatas'
+    const data = getLocalStorageData(pendingKey, '[]');
+    const inProgressData = getLocalStorageData(inProgressKey, '[]');
+    setLocalStorageData(inProgressKey,[...inProgressData, ...data])
+    setLocalStorageData(pendingKey,[]);
+    return new Promise((resolve, reject)=>{
+        return fetch(DATA_URL, {
+            redirect: "follow",
+            method: 'POST',
+            body: JSON.stringify({"payload": [...inProgressData, ...data], "type": 'ReportDatas'}), 
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8",
+            }
+          })
+        .then(res=>res.json())
+        .then(response=>{
+            console.log(response)
+            if(response.status == 200){
+                setLocalStorageData(inProgressKey,[]);
+                return resolve(setCacheTestDatas(getAsObj(data,'testId'),'reportDatas'))
+            }
+            setLocalStorageData(pendingKey,[...inProgressData, ...data])
+            setLocalStorageData(inProgressKey,[]);
+            throw response.status
+            
+        })
+        .catch(err=>{
+            setLocalStorageData(pendingKey,[...inProgressData, ...data])
+            setLocalStorageData(inProgressKey,[]);
+            reject(err)
+        })
+    })
+}
 export const addAppointmentAPI = (payload) =>{
     return new Promise((resolve, reject)=>{
         return fetch(DATA_URL, {

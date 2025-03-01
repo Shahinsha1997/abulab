@@ -14,6 +14,7 @@ import IncomeForm from './IncomForm';
 import ExpenseForm from './ExpenseForm'
 import TestForm from './TestForm';
 import PersonalExpenseForm from './PersonalExpenseForm';
+import ReportForm from './ReportForm';
 const Form = ({
   addData,
   data,
@@ -31,7 +32,9 @@ const Form = ({
   page,
   dueWithMobile,
   patientIdObj,
-  setDetailViewId
+  setDetailViewId,
+  reportObj,
+  reportDetails
 }) => {
   const isAddForm = (page == APPOINTMENTS_VIEW && data[formType]) || (!data[formType] && formType.indexOf('add') != -1)
   const isIncomeForm = (page == APPOINTMENTS_VIEW && data[formType]) || formType.indexOf('Income')!=-1 || (!isAddForm && data[formType] && data[formType].status != EXPENSE_LABEL);
@@ -59,7 +62,7 @@ const Form = ({
                   }
                 >
                     <Typography gutterBottom style={{fontSize: '1.5rem'}} component="div">
-                     {formType == 'addTests' ? 'Add Test Form' : isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} ${isPersonalExpense ? 'Personal' : ''} Expenses`}
+                     {formType == 'addReports' ? 'Add Report Details' : formType == 'addTests' ? 'Add Test Form' : isIncomeForm ? `${isAddForm ? 'Add' : 'Edit'} Income Form` : `${isAddForm ? 'Add' : 'Edit'} ${isPersonalExpense ? 'Personal' : ''} Expenses`}
                     </Typography>
                 </ListItem>
             </List>
@@ -93,6 +96,17 @@ const Form = ({
                 showAlert={showAlert}
                 testArr={testArr}
                 multiTestAdd={multiTestAdd}
+              />
+            )
+            : formType == 'addReports' ? (
+              <ReportForm   
+                formType={formType}
+                toggleDrawer={toggleDrawer}
+                showAlert={showAlert}
+                testArr={testArr}
+                multiTestAdd={multiTestAdd}
+                reportObj={reportObj}
+                reportDetails={reportDetails}
               />
             ) : isPersonalExpense ? (
               <PersonalExpenseForm

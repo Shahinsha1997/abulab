@@ -1,28 +1,16 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { getLocalStorageData } from '../utils/utils';
 
+const PrivateRoute = () => {
+    const isLoggedIn = getLocalStorageData('userObj','{}');
+    const location = useLocation();
 
-class PrivateRoute extends Component {
-  render() {
-    const { isLoggedIn } = this.props;
-    if (isLoggedIn) {
-      return <Outlet />; // Render the child component (nested route)
+    if (isLoggedIn.userName) {
+        return <Outlet />; // Render the child component (nested route)
     } else {
-      return <Navigate to="/login" replace />; // Redirect to login if not logged in
+        return <Navigate to="/login" state={{ from: location }} replace />; // Redirect to login if not logged in
     }
-  }
-}
+};
 
-
-const mapStateToProps = (state)=>{
-  const { user={}} =state;
-  const { isLoggedIn } = user;
-  return {
-    isLoggedIn
-  }
-}
-
-export default connect(mapStateToProps,{
-  
-})(PrivateRoute);
+export default PrivateRoute;

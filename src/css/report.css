@@ -1,0 +1,55 @@
+@media print{
+    .drawe{
+      display: none !important;
+    }
+    .appbar{
+      display: none !important;
+    }
+    .Addbut{
+      display: none !important;
+    }
+    .Billir{
+      display: none !important;
+    }
+    .firpage{
+      border: none !important;
+      box-shadow: none;
+    }
+    .pageno{
+      display: none !important;
+    }
+    .War{
+      display: none !important;
+    }
+    .Result{
+      display: inline-block !important;
+      margin-right: 25px;
+    }
+    .RefRange{
+      display: inline-block !important;
+    }
+    .fist{
+      margin-top: 55px;
+    }
+    .clo{
+      display: none !important;
+    }
+    .no-print{
+      display: none !important;
+    }
+  }
+  
+  .inbo{
+    font-size: 20px;
+    height: 40px;
+    width: 200px;
+  }
+  .Log{
+    width: 50px;
+    height: 50px;
+  }
+
+  @font-face {
+    font-family: 'Tahoma';
+    src: url('../fonts/tahoma.ttf') format('truetype');
+}
