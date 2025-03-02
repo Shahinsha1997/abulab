@@ -36,7 +36,7 @@ const AdminDashBoard=({
     data,
     filterObj,
     isAdmin,
-    dueObj
+    dueObj={}
 })=>{
     const isMobile = useMediaQuery('(max-width: 600px)');
     const [numCardsPerRow, setNumCardsPerRow] = useState(isMobile ? 1 : 2)
