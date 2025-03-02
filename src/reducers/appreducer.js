@@ -1,4 +1,4 @@
-import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE, MULTI_REPORT_ADD } from "../utils/utils";
+import { ADD_DATA, GET_DATA, MODIFY_DATA, MULTI_ADD, getUniQueIds, fieldFilterArr, MULTI_TEST_ADD, MULTI_APPOINTMENT_ADD, DATA_DELETE, MULTI_REPORT_ADD, DUE_ADD } from "../utils/utils";
 
 const initialState = {
     isLoggedIn: false
@@ -69,6 +69,21 @@ const testDataReducer = (state = {}, action={}) => {
         return state;
     }
   };
+const mergeObj = (prevObj, newObj, key)=>{
+  const { [key]: prevValue={}, ...prevRest } = prevObj;
+  console.log({...prevRest,[key]: {...prevValue, ...newObj}})
+  return {...prevRest, [key]: {...prevValue, ...newObj}}
+}
+const otherConfig = (state={}, action={})=>{
+  const { data={}, key } = action.payload || {}
+  const { obj } = data;
+  switch (action.type){
+    case DUE_ADD:
+      return mergeObj(state, obj, key)
+    default:
+      return state;
+  }
+}
 const reportDataReducer = (state={}, action={})=>{
   const { data={} } = action.payload || {}
   const { obj } = data;
@@ -168,6 +183,7 @@ export const getAllReducers = () =>{
         appConfig: appReducer,
         testObj: testDataReducer,
         reportObj: reportDataReducer,
-        appointmentObj: appointmentReducer
+        appointmentObj: appointmentReducer,
+        otherConfig: otherConfig
     }
 }

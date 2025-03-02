@@ -7,7 +7,7 @@ import {
     GaugeReferenceArc,
     useGaugeState
   } from '@mui/x-charts/Gauge';
-import { getDatasByProfit, getTimeFilter } from '../utils/utils';
+import { getDatasByProfit, getDueCollected, getTimeFilter } from '../utils/utils';
   function GaugePointer() {
     const { valueAngle, outerRadius, cx, cy } = useGaugeState();
   
@@ -35,7 +35,8 @@ const AdminDashBoard=({
     allDataIds,
     data,
     filterObj,
-    isAdmin
+    isAdmin,
+    dueObj
 })=>{
     const isMobile = useMediaQuery('(max-width: 600px)');
     const [numCardsPerRow, setNumCardsPerRow] = useState(isMobile ? 1 : 2)
@@ -134,13 +135,19 @@ const AdminDashBoard=({
     } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
     let cards = [getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),];
     if(isAdmin){
+      const currentDue = getDueCollected(dueObj, timeFilter,timeInput);
+      const previousDue = getDueCollected(dueObj, timeFilter,timeInput, true);
+      const {
+        totalOutstanding:totalDue
+      } = getDatasByProfit(allDataIds, data, "Outstanding", "All")
        cards = [
         getCard({name: 'Net Profit Panel', type: 'netProfit', previous: prevNetProfit, current: netProfit, desc:"(Profit - Personal Expenses)"}),
-        getCard({name: 'Profit Panel', type: 'profit', previous: prevProfit, current: profit, desc:"(Paid Amount - Expense)"}),
-        getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome, current: totalIncome, desc:'(Paid Amount)'}),
+        getCard({name: 'Profit Panel', type: 'profit', previous: prevProfit, current: profit, desc:"(Income - Expense)"}),
+        getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome + previousDue, current: totalIncome + currentDue, desc:'(Paid Amount + Due Collected)'}),
+        getCard({name: 'Due Amount Collected Panel', type: 'income', previous: totalDue, current: currentDue, desc:'(Due Amount Collected for Prev months)'}),
         getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense, desc:"(All except personal expense)"}),
         getCard({name: 'External Lab Expense', type: 'externalLab', previous: prevExternalLabAmount, current: externalLabAmount}),
-        getCard({name: 'Personal Expense', type: 'personalExpense', previous: prevPersonalExpenseAmount, current: personalExpenseAmount}),
+        getCard({name: 'Personal Expense', type: 'expense', previous: prevPersonalExpenseAmount, current: personalExpenseAmount}),
         getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),
         getCard({name: 'Discount Panel', type: 'discount', previous: previousTotalDiscount, current: totalDiscount}),
         getCard({name: 'Patient Panel', type: 'patient', previous: previousPatientCount, current: patientCount}),

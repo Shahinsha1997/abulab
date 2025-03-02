@@ -5,7 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
 import Select from '@mui/material/Select';
 import { v4 as uuidv4 } from 'uuid';
-import { APPOINTMENTS_VIEW, OUTSTANDING_LABEL, PREFIX_NAMES_LIST, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, getProperId, getStatus, getTimeWithDate, isFormErrorFound, setLocalStorageData } from '../utils/utils';
+import { APPOINTMENTS_VIEW, OUTSTANDING_LABEL, PREFIX_NAMES_LIST, getAmountVal, getAsObj, getEditedFormProperties, getLocalStorageData, getProperId, getStatus, getTimeWithDate, isFormErrorFound, isModifiedTimeOutsideCurrentMonthAndYear, setLocalStorageData } from '../utils/utils';
 import { Autocomplete, TextField, Chip, Container, Grid, InputAdornment, Link } from '@mui/material';
 const IncomeForm = ({ 
     getIdPrefix, 
@@ -86,9 +86,10 @@ const IncomeForm = ({
       discount,
       uuid,
       time,
-      collectionAmount
+      collectionAmount,
+      dueAmount:prevDueAmount
     } = state;
-    const dueAmount = totalAmount- parseInt(discount) - paidAmount
+    const dueAmount = totalAmount- parseInt(discount) - paidAmount;
     const status = getStatus(true, dueAmount)
     const { isError, errObj } = isFormErrorFound('',status,state)
     if(isAddForm && dueWithMobile[mobileNumber]?.isBlockedUser){
@@ -117,7 +118,8 @@ const IncomeForm = ({
       dueAmount: getAmountVal(dueAmount),
       collectionAmount: getAmountVal(collectionAmount),
       isScheduled: true,
-      comments
+      comments,
+      prevDueAmount: (!isAddForm && isModifiedTimeOutsideCurrentMonthAndYear(time)) ? (prevDueAmount - dueAmount) : 0
     })
     addPending.splice(0,0,data)
     setLocalStorageData(localStorageKey, addPending)

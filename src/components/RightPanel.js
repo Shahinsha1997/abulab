@@ -51,8 +51,10 @@ const RightPanel = ({
   patientIdObj,
   deleteData,
   reportObj,
-  reportDetails
+  reportDetails,
+  otherConfig
 }) => {
+  const { dueObj } = otherConfig;
   const actions = [
     { icon: <AddIcon />, name: 'Test', type:'addTests' },
     { icon: <AddIcon />, name: 'Report', type:'addReports' },
@@ -221,7 +223,7 @@ const RightPanel = ({
                     IconProps={{ color: 'inherit' }}
                     sx={{fontSize: 'inherit', height:isMobile ? '40px' : 'inherit', width:isMobile ? '100px': 'inherit'}}
                 >
-                    <MenuItem value="All">All</MenuItem>
+                    {/* <MenuItem value="All">All</MenuItem> */}
                     <MenuItem value="DayWise">
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <CalendarTodayOutlined fontSize="small" sx={{ marginRight: '0.5rem' }} />
@@ -349,6 +351,7 @@ const RightPanel = ({
                     data={data}
                     filterObj={filterObj}
                     isAdmin={isAdmin}
+                    dueObj={dueObj}
                   />
                 </Box>
               ): (

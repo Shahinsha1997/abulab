@@ -5,7 +5,7 @@ import '../css/dashboardstyles.css'
 import { Box, Grid, useMediaQuery, IconButton,Typography, MenuItem, Menu, ListItemIcon, ListItemText, Button, LinearProgress } from '@mui/material';
 import { connect } from 'react-redux';
 import { logoutUser, addData,multiAdd,multiTestAdd, getDatas, closeAlert, showAlert, multiAppointmentAdd, deleteData } from '../dispatcher/action';
-import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, getBlockedUserDatas, BLOCKED_USER_VIEW, BLOCKABLE_USER_VIEW, getBlockAbleUserDatas, MULTI_REPORT_ADD, MULTI_TEST_ADD, getReportObj } from '../utils/utils';
+import { APPOINTMENTS_VIEW, PERSONAL_EXPENSE_VIEW, EXPENSE_LABEL, LAB_VIEW, LIST_VIEW, TABLE_VIEW, bind, clearCache, getAppoinmentsData, getAsObj, getCurrentMonth, getDatasByProfit, getDrNameList, getFormFields, getLocalStorageData, getMessages, getTimeFilter, isSyncNowNeeded, scheduleSync, setCacheDatas, setLocalStorageData, DUEALARM_VIEW, getDueAlarmedDatas, getBlockedUserDatas, BLOCKED_USER_VIEW, BLOCKABLE_USER_VIEW, getBlockAbleUserDatas, MULTI_REPORT_ADD, MULTI_TEST_ADD, getReportObj, DUE_ADD } from '../utils/utils';
 import { addDataAPI, addReportDataAPI, addTestDataAPI, deleteDataAPI, getAppointmentDatasAPI, getDataAPI, getReportDataAPI, getTestDataAPI } from '../actions/APIActions';
 import { Alert, Snackbar } from '@mui/material';
 import EventSharpIcon from '@mui/icons-material/EventSharp';
@@ -199,7 +199,12 @@ class DashboardLayout extends Component {
       this.setSyncStatus(false);
       window.addEventListener('beforeunload', handleBeforeunload);
       return apiMethod(type).then((res)=>{
-        reducerMethod({data:res, type: type == 'addReportDatas' ? MULTI_REPORT_ADD : MULTI_TEST_ADD})
+        if(['add','update'].includes(type)){
+          reducerMethod({data:res.datas})
+          multiTestAdd({data:res.dueObj, key: 'dueObj'},DUE_ADD)
+        }else{
+          reducerMethod({data:res, type: type == 'addReportDatas' ? MULTI_REPORT_ADD : MULTI_TEST_ADD})
+        }
         showAlert({type: 'success', message: getMessages(type).success})
         this.setSyncStatus(true)
         this.isSyncInProgress = false;
@@ -356,12 +361,13 @@ class DashboardLayout extends Component {
     this.setState({isLoading:true})
     Promise.all(promises).then(res=>{
     this.setState({isLoading:false})
-      const datas = res[0];
+      const {datas, dueObj} = res[0];
       const testDatas = res[1];
       const reportDatas = res[2];
       getDatas({data: datas, from})
       multiTestAdd({data:testDatas})
       multiTestAdd({data:reportDatas},MULTI_REPORT_ADD)
+      multiTestAdd({data:dueObj, key: 'dueObj'},DUE_ADD)
       callbk && callbk();
     }).catch(err=>{
       this.setState({isLoading:false})
@@ -484,7 +490,8 @@ class DashboardLayout extends Component {
       dataIds,
       appointmentObj,
       reportObj,
-      reportDetails
+      reportDetails,
+      otherConfig
     } = this.props
     const { 
       formType,
@@ -533,6 +540,7 @@ class DashboardLayout extends Component {
         filterPopup={filterPopup}
         viewType={viewType}
         deleteData={this.deleteData}
+        otherConfig={otherConfig}
       />
     )
   }
@@ -612,6 +620,7 @@ const mapStateToProps = (state,props)=>{
     testObj:testArr,
     reportObj,
     appointmentObj,
+    otherConfig
   } = state;
   const { isMobile } = props;
   const { isAdmin, id } = user;
@@ -642,7 +651,8 @@ const mapStateToProps = (state,props)=>{
     appointmentObj,
     isMobile,
     isDueAlarmNeeded,
-    filteredByBlocked
+    filteredByBlocked,
+    otherConfig
   }
 }
 

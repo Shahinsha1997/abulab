@@ -365,6 +365,7 @@ export const DATA_DELETE = 'DELETE_DATA';
 export const GET_DATA = 'GET_DATA'
 export const MULTI_TEST_ADD = 'MULTI_TEST_ADD'
 export const MULTI_REPORT_ADD = 'MULTI_REPORT_ADD'
+export const DUE_ADD = 'DUE_ADD'
 export const MULTI_APPOINTMENT_ADD = 'MULTI_APPOINTMENT_ADD'
 export const isUnitNeededText = "| Unit Value";
 export function bind(...handlers) {
@@ -520,6 +521,43 @@ export const getTimeFilter = ({dataIds, timeFilter, timeInput, isPrevious, data}
         }
     }
     return filteredIds;
+}
+export const getDueCollected = (obj, typeFilter, timeFilter, isPrev=false)=>{
+    const keys = Object.keys(obj);
+    let dueAmount = 0;
+    if(typeFilter == 'YearWise'){
+        const newTime = isPrev ? timeFilter -1 : timeFilter;
+        keys.map(key=>{
+            if(key.includes(newTime)){
+                dueAmount += obj[key].dueAmount;
+            }
+        })
+    }else{
+        const parts = timeFilter.split('/');
+        let month, year;
+
+        if (parts.length === 2) {
+        month = parseInt(parts[0], 10);
+        year = parseInt(parts[1], 10);
+        } else if (parts.length === 3) {
+        month = parseInt(parts[0], 10);
+        year = parseInt(parts[2], 10);
+        } else {
+        throw new Error("Invalid date format. Expected 'MM/YYYY' or 'MM/DD/YYYY'.");
+        }
+
+        if (isPrev) {
+        month--;
+            if (month === 0) {
+                month = 12;
+                year--;
+            }
+        }
+
+        const formattedMonth = String(month).padStart(2, '0');
+        return selectn(`${formattedMonth}-${year}.`+"dueAmount",obj) || 0;
+    }
+    return dueAmount;
 }
 
 export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{ 
@@ -895,3 +933,19 @@ export const getReportObj = (reportObj) =>{
     const reportTestArr = reportArr.map(({testId, testName})=>({testId, testName}));
     return { headingArr, reportTestArr }
 }
+export const isModifiedTimeOutsideCurrentMonthAndYear = (modifiedTimeMs) =>{
+    if (typeof modifiedTimeMs !== 'number') {
+      return false; // Or throw an error, depending on your needs
+    }
+  
+    const modifiedDate = new Date(modifiedTimeMs);
+    const currentDate = new Date();
+  
+    const modifiedYear = modifiedDate.getFullYear();
+    const modifiedMonth = modifiedDate.getMonth(); // 0-indexed
+  
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+  
+    return modifiedYear !== currentYear || modifiedMonth !== currentMonth;
+  }
