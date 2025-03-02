@@ -144,7 +144,7 @@ const AdminDashBoard=({
         getCard({name: 'Net Profit Panel', type: 'netProfit', previous: prevNetProfit, current: netProfit, desc:"(Profit - Personal Expenses)"}),
         getCard({name: 'Profit Panel', type: 'profit', previous: prevProfit, current: profit, desc:"(Income - Expense)"}),
         getCard({name: 'Income Panel', type: 'income', previous: previousTotalIncome + previousDue, current: totalIncome + currentDue, desc:'(Paid Amount + Due Collected)'}),
-        getCard({name: 'Due Amount Collected Panel', type: 'income', previous: totalDue, current: currentDue, desc:'(Due Amount Collected for Prev months)'}),
+        getCard({name: 'Due Collected Panel', type: 'income', previous: totalDue, current: currentDue, desc:'(Due Collected for Prev months)'}),
         getCard({name: 'Expense Panel', type: 'expense', previous: previousTotalExpense, current: totalExpense, desc:"(All except personal expense)"}),
         getCard({name: 'External Lab Expense', type: 'externalLab', previous: prevExternalLabAmount, current: externalLabAmount}),
         getCard({name: 'Personal Expense', type: 'expense', previous: prevPersonalExpenseAmount, current: personalExpenseAmount}),
