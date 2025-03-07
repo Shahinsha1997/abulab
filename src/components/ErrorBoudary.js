@@ -1,4 +1,5 @@
 import React from "react";
+import { clearCache } from "../utils/utils";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -7,6 +8,9 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
+    if(error.toString().includes("reading'map'")){
+      clearCache();
+    }
     return { hasError: true, error };
   }
 
