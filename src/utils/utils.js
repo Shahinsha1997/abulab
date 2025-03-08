@@ -560,9 +560,9 @@ export const getDueCollected = (obj, typeFilter, timeFilter, isPrev=false)=>{
     return dueAmount;
 }
 
-export const getDatasByProfit = (ids, object, typeFilter, timeFilter)=>{ 
+export const getDatasByProfit = (ids, object, typeFilter, timeFilter, monthDueAmount=0)=>{ 
     const resultObj = {}
-    let totalIncome = 0;
+    let totalIncome = monthDueAmount;
     let totalExpense = 0;
     let totalOutstanding = 0;
     let totalDiscount = 0;

@@ -109,6 +109,11 @@ const AdminDashBoard=({
     const { timeFilter, timeInput, typeFilter } = filterObj
     const dataIds = getTimeFilter({dataIds:allDataIds, timeFilter, timeInput,data});
     const previousDataIds = getTimeFilter({dataIds:allDataIds, timeFilter, timeInput, isPrevious:true, data});
+    const currentDue = getDueCollected(dueObj, timeFilter,timeInput);
+    const previousDue = getDueCollected(dueObj, timeFilter,timeInput, true);
+    const {
+      totalOutstanding:totalDue
+    } = getDatasByProfit(allDataIds, data, "Outstanding", "All")
     let {
         totalIncome, 
         totalExpense,
@@ -120,7 +125,7 @@ const AdminDashBoard=({
         profit,
         netProfit,
         totalCollectionAmount
-    } = getDatasByProfit(dataIds, data, typeFilter, timeFilter)
+    } = getDatasByProfit(dataIds, data, typeFilter, timeFilter, currentDue)
     let {
         totalIncome: previousTotalIncome, 
         totalExpense: previousTotalExpense,
@@ -132,14 +137,9 @@ const AdminDashBoard=({
         profit: prevProfit,
         netProfit: prevNetProfit,
         totalCollectionAmount: prevTotalCollectionAmount
-    } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter);
+    } = getDatasByProfit(previousDataIds, data, typeFilter, timeFilter, previousDue);
     let cards = [getCard({name: 'Outstanding Panel', type: 'outstanding', previous: previousTotalOutstanding, current: totalOutstanding}),];
     if(isAdmin){
-      const currentDue = getDueCollected(dueObj, timeFilter,timeInput);
-      const previousDue = getDueCollected(dueObj, timeFilter,timeInput, true);
-      const {
-        totalOutstanding:totalDue
-      } = getDatasByProfit(allDataIds, data, "Outstanding", "All")
        cards = [
         getCard({name: 'Net Profit Panel', type: 'netProfit', previous: prevNetProfit, current: netProfit, desc:"(Profit - Personal Expenses)"}),
         getCard({name: 'Profit Panel', type: 'profit', previous: prevProfit, current: profit, desc:"(Income - Expense)"}),
