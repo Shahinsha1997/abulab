@@ -1,6 +1,8 @@
 import React from "react";
 import { clearCache } from "../utils/utils";
-
+const getFullError = (error) => {
+  return JSON.stringify(error, Object.getOwnPropertyNames(error));
+};
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -8,9 +10,6 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    if(error.toString().includes("reading'map'")){
-      clearCache();
-    }
     return { hasError: true, error };
   }
 
@@ -20,7 +19,17 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return <h2>Something went wrong: {this.state.error.toString()}</h2>;
+      const { from }= this.props;
+      const errorObj = JSON.parse(getFullError(this.state.error))
+      return (
+        <div>
+          <button onClick={clearCache}>Clear Cache</button>
+          <h4>Error From: {from}</h4>
+          <h1>Something went wrong.</h1>
+          <span>{errorObj.message}</span>
+          <span>{errorObj.stack}</span>
+        </div>
+      );
     }
     return this.props.children;
   }

@@ -8,7 +8,7 @@ import { store } from './store';
 import AppointmentForm from './components/AppoinmentPage';
 import { useMediaQuery } from '@mui/material';
 import ReportDv from './components/ReportDv';
-import ErrorBoundary from './components/ErrorBoudary';
+import ErrorBoundary from './components/ErrorBoundary';
 const App =(props)=>{
   const [currentPath, setCurrentPath] = useState('login')
   const [isNavigateNeed, setIsNavigateNeed] = useState(false)
@@ -21,14 +21,14 @@ const App =(props)=>{
   },[isNavigateNeed])
   const isMobile = useMediaQuery('(max-width: 600px)');
   return (
-    <ErrorBoundary>
+    <ErrorBoundary from='wholeapp'>
       <Provider store={store} dispatch={store.dispatch}>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage isNavigateNeed={isNavigateNeed} currentPath={currentPath} handleNavigate={handleNavigate}/>} />
             <Route path="/" element={<PrivateRoute />}>
               <Route path="/reports/:reportId" element={<ReportDv isMobile={isMobile}/>} /> 
-              <Route path="/dashboard" element={<DashboardLayout isMobile={isMobile}/>} /> 
+              <Route path="/dashboard" element={<ErrorBoundary from="dashboard"><DashboardLayout isMobile={isMobile}/></ErrorBoundary>} /> 
             </Route>
             <Route path="/appointments" element={<AppointmentForm/>} />
           </Routes>

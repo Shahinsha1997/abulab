@@ -25,6 +25,7 @@ import { getDataIds } from '../selectors/incomeselectors';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import BlockIcon from '@mui/icons-material/Block';
+import ErrorBoundary from './ErrorBoundary';
 class DashboardLayout extends Component {
   constructor(props){
     super(props)
@@ -581,7 +582,9 @@ class DashboardLayout extends Component {
         {isMobile ? (
           <Box sx={{display:'flex', flexDirection:'column', overflow:'hidden'}}>
             <Box sx={{display:'flex'}}>
-              {this.getRightPanel()}
+              <ErrorBoundary from="rightpanel">
+                {this.getRightPanel()}
+              </ErrorBoundary>
             </Box>
             <Box sx={{display:'flex',height:'10vh', background:'#252b38', color:'white', border:'1px solid white', borderRadius:'10px'}}>
               {this.getBottomPanel()}
@@ -603,7 +606,9 @@ class DashboardLayout extends Component {
               toggleFilterPopup={this.toggleFilterPopup}
               isDueAlarmNeeded={isDueAlarmNeeded}
             />
-          {this.getRightPanel()}
+             <ErrorBoundary from="rightpanel">
+              {this.getRightPanel()}
+              </ErrorBoundary>
           </>
         )}
       </Box>
